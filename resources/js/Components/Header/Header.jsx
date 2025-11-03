@@ -15,7 +15,7 @@ export default function Header({ auth }) {
                 className="
             w-full h-[70px] sticky top-0 left-0 z-[999]
             animate-opacityLoad transition-opacity duration-300
-            border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950 ">
+            border-b border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-950 ">
 
             <div className="w-full h-full flex justify-between items-center px-5 sm:px-12">
                     <Logo/>

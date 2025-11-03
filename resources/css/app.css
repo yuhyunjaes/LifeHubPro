@@ -14,6 +14,10 @@
 html {
     scroll-behavior: smooth;
 }
+input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 
 .link-item {
     @apply transition-colors duration-300 hover:text-gray-800 dark:hover:text-gray-100 active:text-gray-900 dark:active:text-white font-semibold;
@@ -22,7 +26,7 @@ html {
     @apply float-left;
 }
 .sub-menu {
-    @apply  absolute left-0 top-full w-max overflow-hidden bg-white dark:bg-gray-950 transition-[max-height] duration-300 ease-in-out;
+    @apply  absolute left-0 top-full w-max overflow-hidden bg-gray-100 dark:bg-gray-950 transition-[max-height] duration-300 ease-in-out;
 }
 
 .sub-menu li {
@@ -113,5 +117,29 @@ html {
     @apply w-full h-[220px] object-cover object-center;
 }
 .card-body {
-    @apply w-full min-h-[180px] max-h-[180px] p-5 space-y-5;
+    @apply w-full min-h-[200px] max-h-[180px] p-5 space-y-5 relative;
+}
+.card-btn {
+    @apply absolute bottom-[1.25rem] left-[1.25rem] w-[calc(100%-(1.25rem*2))];
+}
+.dark-bg {
+    @apply dark:bg-[#1E1F25];
+}
+.main-btn {
+    @apply bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white transition-colors duration-300;
+}
+.form-btn {
+    @apply bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white transition-colors duration-300 pl-1 pr-2 sm:px-4 py-2 rounded-e-3xl rounded-s-sm shadow font-semibold cursor-pointer;
+}
+
+.form-label {
+    @apply text-gray-950 dark:text-white font-semibold block mb-2;
+}
+.form-control {
+    @apply bg-gray-50 pl-2 dark:bg-[#2A2B31] border border-gray-200
+    focus:border-gray-200 dark:focus:border-gray-900 dark:border-gray-800 py-2 w-full rounded dark:text-white
+    focus:outline-none
+    focus:ring-0
+    active:outline-none
+    active:ring-0;
 }

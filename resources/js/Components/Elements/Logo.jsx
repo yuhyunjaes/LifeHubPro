@@ -1,11 +1,16 @@
 import {Link} from "@inertiajs/react";
+import {useEffect} from "react";
 
 export default function Logo({ className = "" }) {
+    useEffect(() => {
+        const htmlClass = document.documentElement.className;
+    }, []);
     return (
         <Link
-            href="/" className={`block w-[180px] h-auto cursor-pointer m-0 drop-shadow-[2px_2px_0_rgba(0,0,0,0.5)] ${className}`}
+            href="/" className={`block w-[150px] h-auto cursor-pointer m-0 ${className}`}
         >
-            <img src="/asset/images/Logo/Logo.png" className="w-full h-auto object-contain" alt=""/>
+            <img src="/asset/images/Logo/WhiteLogo.png" className="w-full h-auto object-contain hidden dark:block" alt=""/>
+            <img src="/asset/images/Logo/DarkLogo.png" className="w-full h-auto object-contain block dark:hidden" alt=""/>
         </Link>
     );
 }

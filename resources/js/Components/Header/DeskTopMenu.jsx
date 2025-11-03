@@ -10,7 +10,7 @@ export default function DesktopMenu() {
                         {menu.title}
                     </Link>
 
-                    <ul className="sub-menu max-h-0 group-hover:max-h-[400px] shadow-gray-100 dark:shadow-gray-800 shadow-sm">
+                    <ul className="sub-menu max-h-0 group-hover:max-h-[400px] shadow-sm">
                         {menu.links.map((link, i) => (
                             <li key={i}>
                                 <Link

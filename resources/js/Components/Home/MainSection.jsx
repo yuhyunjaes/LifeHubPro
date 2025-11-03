@@ -1,19 +1,25 @@
 export default function MainSection() {
     return (
         <div className="w-full relative h-[600px]">
-            <div className="absolute size-full dark:bg-black/20">
-
+            <div className="absolute size-full bg-black/30">
                 <div className="h-full container mx-auto flex items-center justify-center sm:justify-start">
                     <div className="text-center sm:text-left grid gap-5 m-0">
-                        <h1 className="text-4xl md:text-5xl font-semibold hidden sm:block text-white animate-fadeInLoad">가슴에 복음이 임하게 하소서</h1>
-                        <h1 className="text-4xl font-semibold block sm:hidden text-white animate-fadeInLoad">가슴에 복음이 <br/>임하게 하소서</h1>
-                        <p className="text-white animate-fadeInLoad text-sm sm:text-xl">주님을 닮아가는 공동체, 주님닮음교회</p>
+                        <h1 className="text-4xl md:text-5xl font-semibold hidden sm:block text-white animate-fadeInLoad">
+                            삶을 디지털과 연결하다.
+                        </h1>
+                        <h1 className="text-4xl font-semibold block sm:hidden text-white animate-fadeInLoad">
+                            삶을 디지털과 <br/>연결하다.
+                        </h1>
+                        <p className="text-white/90 animate-fadeInLoad text-sm sm:text-xl">
+                            아이디어와 기술, 그리고 사람을 하나로 잇는 디지털 허브.
+                        </p>
                         <div>
-                            <button className="b-btn bg-teal-600 hover:bg-teal-700 active:bg-teal-800 transition-colors duration-300 animate-fadeInLoad text-white">예배 안내</button>
+                            <button className="b-btn main-btn animate-fadeInLoad">
+                                지금 시작하기
+                            </button>
                         </div>
                     </div>
                 </div>
-
             </div>
             <img src="/asset/images/Home/main.jpg" alt="" className="object-cover object-center size-full"/>
         </div>

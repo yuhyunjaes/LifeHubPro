@@ -1,34 +1,31 @@
 export const menuData = [
     {
-        title: "교회 소개",
+        title: "메모장",
         links: [
-            { label: "교회 안내", href: "/intro" },
-            { label: "목회자/교역자 소개", href: "/pastor" },
-            { label: "오시는 길", href: "/location" },
+            { label: "작성하기", href: "/intro" },
+            { label: "캘린더", href: "/location" },
         ],
     },
     {
-        title: "예배/말씀",
+        title: "LifeBot",
         links: [
-            { label: "주일 예배", href: "/worship" },
-            { label: "설교 말씀", href: "/sermon" },
+            { label: "LifeBot Chat", href: "/worship" },
+            { label: "대화 기록", href: "/sermon" },
+            { label: "대화 설정", href: "/sermon" },
         ],
     },
     {
-        title: "교회 공동체/사역",
+        title: "IoT",
         links: [
-            { label: "소그룹/셀 모임", href: "/cell" },
-            { label: "교육 부서", href: "/education" },
-            { label: "선교/봉사", href: "/mission" },
-            { label: "양육 프로그램", href: "/training" },
+            { label: "기기 연결", href: "/cell" },
+            { label: "실시간 제어", href: "/education" },
         ],
     },
     {
         title: "소식/자료",
         links: [
-            { label: "교회 소식", href: "/news" },
-            { label: "행사/캘린더", href: "/calendar" },
-            { label: "주보 보기", href: "/bulletin" },
+            { label: "라이프 소식", href: "/news" },
+            { label: "자유게시판", href: "/calendar" },
             { label: "포토 갤러리", href: "/gallery" },
         ],
     },

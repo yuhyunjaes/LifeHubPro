@@ -1,55 +1,37 @@
-// MessageSection Data
-export const MessagesData = [
+// IntroduceSection Data
+export const IntroduceData = [
     {
-        text : "Test Text",
-        link : "/asset/images/Home/Message1.jpg"
+        text : "디지털로 확장되는 삶",
+        link : "/asset/images/Home/introduce1.jpg"
     },
     {
-        text : "Test Text",
-        link : "/asset/images/Home/Message2.png"
+        text : "AI와 함께하는 일상",
+        link : "/asset/images/Home/introduce2.jpg"
     },
     {
-        text : "Test Text",
-        link : "/asset/images/Home/Message3.jpg"
+        text : "기술이 만드는 새로운 연결",
+        link : "/asset/images/Home/introduce3.jpg"
     }
 ];
 
-// EducationMinistry Data
-export const EducationMinistryData = [
+// Contents Data
+export const ContentsData = [
     {
-        name : "영아부",
-        description : "영아부 입니다.",
+        name : "메모장",
+        description : "단순한 메모를 넘어, 당신의 창의력을 담습니다.",
         link : "",
-        url : "/asset/images/Home/EducationMinistry1.jpg",
+        url : "/asset/images/Home/content1.jpg",
     },
     {
-        name : "유년부",
-        description : "유년부 입니다.",
+        name : "LifeBot",
+        description : "AI가 당신의 일상과 아이디어를 함께 고민합니다.",
         link : "",
-        url : "/asset/images/Home/EducationMinistry2.jpg",
+        url : "/asset/images/Home/content2.jpg",
     },
     {
-        name : "초등부",
-        description : "초등부 입니다.",
+        name : "IoT",
+        description : "언제 어디서나 IoT 기기를 손쉽게 제어하세요.",
         link : "",
-        url : "/asset/images/Home/EducationMinistry3.jpg",
+        url : "/asset/images/Home/content3.jpg",
     },
-    {
-        name : "중고등부",
-        description : "중고등부 입니다.",
-        link : "",
-        url : "/asset/images/Home/EducationMinistry4.jpg",
-    },
-    {
-        name : "청년부",
-        description : "청년부 입니다.",
-        link : "",
-        url : "/asset/images/Home/EducationMinistry5.jpg",
-    },
-    {
-        name : "장년부",
-        description : "장년부 입니다.",
-        link : "",
-        url : "/asset/images/Home/EducationMinistry6.jpg",
-    }
 ];

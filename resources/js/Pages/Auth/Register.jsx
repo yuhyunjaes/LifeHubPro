@@ -1,120 +1,243 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import {useState, useEffect } from "react";
+import axios from "axios";
+import { Head } from "@inertiajs/react";
 
 export default function Register() {
-    const { data, setData, post, processing, errors, reset } = useForm({
-        name: '',
-        email: '',
-        password: '',
-        password_confirmation: '',
-    });
+    const [userId, setUserId] = useState("");
+    const [idMessage, setIdMessage] = useState("");
+    const [idConfirm, setIdConfirm] = useState(false);
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [passwordMatch, setPasswordMatch] = useState(true);
+    const [email, setEmail] = useState("");
+    const [name, setName] = useState("");
+    const [emailAuthCode, setEmailAuthCode] = useState("");
+    const [emailCode, setEmailCode] = useState(false);
+    const [emailMessage, setEmailMessage] = useState("");
+    const [emailTimer, setEmailTimer] = useState(0);
+    const [isEmailVerified, setIsEmailVerified] = useState(false);
 
-    const submit = (e) => {
+    // 비밀번호 일치 확인
+    useEffect(() => {
+        if (!password && !confirmPassword) {
+            setPasswordMatch(false);
+        } else {
+            setPasswordMatch(password === confirmPassword);
+        }
+    }, [password, confirmPassword]);
+
+
+    async function checkId() {
+        if (!userId) return setIdMessage("아이디를 작성해주세요.");
+
+        try {
+            const res = await axios.get(`/check-id/${userId}`);
+            const data = res.data;
+            setIdConfirm(data.success);
+            setIdMessage(data.success ? "사용 가능한 아이디입니다." : "이미 존재하는 아이디입니다.");
+        } catch (err) {
+            console.error(err);
+            setIdMessage("아이디 확인 중 오류가 발생했습니다.");
+        }
+    }
+
+    // 이메일 인증코드 전송
+    async function sendEmailCode() {
+        if (!email) return setEmailMessage("이메일을 입력해주세요.");
+
+        try {
+            setEmailAuthCode("");
+            const res = await axios.post("/send-email-code", { email });
+            const data = res.data;
+            setEmailCode(data.success)
+            setEmailMessage(data.message);
+            if (data.success) setEmailTimer(90);
+        } catch (err) {
+            console.error(err);
+            setEmailMessage("이메일 전송 중 오류가 발생했습니다.");
+        }
+    }
+
+    // 이메일 타이머
+    useEffect(() => {
+        if (emailTimer === 0) {
+            setEmailCode(false);
+            setEmailMessage("");
+            return;
+        }
+        const timer = setInterval(() => setEmailTimer((t) => t - 1), 1000);
+        return () => clearInterval(timer);
+    }, [emailTimer]);
+
+    // 이메일 인증 확인
+    async function verifyEmailCode() {
+        try {
+            const res = await axios.post("/check-email-code", { code: emailAuthCode });
+            const data = res.data;
+            setEmailMessage(data.message);
+            setIsEmailVerified(data.success);
+        } catch (err) {
+            console.error(err);
+            setEmailMessage("이메일 인증 중 오류가 발생했습니다.");
+        }
+    }
+
+    // 제출
+    function handleSubmit(e) {
         e.preventDefault();
-
-        post(route('register'), {
-            onFinish: () => reset('password', 'password_confirmation'),
-        });
-    };
+        if(!name) return alert("이름을 작성해주세요.");
+        if(!userId) return alert("아이디를 작성해주세요.");
+        if (!idConfirm) return alert("아이디 중복확인은 필수압니다.");
+        if(!password) return alert("비밀번호를 작성해주세요.");
+        if (!passwordMatch) return alert("비밀번호가 일치하지 않습니다.");
+        if (!isEmailVerified) return alert("이메일 인증이 필요합니다.");
+        e.target.submit();
+    }
 
     return (
-        <GuestLayout>
-            <Head title="Register" />
+        <>
+            <Head title="회원가입" />
+            <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-950">
+                <form
+                    method="POST"
+                    action="/register"
+                    onSubmit={handleSubmit}
+                    className="w-full sm:w-[500px] bg-white dark:bg-[#0d1117] rounded-xl shadow-md p-8 space-y-5"
+                >
+                    <div className="text-center space-y-2">
+                        <h3 className="text-2xl font-semibold dark:text-white">회원가입</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                            계정을 생성하고 시작하세요
+                        </p>
+                    </div>
 
-            <form onSubmit={submit}>
-                <div>
-                    <InputLabel htmlFor="name" value="Name" />
+                    <div>
+                        <label htmlFor="name" className="form-label">이름</label>
+                        <input
+                            id="name"
+                            name="name"
+                            type="text"
+                            className="form-control"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                        />
+                    </div>
 
-                    <TextInput
-                        id="name"
-                        name="name"
-                        value={data.name}
-                        className="mt-1 block w-full"
-                        autoComplete="name"
-                        isFocused={true}
-                        onChange={(e) => setData('name', e.target.value)}
-                        required
-                    />
+                    <div>
+                        <label htmlFor="user_id" className="form-label">아이디</label>
+                        <div className="flex gap-1">
+                            <input
+                                type="text"
+                                id="user_id"
+                                name="user_id"
+                                value={userId}
+                                onChange={(e) => {
+                                    setUserId(e.target.value);
+                                    setIdMessage("");
+                                    setIdConfirm(false);
+                                }}
+                                className="form-control flex-1"
+                            />
+                            <button
+                                type="button"
+                                onClick={checkId}
+                                className="form-btn"
+                            >
+                                중복확인
+                            </button>
+                        </div>
+                        {idMessage && (
+                            <p className="text-sm text-gray-500 mt-1">{idMessage}</p>
+                        )}
+                    </div>
 
-                    <InputError message={errors.name} className="mt-2" />
-                </div>
+                    <div>
+                        <label htmlFor="password" className="form-label">비밀번호</label>
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="form-control"
+                        />
+                    </div>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="email" value="Email" />
+                    <div>
+                        <label htmlFor="password_confirmation" className="form-label">비밀번호 확인</label>
+                        <input
+                            id="password_confirmation"
+                            name="password_confirmation"
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className="form-control"
+                        />
+                        {((!passwordMatch && password) || !passwordMatch && confirmPassword) && (
+                            <p className="text-sm text-red-500 mt-1">비밀번호가 일치하지 않습니다.</p>
+                        )}
+                    </div>
 
-                    <TextInput
-                        id="email"
-                        type="email"
-                        name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
-                        autoComplete="username"
-                        onChange={(e) => setData('email', e.target.value)}
-                        required
-                    />
+                    <div>
+                        <label htmlFor="email" className="form-label">이메일</label>
+                        <div className="flex gap-1">
+                            <input
+                                readOnly={(emailCode || isEmailVerified)}
+                                type="email"
+                                name="email"
+                                id="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="form-control flex-1"
+                            />
+                            <button
+                                type="button"
+                                onClick={sendEmailCode}
+                                className="form-btn"
+                                disabled={(emailCode || isEmailVerified)}
+                            >
+                                {emailTimer > 0 ? `재전송(${emailTimer}s)` : "인증코드 전송"}
+                            </button>
+                        </div>
+                        {emailMessage && (
+                            <p className="text-sm text-gray-500 mt-1">{emailMessage}</p>
+                        )}
+                    </div>
 
-                    <InputError message={errors.email} className="mt-2" />
-                </div>
-
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
-
-                    <TextInput
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                        onChange={(e) => setData('password', e.target.value)}
-                        required
-                    />
-
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
-
-                <div className="mt-4">
-                    <InputLabel
-                        htmlFor="password_confirmation"
-                        value="Confirm Password"
-                    />
-
-                    <TextInput
-                        id="password_confirmation"
-                        type="password"
-                        name="password_confirmation"
-                        value={data.password_confirmation}
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                        onChange={(e) =>
-                            setData('password_confirmation', e.target.value)
-                        }
-                        required
-                    />
-
-                    <InputError
-                        message={errors.password_confirmation}
-                        className="mt-2"
-                    />
-                </div>
-
-                <div className="mt-4 flex items-center justify-end">
-                    <Link
-                        href={route('login')}
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    <div
+                        className={`${(emailCode || isEmailVerified) ? 'max-h-[400px]' : 'max-h-0'} overflow-hidden transition-[max-height] duration-300`}
                     >
-                        Already registered?
-                    </Link>
+                        <label htmlFor="email-auth" className="form-label">이메일 인증</label>
+                        <div className="flex gap-1">
+                            <input
+                                name="email-auth"
+                                id="email-auth"
+                                type="number"
+                                value={emailAuthCode}
+                                onChange={(e) => setEmailAuthCode(e.target.value)}
+                                className="form-control flex-1"
+                                disabled={isEmailVerified}
+                            />
+                            <button
+                                type="button"
+                                onClick={verifyEmailCode}
+                                className="form-btn"
+                                disabled={isEmailVerified}
+                            >
+                                {isEmailVerified ? "인증완료" : "인증하기"}
+                            </button>
+                        </div>
+                    </div>
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Register
-                    </PrimaryButton>
-                </div>
-            </form>
-        </GuestLayout>
+
+                    <button
+                        type="submit"
+                        className="btn w-full main-btn"
+                    >
+                        회원가입
+                    </button>
+                </form>
+            </div>
+        </>
     );
 }
