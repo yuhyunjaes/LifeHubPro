@@ -1,4 +1,4 @@
-import {useState, useEffect, useRef} from "react";
+import { useCallback, useState, useEffect, useRef} from "react";
 import axios from "axios";
 import { Head, Link, router } from "@inertiajs/react";
 import Loading from '@/Components/Elements/Loading.jsx';
@@ -31,7 +31,7 @@ export default function Register() {
         }
     }, [password, confirmPassword]);
 
-    async function checkId() {
+    const checkId = useCallback(async () => {
         if (!userId) return setIdMessage("아이디를 작성해주세요.");
 
         try {
@@ -43,10 +43,10 @@ export default function Register() {
             console.error(err);
             setIdMessage("아이디 확인 중 오류가 발생했습니다.");
         }
-    }
+    }, [userId])
 
     // 이메일 인증코드 전송
-    async function sendEmailCode() {
+    const sendEmailCode = useCallback(async () => {
         if (!email) return setEmailMessage("이메일을 입력해주세요.");
         setLoading(true);
 
@@ -65,23 +65,29 @@ export default function Register() {
         } finally {
             setLoading(false);
         }
-    }
+    }, [email]);
 
     // 이메일 타이머
     useEffect(() => {
-        if(!isEmailVerified) {
-            if (emailCode && emailTimer === 0) {
-                setEmailCode(false);
-                setEmailMessage("이메일 인증에 실패하였습니다.");
-                return;
-            }
-            const timer = setInterval(() => setEmailTimer((t) => t - 1), 1000);
+        if (!isEmailVerified && emailCode) {
+            const timer = setInterval(() => {
+                setEmailTimer((t) => {
+                    if (t <= 1) {
+                        clearInterval(timer);
+                        setEmailCode(false);
+                        setEmailMessage("이메일 인증에 실패하였습니다.");
+                        return 0;
+                    }
+                    return t - 1;
+                });
+            }, 1000);
+
             return () => clearInterval(timer);
         }
-    }, [emailTimer, isEmailVerified, emailCode]);
+    }, [isEmailVerified, emailCode]);
 
     // 이메일 인증 확인
-    async function verifyEmailCode() {
+    const verifyEmailCode = useCallback(async () => {
         try {
             const res = await axios.post("/check-email-code", { code: emailAuthCode });
             const data = res.data;
@@ -92,7 +98,7 @@ export default function Register() {
             console.error(err);
             setEmailMessage("이메일 인증 중 오류가 발생했습니다.");
         }
-    }
+    }, [emailAuthCode]);
 
     // 제출
     function handleSubmit(e) {

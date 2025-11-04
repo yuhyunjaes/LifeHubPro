@@ -6,7 +6,7 @@ export default function IntroduceSection() {
         <div className="w-full bg-white dark:bg-[#0d1117]">
             <div className="container mx-auto py-16 gap-10 flex flex-col sm:flex-row">
                 <div className="h-[200px] flex-1 flex items-center">
-                    <div className="space-y-5 text-center sm:text-left sm-container">
+                    <div className="space-y-5 text-center sm:text-left w-full sm-container">
                         <p className="normal-text font-semibold">소개</p>
                         <h2 className="normal-text text-2xl md:text-4xl font-semibold">당신의 일상에 디지털을 더하다.</h2>
                         <span className="normal-text">

@@ -46,12 +46,6 @@ Route::post('/lifebot/title', function (Request $request) {
     }
 });
 
-Route::get('/api/auth/check', function () {
-    if (!Auth::check()) return response()->json(['error' => true]);
-
-    return response()->json(['error' => false]);
-});
-
 Route::middleware('guest')->group(function () {
     Route::get('/check-id/{id}', [AuthController::class, 'checkId'])->name('checkId');
 
@@ -77,21 +71,6 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::post('/api/notepads', [NotepadController::class, 'StoreNotepads'])->name('notepads.store');
-    Route::get('/api/notepads/{id}', [NotepadController::class, 'GetNotepads'])->name('notepads.get');
-
-    Route::get('/api/notepads/contents/{id}', [NotepadController::class, 'GetContents'])->name('notepads.contents.get');
-
-    Route::put('/api/notepads/{noteId}', [NotepadController::class, 'UpdateNotepads'])->name('notepads.update');
-    Route::delete('/api/notepads/{noteId}', [NotepadController::class, 'DeleteNotepads'])->name('notepads.delete');
-
-    Route::post('/api/rooms', [ChatController::class, 'StoreRooms'])->name('rooms.store');
-    Route::get('/api/rooms/{id}', [ChatController::class, 'GetRooms'])->name('rooms.get');
-    Route::delete('/api/rooms/{roomId}', [ChatController::class, 'DeleteRooms'])->name('rooms.delete');
-    Route::put('/api/rooms/{roomId}', [ChatController::class, 'UpdateRooms'])->name('rooms.update');
-
-    Route::post('/api/messages', [ChatController::class, 'StoreMessages'])->name('messages.store');
-    Route::get('/api/messages/{roomId}', [ChatController::class, 'getMessages'])->name('messages.get');
 });
 
 Route::get('/user', function () {

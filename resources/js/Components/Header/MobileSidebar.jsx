@@ -2,7 +2,7 @@ import { Link } from "@inertiajs/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faX, faAngleDown, faUser, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import { menuData } from "./MenuData";
-import { useEffect, useState} from "react";
+import { useCallback, useEffect, useState} from "react";
 
 export default function MobileSidebar({ sideBar, setSideBar, auth }) {
 
@@ -21,13 +21,14 @@ export default function MobileSidebar({ sideBar, setSideBar, auth }) {
         if (!sideBar) setOpenStates([]);
     }, [sideBar]);
 
+    const handleResize = useCallback(() => {
+        if (window.innerWidth >= 768) setSideBar(false);
+    }, []);
+
     useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth >= 768) setSideBar(false);
-        };
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
-    }, [setSideBar]);
+    }, [handleResize]);
 
     const CloseSideBar = () => {
         setFadeSideBar(true);

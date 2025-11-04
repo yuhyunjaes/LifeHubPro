@@ -176,3 +176,7 @@ form > div {
 .profile {
     @apply size-10 cursor-pointer bg-gray-950 hover:bg-gray-800 relative hidden md:block dark:bg-white dark:hover:bg-gray-200 transition-colors duration-150 rounded-full text-center leading-10 text-xl text-white dark:text-gray-950;
 }
+
+.prompt-form::-webkit-scrollbar {
+    @apply hidden;
+}

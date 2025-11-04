@@ -1,5 +1,5 @@
 import { Link, router } from "@inertiajs/react";
-import { useEffect, useState, useRef } from "react";
+import {useEffect, useCallback, useState, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faUser } from "@fortawesome/free-solid-svg-icons";
 import DesktopMenu from "./DesktopMenu";
@@ -10,30 +10,37 @@ export default function Header({ auth, className = "" }) {
     const [sideBar, setSideBar] = useState(false);
     const [myBox, setMyBox] = useState(false);
     const profileRef = useRef(null);
+    const myBoxRef = useRef(myBox);
 
     useEffect(() => {
-        function handleClickOutside(e) {
-            if (myBox && profileRef.current && !profileRef.current.contains(e.target)) {
-                setMyBox(false);
-            }
+        myBoxRef.current = myBox;
+    }, [myBox])
+
+    const handleClickOutside = useCallback((e) => {
+        if (myBoxRef.current && profileRef.current && !profileRef.current.contains(e.target)) {
+            setMyBox(false);
         }
+    }, []);
+
+    useEffect(() => {
 
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, [myBox]);
+    }, [handleClickOutside]);
+
+
+    const handleResize = useCallback(() => {
+        if (window.innerWidth <= 768) {
+            setMyBox(false)
+        }
+    }, [])
 
     useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth <= 768) {
-                setMyBox(false)
-            }
-        };
-
         window.addEventListener('resize', handleResize);
         handleResize();
 
         return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    }, [handleResize]);
 
     const handleLogout = async () => {
         router.post("/logout", {}, {
