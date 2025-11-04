@@ -135,7 +135,7 @@ input[type=number]::-webkit-inner-spin-button {
 }
 
 .form-label {
-    @apply text-gray-950 dark:text-white font-semibold block mb-1;
+    @apply text-gray-950 dark:text-white font-semibold block mb-1 text-sm;
 }
 .form-control {
     @apply bg-white pl-3 dark:bg-gray-950 border border-gray-200
@@ -173,3 +173,6 @@ form > div {
     animation: fadeUp 1.2s ease-in-out infinite;
 }
 
+.profile {
+    @apply size-10 cursor-pointer bg-gray-950 hover:bg-gray-800 relative hidden md:block dark:bg-white dark:hover:bg-gray-200 transition-colors duration-150 rounded-full text-center leading-10 text-xl text-white dark:text-gray-950;
+}

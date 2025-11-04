@@ -9,7 +9,7 @@ export const menuData = [
     {
         title: "LifeBot",
         links: [
-            { label: "LifeBot Chat", href: "/worship" },
+            { label: "LifeBot Chat", href: "/lifebot" },
             { label: "대화 기록", href: "/sermon" },
             { label: "대화 설정", href: "/sermon" },
         ],

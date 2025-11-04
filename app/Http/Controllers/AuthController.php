@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -72,22 +74,30 @@ class AuthController extends Controller
             'email' => $data['email'],
         ]);
 
-        return redirect()->route('login.page')->with('success', '회원가입이 완료되었습니다.');
+        return Inertia::render('Auth/Login');
     }
 
-    public function login(Request $request) {
-        if(Auth::attempt($request->only(['user_id', 'password']))) {
-            return redirect()->route('index')->with('success', '회원가입이 완료되었습니다.');
+    public function login(Request $request)
+    {
+        if (Auth::attempt($request->only(['user_id', 'password']))) {
+            $request->session()->regenerate();
+
+            return Inertia::location('/');
         }
 
-        return redirect()->back()->with('danger', '아이디 또는 비밀번호를 확인해주세요.');
+        throw ValidationException::withMessages([
+            'message' => '아이디 또는 비밀번호를 확인해주세요.',
+        ]);
     }
 
-    public function logout()
+
+    public function logout(Request $request)
     {
         Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-        return response()->json(['success' => true]);
+        return inertia::location('/login');
     }
 
 }

@@ -12,15 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 Route::get('/', function () {
     return Inertia::render('Home');
-});
-
-Route::get('/login', function () {
-    return Inertia::render('Auth/Login');
-});
-
-Route::get('/register', function () {
-    return Inertia::render('Auth/Register');
-});
+})->name('home');
 
 Route::post('/lifebot/title', function (Request $request) {
     $apiKey = env('GEMINI_API_KEY');
@@ -68,13 +60,21 @@ Route::middleware('guest')->group(function () {
 
     Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
     Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
-});
 
-Route::get('/csrf-token', function () {
-    return csrf_token();
+    Route::get('/login', function () {
+        return Inertia::render('Auth/Login');
+    })->name('login');
+
+    Route::get('/register', function () {
+        return Inertia::render('Auth/Register');
+    })->name('register');
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/lifebot', function () {
+        return Inertia::render('Lifebot');
+    })->name('lifebot');
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::post('/api/notepads', [NotepadController::class, 'StoreNotepads'])->name('notepads.store');
