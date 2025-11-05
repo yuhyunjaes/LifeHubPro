@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Notepad;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\ChatMessage;
 
@@ -12,8 +13,8 @@ class NotepadController extends Controller
     public function StoreNotepads(Request $request) {
         $title = null;
 
-        $messageToNotepad = $request->only(['content', 'chat_id', 'user_id']);
-        if(!empty($messageToNotepad['content']) && !empty($messageToNotepad['chat_id']) && !empty($messageToNotepad['user_id'])) {
+        $messageToNotepad = $request->only(['content', 'chat_id']);
+        if(!empty($messageToNotepad['content']) && !empty($messageToNotepad['chat_id'])) {
             $messageToNotepadSwitch = true;
 
             $title = ChatMessage::findOrFail($messageToNotepad['chat_id'])
@@ -26,7 +27,7 @@ class NotepadController extends Controller
         $notepad = Notepad::create([
             'uuid' => Str::uuid()->toString(),
             'chat_id' => $messageToNotepadSwitch ? $messageToNotepad['chat_id'] : null,
-            'user_id'=>$messageToNotepadSwitch ? $messageToNotepad['user_id'] : $request->user_id,
+            'user_id'=>Auth::id(),
             'title'=>$messageToNotepadSwitch ? $title : $request->note_title,
             'content'=>$messageToNotepadSwitch ? $messageToNotepad['content'] : null,
             'category'=>null,

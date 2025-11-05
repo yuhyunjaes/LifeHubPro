@@ -1,15 +1,18 @@
 import Header from '@/Components/Header/Header.jsx';
 import Footer from '@/Components/Footer/Footer.jsx';
 import Loading from '@/Components/Elements/Loading.jsx';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import LifeBotSection from '@/Components/LifeBot/LifeBotSection.jsx';
 import SideBarSection from '@/Components/LifeBot/SideBarSection.jsx';
 import { useEffect, useState, useCallback } from "react";
 
-export default function Lifebot({ auth }) {
+export default function Lifebot({ auth, roomId }) {
     const [sideBar, setSideBar] = useState(() => (window.innerWidth <= 640 ? 0 : 250));
     const [saveWidth, setSaveWidth] = useState(250);
     const [loading, setLoading] = useState(false);
+    const [chatId, setChatId] = useState(roomId || null);
+    const [rooms, setRooms] = useState([]);
+    const [messages, setMessages] = useState([]);
 
     const handleResize = useCallback(() => {
         setSideBar((prev) => {
@@ -34,13 +37,41 @@ export default function Lifebot({ auth }) {
         }
     }, [sideBar]);
 
+    useEffect(() => {
+        if (roomId) setChatId(roomId);
+    }, [roomId]);
+
+    const getMessages = useCallback(async () => {
+        if (!chatId) return;
+        setLoading(true);
+        try {
+            const res = await axios.get(`/api/messages/${chatId}`);
+            const data = res.data;
+            if(data.success) {
+                setMessages(data.messages || []);
+            } else {
+                router.visit('/lifebot');
+            }
+        } catch (err) {
+            console.error("메시지 불러오기 오류:", err);
+        } finally {
+            setLoading(false);
+        }
+    }, [chatId]);
+
+    useEffect(() => {
+        setMessages([]);
+        getMessages();
+    }, []);
+
+
     return (
         <>
             <Head title="LifeBot" />
             <Header auth={auth} />
             <div className="flex h-[calc(100vh-70px)] transition-[width] duration-300">
-                <SideBarSection sideBar={sideBar} setSideBar={setSideBar} />
-                <LifeBotSection sideBar={sideBar} setLoading={setLoading}/>
+                <SideBarSection auth={auth} rooms={rooms} setRooms={setRooms} chatId={chatId} setChatId={setChatId} sideBar={sideBar} setSideBar={setSideBar} />
+                <LifeBotSection messages={messages} setMessages={setMessages} auth={auth} roomId={roomId} rooms={rooms} setRooms={setRooms} chatId={chatId} setChatId={setChatId} sideBar={sideBar} setLoading={setLoading}/>
             </div>
 
             {loading && <Loading />}

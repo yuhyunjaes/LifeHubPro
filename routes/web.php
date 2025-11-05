@@ -10,11 +10,7 @@ use App\Http\Controllers\NotepadController;
 use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Log;
 
-Route::get('/', function () {
-    return Inertia::render('Home');
-})->name('home');
-
-Route::post('/lifebot/title', function (Request $request) {
+Route::post('api/lifebot/title', function (Request $request) {
     $apiKey = env('GEMINI_API_KEY');
     $model = $request->input('model_name', 'models/gemini-2.5-flash');
     $prompt = $request->input('prompt', '테스트');
@@ -46,6 +42,10 @@ Route::post('/lifebot/title', function (Request $request) {
     }
 });
 
+Route::get('/', function () {
+    return Inertia::render('Home');
+})->name('home');
+
 Route::middleware('guest')->group(function () {
     Route::get('/check-id/{id}', [AuthController::class, 'checkId'])->name('checkId');
 
@@ -70,6 +70,29 @@ Route::middleware('auth')->group(function () {
     })->name('lifebot');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    Route::get('/lifebot/{uuid}', function ($uuid) {
+        return Inertia::render('Lifebot', [
+            'roomId' => $uuid,
+        ]);
+    })->name('lifebot.room');
+
+
+    Route::post('/api/notepads', [NotepadController::class, 'StoreNotepads'])->name('notepads.store');
+    Route::get('/api/notepads/{id}', [NotepadController::class, 'GetNotepads'])->name('notepads.get');
+
+    Route::get('/api/notepads/contents/{id}', [NotepadController::class, 'GetContents'])->name('notepads.contents.get');
+
+    Route::put('/api/notepads/{noteId}', [NotepadController::class, 'UpdateNotepads'])->name('notepads.update');
+    Route::delete('/api/notepads/{noteId}', [NotepadController::class, 'DeleteNotepads'])->name('notepads.delete');
+
+    Route::post('/api/rooms', [ChatController::class, 'StoreRooms'])->name('rooms.store');
+    Route::get('/api/rooms/{id}', [ChatController::class, 'GetRooms'])->name('rooms.get');
+    Route::delete('/api/rooms/{roomId}', [ChatController::class, 'DeleteRooms'])->name('rooms.delete');
+    Route::put('/api/rooms/{roomId}', [ChatController::class, 'UpdateRooms'])->name('rooms.update');
+
+    Route::post('/api/messages', [ChatController::class, 'StoreMessages'])->name('messages.store');
+    Route::get('/api/messages/{roomId}', [ChatController::class, 'getMessages'])->name('messages.get');
 
 });
 

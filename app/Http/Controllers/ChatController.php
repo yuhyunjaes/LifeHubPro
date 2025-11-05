@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ChatRoom;
 use App\Models\ChatMessage;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class ChatController extends Controller
@@ -12,7 +13,7 @@ class ChatController extends Controller
     public function StoreRooms(Request $request) {
 
         $room = ChatRoom::create([
-            'user_id' => $request->user_id,
+            'user_id' => Auth::id(),
             'uuid' => Str::uuid()->toString(),
             'title' => $request->title,
             'model_name' => $request->model_name
@@ -73,7 +74,7 @@ class ChatController extends Controller
 
     public function getMessages($roomId) {
         $room = ChatRoom::where('uuid', $roomId)
-            ->where('user_id', auth('web')->id())
+            ->where('user_id', Auth::id())
             ->first();
         if(!$room) return response()->json([
             'success'=>false,
