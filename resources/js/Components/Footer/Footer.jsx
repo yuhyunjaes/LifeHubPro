@@ -7,7 +7,7 @@ export default function Footer() {
         <footer className="w-full h-auto py-16 bg-white dark:bg-[#0d1117]">
             <div className="px-5 sm:px-12">
                 <div className="h-auto md:h-[70px] flex justify-center md:justify-between items-center flex-wrap">
-                    <Logo className="grayscale-100"/>
+                    <Logo/>
                     <div className="m-0 w-full md:w-auto justify-center md:justify-normal flex items-center space-x-3">
                         <a href="https://github.com/yuhyunjaes" target="_blank" rel="noopener noreferrer" className="size-8 rounded-full text-white dark:text-black bg-black hover:bg-gray-900 active:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 dark:active:bg-gray-200  flex items-center justify-center transition-all duration-100">
                             <FontAwesomeIcon icon={faGithub} />

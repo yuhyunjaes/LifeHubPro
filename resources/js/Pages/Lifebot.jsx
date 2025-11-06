@@ -13,6 +13,8 @@ export default function Lifebot({ auth, roomId }) {
     const [chatId, setChatId] = useState(roomId || null);
     const [rooms, setRooms] = useState([]);
     const [messages, setMessages] = useState([]);
+    const [prompt, setPrompt] = useState("");
+    const [newChat, setNewChat] = useState(false);
 
     const handleResize = useCallback(() => {
         setSideBar((prev) => {
@@ -42,12 +44,14 @@ export default function Lifebot({ auth, roomId }) {
     }, [roomId]);
 
     const getMessages = useCallback(async () => {
-        if (!chatId) return;
+        if (!chatId || newChat) return;
         setLoading(true);
         try {
             const res = await axios.get(`/api/messages/${chatId}`);
             const data = res.data;
             if(data.success) {
+                setMessages([]);
+                setPrompt("");
                 setMessages(data.messages || []);
             } else {
                 router.visit('/lifebot');
@@ -57,12 +61,11 @@ export default function Lifebot({ auth, roomId }) {
         } finally {
             setLoading(false);
         }
-    }, [chatId]);
+    }, [chatId, newChat]);
 
     useEffect(() => {
-        setMessages([]);
         getMessages();
-    }, []);
+    }, [chatId]);
 
 
     return (
@@ -70,8 +73,8 @@ export default function Lifebot({ auth, roomId }) {
             <Head title="LifeBot" />
             <Header auth={auth} />
             <div className="flex h-[calc(100vh-70px)] transition-[width] duration-300">
-                <SideBarSection auth={auth} rooms={rooms} setRooms={setRooms} chatId={chatId} setChatId={setChatId} sideBar={sideBar} setSideBar={setSideBar} />
-                <LifeBotSection messages={messages} setMessages={setMessages} auth={auth} roomId={roomId} rooms={rooms} setRooms={setRooms} chatId={chatId} setChatId={setChatId} sideBar={sideBar} setLoading={setLoading}/>
+                <SideBarSection messages={messages} setMessages={setMessages} auth={auth} rooms={rooms} setRooms={setRooms} chatId={chatId} setChatId={setChatId} sideBar={sideBar} setSideBar={setSideBar} setLoading={setLoading}/>
+                <LifeBotSection setNewChat={setNewChat} prompt={prompt} setPrompt={setPrompt} messages={messages} setMessages={setMessages} auth={auth} roomId={roomId} rooms={rooms} setRooms={setRooms} chatId={chatId} setChatId={setChatId} sideBar={sideBar} setLoading={setLoading}/>
             </div>
 
             {loading && <Loading />}

@@ -87,7 +87,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/api/notepads/{noteId}', [NotepadController::class, 'DeleteNotepads'])->name('notepads.delete');
 
     Route::post('/api/rooms', [ChatController::class, 'StoreRooms'])->name('rooms.store');
-    Route::get('/api/rooms/{id}', [ChatController::class, 'GetRooms'])->name('rooms.get');
+    Route::get('/api/rooms', [ChatController::class, 'GetRooms'])->name('rooms.get');
     Route::delete('/api/rooms/{roomId}', [ChatController::class, 'DeleteRooms'])->name('rooms.delete');
     Route::put('/api/rooms/{roomId}', [ChatController::class, 'UpdateRooms'])->name('rooms.update');
 

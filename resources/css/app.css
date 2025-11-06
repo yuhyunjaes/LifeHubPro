@@ -38,11 +38,11 @@ input[type=number]::-webkit-inner-spin-button {
 }
 
 .b-btn {
-    @apply px-8 py-3 rounded-3xl shadow font-semibold cursor-pointer;
+    @apply px-8 py-3 rounded-3xl font-semibold cursor-pointer;
 }
 
 .btn {
-    @apply px-5 py-2 rounded-3xl shadow font-semibold cursor-pointer;
+    @apply px-5 py-2 rounded-3xl font-semibold cursor-pointer;
 }
 .btn-outline-white {
     @apply border-[0.1rem] border-gray-950 dark:border-white text-gray-950 dark:text-white hover:bg-gray-950 dark:hover:bg-white active:bg-gray-900 dark:active:bg-gray-100 hover:text-white dark:hover:text-gray-950 transition-colors duration-300;
@@ -182,7 +182,7 @@ form > div {
 }
 
 *::-webkit-scrollbar {
-    @apply bg-transparent;
+    @apply bg-transparent w-[10px];
 }
 *::-webkit-scrollbar-thumb {
     @apply bg-gray-200 rounded-full;

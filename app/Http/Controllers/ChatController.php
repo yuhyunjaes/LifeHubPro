@@ -22,8 +22,8 @@ class ChatController extends Controller
         return response()->json(['success'=>true, 'room_id'=>$room->uuid, 'title'=>$room->title]);
     }
 
-    public function GetRooms($id) {
-        $rooms = ChatRoom::where('user_id', $id)
+    public function GetRooms() {
+        $rooms = ChatRoom::where('user_id', Auth::id())
             ->orderByDesc('updated_at')
             ->get(['uuid as room_id', 'title']);
 
