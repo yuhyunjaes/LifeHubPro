@@ -1,12 +1,12 @@
 import { Link, router } from "@inertiajs/react";
 import {useEffect, useCallback, useState, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faUser } from "@fortawesome/free-solid-svg-icons";
+import {faBars, faMessage, faUser} from "@fortawesome/free-solid-svg-icons";
 import DesktopMenu from "./DesktopMenu";
 import MobileSidebar from "./MobileSidebar";
 import Logo from "../Elements/Logo.jsx";
 
-export default function Header({ auth, className = "" }) {
+export default function Header({ auth, className = "", smRoomListToggle, setSmRoomListToggle, smRoomList }) {
     const [sideBar, setSideBar] = useState(false);
     const [myBox, setMyBox] = useState(false);
     const profileRef = useRef(null);
@@ -61,6 +61,11 @@ export default function Header({ auth, className = "" }) {
                 `}
             >
                 <div className="w-full h-full flex justify-between items-center px-5 sm:px-12">
+                    {(!smRoomListToggle && smRoomList) && (
+                        <button onClick={() => {setSmRoomListToggle(true)}} className="normal-text text-xl block sm:hidden">
+                            <FontAwesomeIcon icon={faBars} />
+                        </button>
+                    )}
                     <Logo />
 
                     <div className="m-0 flex items-center">
@@ -100,13 +105,10 @@ export default function Header({ auth, className = "" }) {
 
 
                         <button
-                            className="block md:hidden text-xl"
+                            className="block md:hidden text-xl size-10 bg-gray-950 dark:bg-white rounded-full"
                             onClick={() => setSideBar(true)}
                         >
-                            <FontAwesomeIcon
-                                className="text-gray-950 dark:text-white"
-                                icon={faBars}
-                            />
+                            <FontAwesomeIcon icon={faUser} className="text-white dark:text-gray-950" />
                         </button>
                     </div>
                 </div>

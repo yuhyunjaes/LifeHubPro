@@ -44,7 +44,7 @@ export default function SideBarSection({ auth, rooms, setRooms, chatId, setChatI
                 <RoomList setSmRoomListToggle={setSmRoomListToggle} smRoomListToggle={smRoomListToggle} smRoomList={smRoomList} handleEditRoom={handleEditRoom} temporaryEditTitle={temporaryEditTitle} setTemporaryEditTitle={setTemporaryEditTitle} editStatus={editStatus} setBaseScroll={setBaseScroll} setBaseTop={setBaseTop} editRoomRef={editRoomRef} setEditId={setEditId} auth={auth} rooms={rooms} setRooms={setRooms} chatId={chatId} setChatId={setChatId} sideBar={(sideBar > 50)} setLoading={setLoading} editId={editId}/>
                 <div className="sticky bottom-0 h-[200px] sm:h-[70px] bg-gray-100 dark:bg-gray-950 border-t border-gray-200 dark:border-gray-700 flex justify-center items-center">
                     {(smRoomList && smRoomListToggle) && (
-                        <button className="size-8 rounded-full shadow bg-black text-white" onClick={() => {
+                        <button className="size-8 rounded-full shadow bg-gray-950 dark:bg-white text-white dark:text-gray-950" onClick={() => {
                             setSmRoomListToggle(false);
                         }}>
                             <FontAwesomeIcon icon={faX} />

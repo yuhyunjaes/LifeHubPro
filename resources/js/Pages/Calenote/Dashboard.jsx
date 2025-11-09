@@ -3,6 +3,7 @@ export default function Calendar({ auth }) {
     return (
         <>
             <Head title="Notepad"/>
+            <div className="size-full bg-black"></div>
         </>
     );
 }
