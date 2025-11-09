@@ -8,7 +8,7 @@ import SideBarSection from '@/Components/LifeBot/SideBarSection.jsx';
 import {useEffect, useState, useCallback, useRef} from "react";
 import EditRoom from "@/Components/LifeBot/SideBarSection/RoomList/EditRoom.jsx";
 
-export default function Lifebot({ auth, roomId }) {
+export default function LifeBot({ auth, roomId }) {
     const [sideBar, setSideBar] = useState(() => (window.innerWidth <= 640 ? 0 : 250));
     const [saveWidth, setSaveWidth] = useState(250);
     const [loadingToggle, setLoading] = useState(false);

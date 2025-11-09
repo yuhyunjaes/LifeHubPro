@@ -1,9 +1,10 @@
 export const menuData = [
     {
-        title: "메모장",
+        title: "캘리노트",
         links: [
-            { label: "작성하기", href: "/intro" },
-            { label: "캘린더", href: "/location" },
+            { label: "대시보드", href: "/calenote" },
+            { label: "메모장", href: "/calenote/notepad" },
+            { label: "캘린더", href: "/calenote/calendar" },
         ],
     },
     {

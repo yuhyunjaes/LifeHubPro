@@ -66,13 +66,26 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/lifebot', function () {
-        return Inertia::render('Lifebot');
+        return Inertia::render('LifeBot/LifeBot');
     })->name('lifebot');
+
+
+    Route::get('/calenote', function () {
+        return Inertia::render('Calenote/Dashboard');
+    })->name('dashboard');
+
+    Route::get('/calenote/calendar', function () {
+        return Inertia::render('Calenote/Calendar');
+    })->name('calendar');
+
+    Route::get('/calenote/notepad', function () {
+        return Inertia::render('Calenote/Notepad');
+    })->name('notepad');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/lifebot/{uuid}', function ($uuid) {
-        return Inertia::render('Lifebot', [
+        return Inertia::render('LifeBot', [
             'roomId' => $uuid,
         ]);
     })->name('lifebot.room');

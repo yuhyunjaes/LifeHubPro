@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('title')->nullable();
             $table->longText('content')->nullable();
             $table->string('category')->nullable();
+            $table->string('color')->nullable();
             $table->timestamps();
         });
     }

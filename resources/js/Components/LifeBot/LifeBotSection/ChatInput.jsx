@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUp, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import {DEFAULT_PROMPT, HISTORY_PROMPT, TITLE_PROMPT} from "../../../../../config/prompt.js";
 import {router} from "@inertiajs/react";
-export default function ChatInput({ chatId, setChatId, setRooms, setMessages, messages, handleNotepad, roomId, setLoading, prompt, setPrompt, setNewChat }) {
+export default function ChatInput({ chatId, setChatId, setRooms, setMessages, messages, handleNotepad, roomId, setLoading, prompt, setPrompt, setNewChat, auth }) {
     const [load, setLoad] = useState(false);
     const textareaRef = useRef(null);
     const START_API = import.meta.env.VITE_GEMINI_API_START;
@@ -241,7 +241,7 @@ export default function ChatInput({ chatId, setChatId, setRooms, setMessages, me
             <div
                 className={`w-full flex justify-center items-end absolute ${chatId ? "bottom-0 left-0" : "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"} mb-3 px-5`}
             >
-                {!chatId && (<h1 className="normal-text absolute top-[-150%] text-2xl sm:text-4xl font-semibold">새로운 채팅을 시작하세요.</h1>)}
+                {!chatId && (<h1 className="normal-text flex absolute top-[-150%] text-2xl sm:text-4xl font-semibold"><p className="hidden md:block">{auth.user.name.slice(1)+", "} </p>새로운 대화를 시작해요.</h1>)}
                 <div className="w-full max-w-3xl bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-[2rem] shadow-sm p-2 flex items-end overflow-hidden">
                             <textarea
                                 ref={textareaRef}

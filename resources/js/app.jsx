@@ -1,4 +1,4 @@
-import AppLayout from './Layouts/AppLayout';
+import CalenoteLayout from './Layouts/CalenoteLayout.jsx';
 import '../css/app.css';
 import './bootstrap';
 import { createInertiaApp } from '@inertiajs/react';
@@ -28,20 +28,34 @@ function initializeDarkMode() {
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: async (name) => {
+        const aliasMap = {
+            LifeBot: 'LifeBot/LifeBot',
+        };
+
+        const normalizedName = aliasMap[name] ?? name;
+
+        const pages = import.meta.glob('./Pages/**/*.jsx');
         const page = await resolvePageComponent(
-            `./Pages/${name}.jsx`,
-            import.meta.glob('./Pages/**/*.jsx'),
+            `./Pages/${normalizedName}.jsx`,
+            pages,
         );
-        page.default.layout = page.default.layout || ((page) => <AppLayout children={page} />);
+
+        if (normalizedName.startsWith('Calenote/')) {
+            page.default.layout = (pageProps) => (
+                <CalenoteLayout {...pageProps.props}>
+                    {pageProps}
+                </CalenoteLayout>
+            );
+        } else {
+            page.default.layout = (pageProps) => <>{pageProps}</>;
+        }
 
         return page;
     },
     setup({ el, App, props }) {
-
         initializeDarkMode();
 
         const root = createRoot(el);
-
         root.render(<App {...props} />);
     },
     progress: {

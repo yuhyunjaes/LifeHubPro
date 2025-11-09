@@ -223,7 +223,7 @@ export default function Register() {
                     </div>
                 </form>
             </div>
-            <Loading toggle={loadingToggle}/>
+            <Loading Toggle={loadingToggle}/>
         </>
     );
 }

@@ -31,6 +31,7 @@ class NotepadController extends Controller
             'title'=>$messageToNotepadSwitch ? $title : $request->note_title,
             'content'=>$messageToNotepadSwitch ? $messageToNotepad['content'] : null,
             'category'=>null,
+            'color'=>null,
         ]);
 
         return $messageToNotepadSwitch ?
