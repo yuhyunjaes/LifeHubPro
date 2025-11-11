@@ -26,7 +26,7 @@ input[type=number]::-webkit-inner-spin-button {
     @apply float-left;
 }
 .sub-menu {
-    @apply  absolute left-0 top-full w-max overflow-hidden bg-gray-100 dark:bg-gray-950 transition-[max-height] duration-300 ease-in-out;
+    @apply  absolute left-0 top-full w-max overflow-hidden bg-white dark:bg-gray-950 transition-[max-height] duration-300 ease-in-out;
 }
 
 .sub-menu li {
@@ -111,7 +111,7 @@ input[type=number]::-webkit-inner-spin-button {
 }
 
 .card {
-    @apply bg-white dark:bg-[#0d1117] rounded-xl overflow-hidden shadow shadow-gray-200 dark:shadow-gray-700;
+    @apply bg-white dark:bg-[#0d1117] rounded-xl overflow-hidden shadow shadow-gray-200 dark:shadow-transparent dark:shadow-gray-700;
 }
 .card-top {
     @apply w-full h-[220px] object-cover object-center;

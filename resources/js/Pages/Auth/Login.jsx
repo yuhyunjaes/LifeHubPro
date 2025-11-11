@@ -41,6 +41,7 @@ export default function Login() {
                         </p>
                     </div>
                     <FormInput
+                        autoFocus={true}
                         label="아이디"
                         name="user_id"
                         id="user_id"

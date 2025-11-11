@@ -1,8 +1,8 @@
 export const CalenoteSectionsData = [
     {
-        title : "홈",
+        title : "대시보드",
         link : "/calenote",
-        icon: "faHouse"
+        icon: "faChartLine"
     },
     {
         title : "메모장",

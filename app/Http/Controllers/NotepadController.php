@@ -7,6 +7,8 @@ use App\Models\Notepad;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\ChatMessage;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class NotepadController extends Controller
 {
@@ -30,13 +32,38 @@ class NotepadController extends Controller
             'user_id'=>Auth::id(),
             'title'=>$messageToNotepadSwitch ? $title : $request->note_title,
             'content'=>$messageToNotepadSwitch ? $messageToNotepad['content'] : null,
-            'category'=>null,
+            'category'=>$request->category,
             'color'=>null,
         ]);
 
         return $messageToNotepadSwitch ?
             response()->json(['success'=>true, 'id'=>$notepad->uuid])
             : response()->json(['success'=>true, 'id'=>$notepad->uuid, 'created_at'=>$notepad->created_at->format('Y-m-d H:i:s'), 'message'=>'메모장이 생성되었습니다.']);
+    }
+
+    public function GetNotepadsByCategory()
+    {
+        $categories = Notepad::where('user_id', Auth::id())
+            ->select('category', DB::raw('COUNT(*) as count'))
+            ->groupBy('category')
+            ->orderByDesc('count')
+            ->get();
+
+        if($categories) return response()->json(['success' => true, 'categories' => $categories]);
+        return response()->json(['success', false]);
+    }
+
+    public function GetNotepadsCount()
+    {
+        $totalCount = Notepad::where('user_id', Auth::id())->count();
+
+        $todayCount = Notepad::where('user_id', Auth::id())
+            ->whereDate('created_at', Carbon::today())
+            ->count();
+
+        if($totalCount && $todayCount) return response()->json(['success' => true, 'total_count' => $totalCount, 'today_count' => $todayCount]);
+
+        return response()->json(['success', false]);
     }
 
     public function GetNotepads()

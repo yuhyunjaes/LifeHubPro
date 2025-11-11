@@ -94,6 +94,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/notepads', [NotepadController::class, 'StoreNotepads'])->name('notepads.store');
     Route::get('/api/notepads', [NotepadController::class, 'GetNotepads'])->name('notepads.get');
 
+    Route::get('/api/notepads/categories', [NotepadController::class, 'GetNotepadsByCategory'])->name('notepads.category.get');
+    Route::get('/api/notepads/count', [NotepadController::class, 'GetNotepadsCount'])->name('notepads.count.get');
+
     Route::get('/api/notepads/contents/{id}', [NotepadController::class, 'GetContents'])->name('notepads.contents.get');
 
     Route::put('/api/notepads/{noteId}', [NotepadController::class, 'UpdateNotepads'])->name('notepads.update');

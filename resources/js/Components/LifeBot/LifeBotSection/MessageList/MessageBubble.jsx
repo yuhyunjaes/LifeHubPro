@@ -12,7 +12,7 @@ export default function MessageBubble({ msg, handleNotepad }) {
         >
             <div
                 className={`p-3 mx-0 rounded-[0.75rem] shadow-sm max-w-[70%] whitespace-pre-wrap break-words font-semibold ${
-                    isUser ? "bg-blue-500 text-white" : "bg-white text-black border border-gray-50"
+                    isUser ? "bg-blue-500 text-white" : "bg-white dark:bg-gray-950 text-gray-950 dark:text-white border border-gray-200 dark:border-gray-800"
                 }`}
             >
                 {msg.text}

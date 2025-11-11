@@ -1,7 +1,7 @@
 import { Link, router } from "@inertiajs/react";
 import {useEffect, useCallback, useState, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {faBars, faMessage, faUser} from "@fortawesome/free-solid-svg-icons";
+import {faBars, faMessage, faUser, faEllipsisH} from "@fortawesome/free-solid-svg-icons";
 import DesktopMenu from "./DesktopMenu";
 import MobileSidebar from "./MobileSidebar";
 import Logo from "../Elements/Logo.jsx";
@@ -56,7 +56,7 @@ export default function Header({ auth, className = "", toggle, setToggle, check 
             <header
                 className={`
                     w-full h-[70px] sticky top-0 left-0 z-[999]
-                    border-b border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-950
+                    border-b border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950
                     ${className && className}
                 `}
             >
@@ -83,9 +83,9 @@ export default function Header({ auth, className = "", toggle, setToggle, check 
                                 {myBox && (
                                     <div
                                         className={`
-                                        absolute overflow-hidden w-[200px] bg-gray-100 dark:bg-gray-950 top-[calc(100%+10px)] right-0
+                                        absolute overflow-hidden w-[200px] bg-white dark:bg-gray-950 top-[calc(100%+10px)] right-0
                                         shadow-md rounded-md
-                                        border border-gray-200 dark:border-gray-800
+                                        border border-gray-300 dark:border-gray-800
                                     `}
                                     >
                                         <div className="p-5 space-y-5">
@@ -105,10 +105,10 @@ export default function Header({ auth, className = "", toggle, setToggle, check 
 
 
                         <button
-                            className="block md:hidden text-xl size-10 bg-gray-950 dark:bg-white rounded-full"
+                            className="md:hidden"
                             onClick={() => setSideBar(true)}
                         >
-                            <FontAwesomeIcon icon={faUser} className="text-white dark:text-gray-950" />
+                            <FontAwesomeIcon icon={faEllipsisH} className="normal-text" />
                         </button>
                     </div>
                 </div>

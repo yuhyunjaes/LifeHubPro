@@ -1,5 +1,5 @@
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import { faHouse, faClipboard, faCalendar, faX } from "@fortawesome/free-solid-svg-icons";
+import { faChartLine, faClipboard, faCalendar, faX } from "@fortawesome/free-solid-svg-icons";
 import {faSquareCaretLeft, faSquareCaretRight} from "@fortawesome/free-regular-svg-icons";
 import {CalenoteSectionsData} from "@/Components/Calenote/CalenoteSectionsData.js";
 import {Link, usePage} from "@inertiajs/react";
@@ -7,7 +7,7 @@ import {Link, usePage} from "@inertiajs/react";
 export default function SideBarSection({sideBar, setSideBar, sideBarToggle, setSideBarToggle }) {
     const {url} = usePage();
     const icons = {
-        faHouse,
+        faChartLine,
         faClipboard,
         faCalendar
     };
@@ -15,14 +15,14 @@ export default function SideBarSection({sideBar, setSideBar, sideBarToggle, setS
     return (
         <aside
             className={`
-                h-full bg-gray-100 dark:bg-gray-950 transition-[width] duration-300 overflow-hidden
-                ${sideBarToggle && "fixed inset-0 top-[70px]"}
+                h-full bg-white dark:bg-gray-950 transition-[width] duration-300 overflow-hidden border-r border-gray-300 dark:border-gray-800
+                ${sideBarToggle && "fixed inset-0 top-[70px] z-[10]"}
             `}
             style={sideBarToggle ? {width: "100%"} : {width: `${sideBar}px`}}
             >
             {!sideBarToggle && (
                 <div
-                    className={`px-5 border-b border-gray-200 dark:border-gray-800 py-2 flex ${(sideBar > 50) ? "justify-end" : "justify-center"}`}>
+                    className={`px-5 border-b border-gray-300 dark:border-gray-800 py-2 flex ${(sideBar > 50) ? "justify-end" : "justify-center"}`}>
                     <button
                         className="normal-text cursor-pointer"
                         onClick={() => {
@@ -65,7 +65,7 @@ export default function SideBarSection({sideBar, setSideBar, sideBarToggle, setS
                     ))
                 }
             </div>
-            <div className="h-[200px] sm:h-[70px] bg-gray-100 dark:bg-gray-950 border-t border-gray-200 dark:border-gray-700 flex justify-center items-center">
+            <div className="h-[200px] sm:h-[70px] bg-white dark:bg-gray-950 border-t border-gray-300 dark:border-gray-800 flex justify-center items-center">
                 {(sideBarToggle) && (
                     <button className="size-8 rounded-full shadow bg-gray-950 dark:bg-white text-white dark:text-gray-950" onClick={() => {
                         setSideBarToggle(false);

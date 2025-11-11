@@ -144,6 +144,7 @@ export default function Register() {
                         </p>
                     </div>
                     <FormInput
+                        autoFocus={true}
                         label="이름"
                         id="name"
                         name="name"

@@ -36,7 +36,7 @@ export default function CalenoteLayout({ children, auth }) {
             <div className="w-full h-[calc(100vh-70px)] flex transition-[width] duration-300">
                 <SideBarSection sideBarToggle={sideBarToggle} setSideBarToggle={setSideBarToggle}  sideBar={sideBar} setSideBar={setSideBar} />
                 <main
-                    className="transition-[width] duration-300 h-full flex-1"
+                    className="transition-[width] duration-300 h-full flex-1 overflow-y-auto overflow-x-hidden"
                 >
                     {children}
                 </main>

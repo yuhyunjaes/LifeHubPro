@@ -16,9 +16,9 @@ return new class extends Migration
             $table->uuid('uuid');
             $table->foreignId('chat_id')->nullable()->constrained('chat_messages')->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('title')->nullable();
+            $table->string('title');
             $table->longText('content')->nullable();
-            $table->string('category')->nullable();
+            $table->string('category');
             $table->string('color')->nullable();
             $table->timestamps();
         });

@@ -9,6 +9,7 @@ export default function FormInput({
     message = "",
     messageType = "default", // 'error' 또는 'default'
     readOnly = false,
+    autoFocus = false
 }) {
     return (
         <div>
@@ -21,6 +22,7 @@ export default function FormInput({
                 onChange={onChange}
                 readOnly={readOnly}
                 className="form-control"
+                autoFocus={autoFocus}
             />
             {message && (
                 <p

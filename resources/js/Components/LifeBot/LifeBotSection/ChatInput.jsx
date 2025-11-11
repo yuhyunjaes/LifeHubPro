@@ -247,8 +247,9 @@ export default function ChatInput({ chatId, setChatId, setRooms, setMessages, me
                         새로운 대화를 시작해요.
                     </h1>
                 )}
-                <div className="w-full max-w-3xl bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-[2rem] shadow-sm p-2 flex items-end overflow-hidden">
+                <div className="w-full max-w-3xl bg-white dark:bg-[#0d1117] border border-gray-200 dark:border-gray-800 rounded-[2rem] shadow-sm p-2 flex items-end overflow-hidden">
                             <textarea
+                                autoFocus={true}
                                 ref={textareaRef}
                                 className="
                                 prompt-form
