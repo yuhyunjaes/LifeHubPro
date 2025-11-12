@@ -19,6 +19,7 @@ export default function ChatInput({
     auth
     }) {
     const [load, setLoad] = useState(false);
+
     const textareaRef = useRef(null);
     const START_API = import.meta.env.VITE_GEMINI_API_START;
     const END_API = import.meta.env.VITE_GEMINI_API_END;
@@ -130,13 +131,19 @@ export default function ChatInput({
                         if (text) {
                             combined += text;
 
-                            // 중간 출력 업데이트
-                            const match = combined.match(/\*\*\*({[\s\S]*?})\*\*\*/);
-                            let cleaned = combined;
-                            if (match) cleaned = combined.replace(match[0], "");
+                            if (combined.includes('***{')) {
+                                const jsonStart = combined.indexOf('***{');
+                                const beforeJson = combined.slice(0, jsonStart);
+                                fullText = beforeJson.trim();
+                            } else {
+                                fullText = combined.trim();
+                            }
 
-                            fullText = cleaned.trim();
+                            const match = fullText.match(/\*\*\*({[\s\S]*?})\*\*\*/);
+                            if (match) fullText = fullText.replace(match[0], "").trim();
+
                             setMessages((prev) => {
+                                if (!prev.length) return prev;
                                 const updated = [...prev];
                                 updated[updated.length - 1].text = fullText;
                                 return updated;
@@ -148,23 +155,40 @@ export default function ChatInput({
                 }
             }
 
-            // JSON 블록 추출
             const match = combined.match(/\*\*\*({[\s\S]*?})\*\*\*/);
             if (match) {
                 aiCode = match[1].trim();
                 fullText = combined.replace(match[0], "").trim();
             }
 
-            // 응답 없을 때 리로드
             if (fullText.trim().length === 0) {
                 alert("서버가 응답하지 않습니다. 잠시 후 다시 시도해주세요.");
 
                 setLoad(false);
+                setPrompt("");
                 setLoading(false);
 
-                // 여기서 chatId를 삭제하여 타이틀 자체를 다시 만들어야 함.
+                if(newChat) {
+                    try {
+                        const res = await axios.delete(`/api/rooms/${currentRoomId}`);
+                        if(res.data.success) {
+                            router.visit(`/lifebot`, {
+                                preserveScroll: false,
+                                preserveState: false,
+                                replace: true,
+                            });
+                        }
+                    } catch (err) {
+                        console.error(err);
+                    }
+                    return;
+                }
 
-                handleSubmit();
+                router.visit(`/lifebot${currentRoomId ? "/" + currentRoomId : ""}`, {
+                    preserveScroll: false,
+                    preserveState: false,
+                    replace: true,
+                });
                 return;
             }
 
