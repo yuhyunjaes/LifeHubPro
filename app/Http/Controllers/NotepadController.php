@@ -61,9 +61,11 @@ class NotepadController extends Controller
             ->whereDate('created_at', Carbon::today())
             ->count();
 
-        if($totalCount && $todayCount) return response()->json(['success' => true, 'total_count' => $totalCount, 'today_count' => $todayCount]);
-
-        return response()->json(['success', false]);
+        return response()->json([
+            'success' => true,
+            'total_count' => $totalCount,
+            'today_count' => $todayCount
+        ]);
     }
 
     public function GetNotepads()

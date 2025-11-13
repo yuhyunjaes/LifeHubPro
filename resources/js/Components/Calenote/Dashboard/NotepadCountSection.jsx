@@ -67,14 +67,16 @@ export default function NotepadCountSection() {
                 </h1>
 
                 <div className="relative h-full">
-                    <span className={`
+                    {todayNotepads > 0 && (
+                        <span className={`
                         px-2 bg-green-400/20 absolute right-0 flex justify-center items-center rounded-xl text-sm text-green-600
                         transition-[bottom] duration-300 delay-300
                         ${endAnimation ? "bottom-0" : "-bottom-10"}
-                    `}>
+                        `}>
                         <FontAwesomeIcon className="mr-1" icon={faArrowUp} />
-                        {endAnimation ? todayNotepads : "0"}
+                            {endAnimation ? todayNotepads : "0"}
                     </span>
+                    )}
                 </div>
             </div>
         </div>
