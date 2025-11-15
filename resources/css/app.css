@@ -216,3 +216,7 @@ form > div {
         transform: translateY(-100px);
     }
 }
+
+.notepad-item {
+    @apply relative h-[400px] sm:h-[56vw] md:h-[260px] lg:h-[280px] rounded-l rounded-r-3xl after:w-[10px] after:h-[calc(100%+8px)] after:bg-gray-200 after:absolute after:right-[10%] after:top-[-4px] after:rounded-2xl;
+}
