@@ -46,7 +46,7 @@ export default function SideBarSection({sideBar, setSideBar, sideBarToggle, setS
                             ${(sideBar > 50 || sideBarToggle) ? "btn justify-start" : "justify-center rounded"} transition-colors duration-300 w-full flex items-center px-0 py-2
                             ${(url === section.link)
                                 ? "bg-blue-500 text-white"
-                                : "text-gray-950 hover:text-white hover:bg-blue-500"}
+                                : "normal-text hover:bg-blue-500"}
                         `}
                             onClick={() => {
                                 setSideBarToggle(false);

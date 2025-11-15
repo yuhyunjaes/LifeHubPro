@@ -33,7 +33,7 @@ export default function SideBarSection({ auth, rooms, setRooms, chatId, setChatI
                     )}
                     <button
                         onClick={resetRoom}
-                        className={`btn transition-colors duration-300 w-full text-gray-950 dark:text-white flex ${(sideBar > 50 || smRoomListToggle) ? "justify-start" : "justify-center"} items-center px-0 py-2 hover:text-blue-500`}
+                        className={`btn transition-colors duration-300 w-full text-gray-950 dark:text-white flex ${(sideBar > 50 || smRoomListToggle) ? "justify-start" : "justify-center"} items-center px-0 py-2 hover:bg-blue-500 hover:text-white`}
                     >
                         <FontAwesomeIcon icon={faPenSquare} className="m-0 text-xl"/>
                         {(sideBar > 50 || smRoomListToggle)&& (
