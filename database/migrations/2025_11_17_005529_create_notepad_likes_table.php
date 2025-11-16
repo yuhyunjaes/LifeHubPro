@@ -11,15 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('notepads', function (Blueprint $table) {
+        Schema::create('notepad_likes', function (Blueprint $table) {
             $table->id();
-            $table->uuid('uuid')->unique();
-            $table->foreignId('chat_id')->nullable()->constrained('chat_messages')->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('title');
-            $table->longText('content')->nullable();
-            $table->string('category');
+            $table->uuid('notepad_id');
             $table->timestamps();
+
+            $table->foreign('notepad_id')->references('uuid')->on('notepads')->onDelete('cascade');
+            $table->unique(['user_id', 'notepad_id']);
         });
     }
 
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('notepads');
+        Schema::dropIfExists('notepad_likes');
     }
 };

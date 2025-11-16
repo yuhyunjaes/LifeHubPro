@@ -10,16 +10,19 @@ export default function Notepad({ auth }) {
     const [tap, setTap] = useState("all");
     const [viewOption, setViewOption] = useState("grid");
     const [notepads, setNotepads] = useState([]);
+    const [notepadLikes, setNotepadLikes] = useState([]);
 
     return (
         <>
             <Head title="Notepad"/>
-            <NotepadTitleSection />
-            <div className="container py-16 px-5 overflow-y-auto space-y-5">
-                <NotepadTabSection viewOption={viewOption} setViewOption={setViewOption}  tap={tap} setTap={setTap}/>
-                <NotepadsSection setLoading={setLoading} notepads={notepads} setNotepads={setNotepads} />
+            <div className="min-h-full bg-gray-100 dark:bg-gray-950">
+                <NotepadTitleSection />
+                <div className="py-16 px-5 overflow-y-auto space-y-5">
+                    <NotepadTabSection viewOption={viewOption} setViewOption={setViewOption}  tap={tap} setTap={setTap}/>
+                    <NotepadsSection notepadLikes={notepadLikes} setNotepadLikes={setNotepadLikes} viewOption={viewOption} setLoading={setLoading} notepads={notepads} setNotepads={setNotepads} />
+                </div>
+                <Loading Toggle={loading}/>
             </div>
-            <Loading Toggle={loading}/>
         </>
     );
 }

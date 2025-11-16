@@ -77,6 +77,7 @@ class NotepadController extends Controller
                     'id' => $n->uuid,
                     'title' => $n->title,
                     'content' => $n->content,
+                    'category' => $n->category,
                     'created_at' => $n->created_at->format('Y-m-d H:i:s'),
                 ];
             });

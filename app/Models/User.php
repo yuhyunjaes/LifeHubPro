@@ -28,6 +28,10 @@ class User extends Authenticatable
         return $this->hasMany(ChatRoom::class);
     }
 
+    public function likedNotepads() {
+        return $this->hasMany(NotepadLikes::class);
+    }
+
     protected $fillable = [
         'user_id',
         'password',

@@ -19,6 +19,10 @@ class Notepad extends Model
         return $this->belongsTo(ChatMessage::class, 'chat_id', 'id');
     }
 
+    public function likes() {
+        return $this->hasMany(NotepadLikes::class, 'notepad_id', 'uuid');
+    }
+
     protected $fillable = [
         'uuid',
         'chat_id',

@@ -218,5 +218,5 @@ form > div {
 }
 
 .notepad-item {
-    @apply bg-[#0d1117] border rounded-xl dark:border-gray-800 p-5;
+    @apply bg-white dark:bg-[#0d1117] border rounded-xl border-gray-300 dark:border-gray-800 p-5 space-y-2;
 }

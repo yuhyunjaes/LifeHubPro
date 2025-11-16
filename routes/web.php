@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\NotepadController;
 use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\NotepadLikeController;
 
 Route::post('api/lifebot/title', function (Request $request) {
     $apiKey = env('GEMINI_API_KEY');
@@ -93,6 +94,10 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/api/notepads', [NotepadController::class, 'StoreNotepads'])->name('notepads.store');
     Route::get('/api/notepads', [NotepadController::class, 'GetNotepads'])->name('notepads.get');
+
+    Route::post('/notepads/{uuid}/like', [NotepadLikeController::class, 'StoreNotepadsLike'])->name('notepads.like.store');
+    Route::delete('/notepads/{uuid}/like', [NotepadLikeController::class, 'DeleteNotepadsLike'])->name('notepads.like.delete');
+    Route::get('/notepads/likes', [NotepadLikeController::class, 'GetNotepadsLike'])->name('notepads.like.get');
 
     Route::get('/api/notepads/categories', [NotepadController::class, 'GetNotepadsByCategory'])->name('notepads.category.get');
     Route::get('/api/notepads/count', [NotepadController::class, 'GetNotepadsCount'])->name('notepads.count.get');

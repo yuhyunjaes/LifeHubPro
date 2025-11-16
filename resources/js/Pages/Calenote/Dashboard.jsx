@@ -5,7 +5,7 @@ export default function Calendar({ auth }) {
     return (
         <>
             <Head title="Dashboard"/>
-            <h1 className="normal-text font-semibold
+            <h1 className="normal-text font-semibold bg-gray-100 dark:bg-gray-950
             py-5 text-2xl md:text-4xl pl-5">대시보드</h1>
 
             <div className="w-full min-h-full p-5 bg-gray-100 dark:bg-gray-950 grid grid-cols-2 lg:grid-cols-4 grid-rows-5 gap-5 overflow-y-auto">
