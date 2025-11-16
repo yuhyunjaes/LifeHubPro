@@ -111,7 +111,7 @@ input[type=number]::-webkit-inner-spin-button {
 }
 
 .card {
-    @apply bg-white dark:bg-[#0d1117] rounded-xl overflow-hidden shadow shadow-gray-200 dark:shadow-transparent dark:shadow-gray-700;
+    @apply bg-white dark:bg-[#0d1117] rounded-xl overflow-hidden shadow shadow-gray-200 dark:shadow-transparent;
 }
 .card-top {
     @apply w-full h-[220px] object-cover object-center;
@@ -218,5 +218,5 @@ form > div {
 }
 
 .notepad-item {
-    @apply relative h-[400px] sm:h-[56vw] md:h-[260px] lg:h-[280px] rounded-l rounded-r-3xl after:w-[10px] after:h-[calc(100%+8px)] after:bg-gray-200 after:absolute after:right-[10%] after:top-[-4px] after:rounded-2xl;
+    @apply bg-[#0d1117] border rounded-xl dark:border-gray-800 p-5;
 }

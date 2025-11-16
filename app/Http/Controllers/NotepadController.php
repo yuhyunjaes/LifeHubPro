@@ -33,7 +33,6 @@ class NotepadController extends Controller
             'title'=>$messageToNotepadSwitch ? $title : $request->note_title,
             'content'=>$messageToNotepadSwitch ? $messageToNotepad['content'] : null,
             'category'=>$request->category,
-            'color'=>null,
         ]);
 
         return $messageToNotepadSwitch ?
@@ -77,6 +76,7 @@ class NotepadController extends Controller
                 return [
                     'id' => $n->uuid,
                     'title' => $n->title,
+                    'content' => $n->content,
                     'created_at' => $n->created_at->format('Y-m-d H:i:s'),
                 ];
             });

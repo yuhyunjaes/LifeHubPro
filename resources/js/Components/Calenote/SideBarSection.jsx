@@ -30,6 +30,7 @@ export default function SideBarSection({sideBar, setSideBar, sideBarToggle, setS
                         }}
                     >
                         <FontAwesomeIcon
+                            className="text-xl"
                             icon={(sideBar > 50) ? faSquareCaretLeft : faSquareCaretRight}
                         />
                     </button>
@@ -46,7 +47,7 @@ export default function SideBarSection({sideBar, setSideBar, sideBarToggle, setS
                             ${(sideBar > 50 || sideBarToggle) ? "btn justify-start" : "justify-center rounded"} transition-colors duration-300 w-full flex items-center px-0 py-2
                             ${(url === section.link)
                                 ? "bg-blue-500 text-white"
-                                : "normal-text hover:bg-blue-500"}
+                                : "text-gray-950 dark:text-white hover:bg-blue-500 hover:text-white"}
                         `}
                             onClick={() => {
                                 setSideBarToggle(false);

@@ -26,6 +26,5 @@ class Notepad extends Model
         'title',
         'content',
         'category',
-        'color'
     ];
 }

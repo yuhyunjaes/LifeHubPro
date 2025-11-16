@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('title');
             $table->longText('content')->nullable();
             $table->string('category');
-            $table->string('color')->nullable();
             $table->timestamps();
         });
     }
