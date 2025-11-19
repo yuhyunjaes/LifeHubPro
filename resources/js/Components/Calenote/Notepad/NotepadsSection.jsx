@@ -75,41 +75,63 @@ export default function NotepadsSection({ notepads, setNotepads, setLoading, vie
         }
     }, [tab]);
 
+    const getColumnCount = () => {
+        if(viewOption === "grid") {
+            if(window.innerWidth >= 1280) return 4;
+            if(window.innerWidth >= 1024) return 3;
+            if(window.innerWidth >= 768) return 2;
+            return 1;
+        }
+        return 1;
+    };
+
     return (
         <div className={`grid gap-5 ${viewOption === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1"}`}>
-            {notepads.map((notepad, index) => (
-                <div key={index} className="notepad-item">
-                    <h5 className="normal-text font-semibold truncate">{notepad.title}</h5>
-                    <p className="text-white normal-text text-sm min-h-[80px] max-h-[80px] line-clamp-4">
-                        {notepad.content}
-                    </p>
-                    <p className="text-sm normal-text truncate">{notepad.created_at.substring(0, 10)}</p>
-                    <div className="flex justify-between items-center">
-                        <p className="text-gray-500 text-sm">{notepad.category}</p>
+            {notepads.map((notepad, index) => {
+                const colCount = getColumnCount();
+                const isLastInRow = (index + 1) % colCount === 0;
+                return (
+                    (
+                        <div key={index} className="notepad-item">
+                            <h5 className="normal-text font-semibold truncate">{notepad.title}</h5>
+                            <p className="text-white normal-text text-sm min-h-[80px] max-h-[80px] line-clamp-4">
+                                {notepad.content}
+                            </p>
+                            <p className="text-sm normal-text truncate">{notepad.created_at.substring(0, 10)}</p>
+                            <div className="flex justify-between items-center">
+                                <p className="text-gray-500 text-sm">{notepad.category}</p>
 
-                        <div className="space-x-2 flex">
-                            <NotepadShare notepadId={notepad.id} shareId={shareId} setShareId={setShareId} setLoading={setLoading}/>
-                            {
-                                notepadLikes.some(like => like.notepad_id === notepad.id) ? (
-                                    <button
-                                        className="transition-colors duration-300 text-blue-500 cursor-pointer hover:text-blue-600 active:text-blue-700"
-                                        onClick={() => handleLikeDelete(notepad.id)}
-                                    >
-                                        <FontAwesomeIcon icon={faHeartSolid} />
-                                    </button>
-                                ) : (
-                                    <button
-                                        className="transition-colors duration-300 text-blue-500 cursor-pointer hover:text-blue-600 active:text-blue-700"
-                                        onClick={() => handleLikeInsert(notepad.id)}
-                                    >
-                                        <FontAwesomeIcon icon={faHeartRegular} />
-                                    </button>
-                                )
-                            }
+                                <div className="space-x-2 flex">
+                                    <NotepadShare
+                                        isLastInRow={isLastInRow}
+                                        notepadId={notepad.id}
+                                        shareId={shareId}
+                                        setShareId={setShareId}
+                                        setLoading={setLoading}
+                                    />
+                                    {
+                                        notepadLikes.some(like => like.notepad_id === notepad.id) ? (
+                                            <button
+                                                className="transition-colors duration-300 text-blue-500 cursor-pointer hover:text-blue-600 active:text-blue-700"
+                                                onClick={() => handleLikeDelete(notepad.id)}
+                                            >
+                                                <FontAwesomeIcon icon={faHeartSolid} />
+                                            </button>
+                                        ) : (
+                                            <button
+                                                className="transition-colors duration-300 text-blue-500 cursor-pointer hover:text-blue-600 active:text-blue-700"
+                                                onClick={() => handleLikeInsert(notepad.id)}
+                                            >
+                                                <FontAwesomeIcon icon={faHeartRegular} />
+                                            </button>
+                                        )
+                                    }
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            ))}
+                    )
+                )
+            })}
         </div>
 
     );

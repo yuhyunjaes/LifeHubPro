@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShareNodes, faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import {useCallback, useEffect, useRef} from "react";
 
-export default function NotepadShare({ notepadId, shareId, setShareId, setLoading }) {
+export default function NotepadShare({ notepadId, shareId, setShareId, setLoading, isLastInRow }) {
     const menuRef = useRef(null);
 
     const handleClickOutside = useCallback( (e) => {
@@ -45,7 +45,10 @@ export default function NotepadShare({ notepadId, shareId, setShareId, setLoadin
             {shareId === notepadId && (
                 <div
                     ref={menuRef}
-                    className="w-[200px] absolute p-2 dark:bg-[#0d1117] border dark:border-gray-800 left-0 top-[100%] shadow-md rounded-2xl"
+                    className={`
+                        w-[200px] absolute p-2 bg-white dark:bg-[#0d1117] border border-gray-200 dark:border-gray-800 top-[100%] shadow-md rounded-2xl
+                        ${isLastInRow ? "right-0" : "left-0"}
+                    `}
                 >
                     <button onClick={() => {
                         sendEmail(shareId)

@@ -94,7 +94,7 @@ export default function LifeBot({ auth, roomId }) {
 
     useEffect(() => {
         getMessages();
-    }, [chatId]);
+    }, [getMessages]);
 
     const handleClickOutside = useCallback((e) => {
         if (!editId || modal) return;
