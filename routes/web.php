@@ -44,7 +44,7 @@ Route::post('api/lifebot/title', function (Request $request) {
 });
 
 Route::get('/', function () {
-    return Inertia::render('Home');
+    return Inertia::render('Home/Home');
 })->name('home');
 
 Route::middleware('guest')->group(function () {

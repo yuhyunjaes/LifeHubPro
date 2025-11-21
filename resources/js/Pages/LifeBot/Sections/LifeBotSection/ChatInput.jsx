@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useRef, useState} from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUp, faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { DEFAULT_PROMPT, HISTORY_PROMPT, TITLE_PROMPT } from "../../../../../config/prompt.js";
+import { DEFAULT_PROMPT, HISTORY_PROMPT, TITLE_PROMPT } from "../../../../../../config/prompt.js";
 import { router } from "@inertiajs/react";
 
 export default function ChatInput({

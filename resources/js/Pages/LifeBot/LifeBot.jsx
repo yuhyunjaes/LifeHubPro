@@ -3,10 +3,10 @@ import Footer from '@/Components/Footer/Footer.jsx';
 import Loading from '@/Components/Elements/Loading.jsx';
 import Modal from '@/Components/Elements/Modal.jsx';
 import { Head, router } from '@inertiajs/react';
-import LifeBotSection from '@/Components/LifeBot/LifeBotSection.jsx';
-import SideBarSection from '@/Components/LifeBot/SideBarSection.jsx';
+import LifeBotSection from '@/Pages/LifeBot/Sections/LifeBotSection.jsx';
+import SideBarSection from '@/Pages/LifeBot/Sections/SideBarSection.jsx';
 import {useEffect, useState, useCallback, useRef} from "react";
-import EditRoom from "@/Components/LifeBot/SideBarSection/RoomList/EditRoom.jsx";
+import EditRoom from "@/Pages/LifeBot/Sections/SideBarSection/RoomList/EditRoom.jsx";
 
 export default function LifeBot({ auth, roomId }) {
     const [sideBar, setSideBar] = useState(() => (window.innerWidth <= 640 ? 0 : 250));

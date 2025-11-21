@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react';
-import NoteInsightSection from "@/Components/Calenote/Dashboard/NoteInsightSection.jsx";
-import NotepadCountSection from "@/Components/Calenote/Dashboard/NotepadCountSection.jsx";
+import NoteInsightSection from "@/Pages/Calenote/Sections/Dashboard/NoteInsightSection.jsx";
+import NotepadCountSection from "@/Pages/Calenote/Sections/Dashboard/NotepadCountSection.jsx";
 export default function Calendar({ auth }) {
     return (
         <>

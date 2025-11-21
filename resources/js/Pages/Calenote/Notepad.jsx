@@ -1,9 +1,9 @@
 import { Head, router } from '@inertiajs/react';
 import { useEffect, useState} from "react";
 import Loading from "@/Components/Elements/Loading.jsx";
-import NotepadTitleSection from "@/Components/Calenote/Notepad/NotepadTitleSection.jsx";
-import NotepadTabSection from "@/Components/Calenote/Notepad/NotepadTabSection.jsx";
-import NotepadsSection from "@/Components/Calenote/Notepad/NotepadsSection.jsx";
+import NotepadTitleSection from "@/Pages/Calenote/Sections/Notepad/NotepadTitleSection.jsx";
+import NotepadFilterSection from "@/Pages/Calenote/Sections/Notepad/NotepadFilterSection.jsx";
+import NotepadsSection from "@/Pages/Calenote/Sections/Notepad/NotepadsSection.jsx";
 
 export default function Notepad({ auth }) {
     const [loading, setLoading] = useState(false);
@@ -15,7 +15,7 @@ export default function Notepad({ auth }) {
     return (
         <>
             <Head title="Notepad"/>
-            <div className="min-h-full bg-gray-100 dark:bg-gray-950 relative">
+            <div className="min-h-full bg-gray-100 dark:bg-gray-950 relative flex flex-col">
                 {
                     (notepads.length <= 0) && (
                         <span className="normal-text text-sm lg:text-base w-full px-5 text-center absolute top-[70%] lg:top-1/2 left-1/2 -translate-1/2 font-semibold">
@@ -27,8 +27,8 @@ export default function Notepad({ auth }) {
                 }
 
                 <NotepadTitleSection />
-                <div className="py-16 px-5 overflow-y-auto space-y-5">
-                    <NotepadTabSection viewOption={viewOption} setViewOption={setViewOption}  tab={tab} setTab={setTab}/>
+                <div className="py-10 px-5 space-y-5 flex-1">
+                    <NotepadFilterSection viewOption={viewOption} setViewOption={setViewOption} tab={tab} setTab={setTab}/>
                     <NotepadsSection notepadLikes={notepadLikes} tab={tab} setNotepadLikes={setNotepadLikes} viewOption={viewOption} setLoading={setLoading} notepads={notepads} setNotepads={setNotepads} />
                 </div>
                 <Loading Toggle={loading}/>

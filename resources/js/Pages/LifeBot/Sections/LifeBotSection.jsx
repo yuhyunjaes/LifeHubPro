@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useRef, useState} from "react";
-import MessageList from '@/Components/LifeBot/LifeBotSection/MessageList.jsx';
-import ChatInput from '@/Components/LifeBot/LifeBotSection/ChatInput.jsx';
+import MessageList from '@/Pages/LifeBot/Sections/LifeBotSection/MessageList.jsx';
+import ChatInput from '@/Pages/LifeBot/Sections/LifeBotSection/ChatInput.jsx';
 import FormModal from "@/Components/Elements/FormModal.jsx";
 
 export default function LifeBotSection({ setNewChat, sideBar, setLoading, chatId, setChatId, setRooms, auth, roomId, setMessages, messages, prompt, setPrompt }) {

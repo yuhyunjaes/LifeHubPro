@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import SideBarSection from "@/Components/Calenote/SideBarSection.jsx";
+import SideBarSection from "@/Pages/Calenote/Sections/SideBarSection.jsx";
 import Header from "@/Components/Header/Header.jsx";
 
 export default function CalenoteLayout({ children, auth }) {

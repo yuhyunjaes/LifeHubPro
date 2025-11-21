@@ -2,7 +2,7 @@ import {router} from "@inertiajs/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenSquare, faX } from "@fortawesome/free-solid-svg-icons";
 import { faSquareCaretLeft, faSquareCaretRight } from "@fortawesome/free-regular-svg-icons";
-import RoomList from "@/Components/LifeBot/SideBarSection/RoomList.jsx";
+import RoomList from "@/Pages/LifeBot/Sections/SideBarSection/RoomList.jsx";
 
 export default function SideBarSection({ auth, rooms, setRooms, chatId, setChatId, sideBar, setSideBar, setLoading, setMessages, editId, setEditId,  editRoomRef, baseTop, setBaseTop, baseScroll, setBaseScroll, editStatus, temporaryEditTitle, setTemporaryEditTitle, handleEditRoom, smRoomList, smRoomListToggle, setSmRoomListToggle }) {
     const resetRoom = () => {

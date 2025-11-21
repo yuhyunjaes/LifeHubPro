@@ -1,7 +1,7 @@
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import { faChartLine, faClipboard, faCalendar, faX } from "@fortawesome/free-solid-svg-icons";
 import {faSquareCaretLeft, faSquareCaretRight} from "@fortawesome/free-regular-svg-icons";
-import {CalenoteSectionsData} from "@/Components/Calenote/CalenoteSectionsData.js";
+import {CalenoteSectionsData} from "@/Pages/Calenote/Sections/CalenoteSectionsData.js";
 import {Link, usePage} from "@inertiajs/react";
 
 export default function SideBarSection({sideBar, setSideBar, sideBarToggle, setSideBarToggle }) {

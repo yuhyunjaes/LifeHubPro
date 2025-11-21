@@ -2,10 +2,12 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import { faShareNodes, faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 import {useCallback, useEffect, useState} from "react";
-import NotepadShare from "@/Components/Calenote/Notepad/NotepadsSection/NotepadShare.jsx";
+import NotepadShare from "@/Pages/Calenote/Sections/Notepad/NotepadsSection/NotepadShare.jsx";
+import NotepadEdit from "@/Pages/Calenote/Sections/Notepad/NotepadsSection/NotepadEdit.jsx";
 
 export default function NotepadsSection({ notepads, setNotepads, setLoading, viewOption, notepadLikes, setNotepadLikes, tab }) {
     const [shareId, setShareId] = useState("");
+    const [editId, setEditId] = useState("");
 
     const getNotepads = useCallback(async () => {
         if(!tab) return;
@@ -102,6 +104,8 @@ export default function NotepadsSection({ notepads, setNotepads, setLoading, vie
                                 <p className="text-gray-500 text-sm">{notepad.category}</p>
 
                                 <div className="space-x-2 flex">
+                                    <NotepadEdit editId={editId} setEditId={setEditId} notepadId={notepad.id} isLastInRow={isLastInRow}/>
+
                                     <NotepadShare
                                         isLastInRow={isLastInRow}
                                         notepadId={notepad.id}
@@ -109,6 +113,7 @@ export default function NotepadsSection({ notepads, setNotepads, setLoading, vie
                                         setShareId={setShareId}
                                         setLoading={setLoading}
                                     />
+
                                     {
                                         notepadLikes.some(like => like.notepad_id === notepad.id) ? (
                                             <button

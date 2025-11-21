@@ -9,7 +9,7 @@ export default function NotepadShare({ notepadId, shareId, setShareId, setLoadin
         if (shareId === notepadId && menuRef.current && !menuRef.current.contains(e.target)) {
             setShareId("");
         }
-    }, [shareId, notepadId, setShareId]);
+    }, [shareId, notepadId]);
 
     useEffect(() => {
         document.addEventListener("mousedown", handleClickOutside);

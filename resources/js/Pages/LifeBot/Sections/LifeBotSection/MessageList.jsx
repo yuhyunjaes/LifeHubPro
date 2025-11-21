@@ -1,4 +1,4 @@
-import MessageBubble from '@/Components/LifeBot/LifeBotSection/MessageList/MessageBubble.jsx';
+import MessageBubble from '@/Pages/LifeBot/Sections/LifeBotSection/MessageList/MessageBubble.jsx';
 
 export default function MessageList({ chatId, messages, handleNotepad }) {
     return (
