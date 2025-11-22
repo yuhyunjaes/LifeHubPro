@@ -123,7 +123,7 @@ export default function LifeBot({ auth, roomId }) {
         const title = rooms.filter(item => item.room_id === editId)[0].title;
         setTemporaryEditTitle(title);
         setEditStatus("update");
-    }, [editId, editStatus]);
+    }, [editId, editStatus, rooms]);
 
     const deleteRoom = useCallback(() => {
         if(!editId) return;

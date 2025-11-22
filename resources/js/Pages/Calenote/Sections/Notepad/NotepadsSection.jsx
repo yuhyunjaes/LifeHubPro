@@ -7,7 +7,24 @@ import NotepadEdit from "@/Pages/Calenote/Sections/Notepad/NotepadsSection/Notep
 
 export default function NotepadsSection({ notepads, setNotepads, setLoading, viewOption, notepadLikes, setNotepadLikes, tab }) {
     const [shareId, setShareId] = useState("");
+
     const [editId, setEditId] = useState("");
+    const [editStatus, setEditStatus] = useState("");
+    const [temporaryEditTitle, setTemporaryEditTitle] = useState("");
+
+    const EditTitle = useCallback(() => {
+        if(!editId) return;
+
+        if(editId && editStatus === "update") {
+            setEditStatus("");
+            setEditId("");
+            return;
+        }
+
+        const title = notepads.filter(item => item.id === editId)[0].title;
+        setTemporaryEditTitle(title);
+        setEditStatus("update");
+    }, [editId, editStatus, notepads]);
 
     const getNotepads = useCallback(async () => {
         if(!tab) return;
@@ -95,7 +112,13 @@ export default function NotepadsSection({ notepads, setNotepads, setLoading, vie
                 return (
                     (
                         <div key={index} className="notepad-item">
-                            <h5 className="normal-text font-semibold truncate">{notepad.title}</h5>
+                            {(editStatus === "update" && editId === notepad.id) ? (
+                                <input type="text" name="" id="" value="asd"/>
+                            ) : (
+                                <h5 className="normal-text font-semibold truncate">
+                                    {notepad.title}
+                                </h5>
+                            )}
                             <p className="text-white normal-text text-sm min-h-[80px] max-h-[80px] line-clamp-4">
                                 {notepad.content}
                             </p>
@@ -104,7 +127,7 @@ export default function NotepadsSection({ notepads, setNotepads, setLoading, vie
                                 <p className="text-gray-500 text-sm">{notepad.category}</p>
 
                                 <div className="space-x-2 flex">
-                                    <NotepadEdit editId={editId} setEditId={setEditId} notepadId={notepad.id} isLastInRow={isLastInRow}/>
+                                    <NotepadEdit temporaryEditTitle={temporaryEditTitle} setTemporaryEditTitle={setTemporaryEditTitle} editStatus={editStatus} setEditStatus={setEditStatus} editId={editId} setEditId={setEditId} notepadId={notepad.id} isLastInRow={isLastInRow}/>
 
                                     <NotepadShare
                                         isLastInRow={isLastInRow}
