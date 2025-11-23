@@ -220,3 +220,14 @@ form > div {
 .notepad-item {
     @apply bg-white dark:bg-[#0d1117] border rounded-xl border-gray-300 dark:border-gray-800 p-5 space-y-2;
 }
+
+.write-notepad * {
+    @apply !border-t-transparent !border-r-transparent !border-l-transparent !border-b-gray-300 dark:!border-b-gray-800;
+}
+
+.ql-picker-options {
+    @apply dark:!bg-gray-950 dark:!border dark:!border-gray-800;
+}
+.ql-toolbar {
+    @apply sticky top-[2.6rem] bg-white dark:bg-gray-950 z-[1];
+}

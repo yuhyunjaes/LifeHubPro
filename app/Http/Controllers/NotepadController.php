@@ -55,6 +55,19 @@ class NotepadController extends Controller
         return response()->json(['success' => true, 'message' => '메모장 이름이 변경되었습니다.']);
     }
 
+    //    메모장 카테고리 수정
+    public function UpdateNotepadCategory($uuid, Request $request)
+    {
+        $notepad = Notepad::where('uuid', $uuid)->where('user_id', Auth::id())->first();
+        if(!$notepad) return response()->json(['success' => false, 'message' => '메모장이 존재하지 않습니다.']);
+
+        $notepad->update([
+            'category' => $request->category
+        ]);
+
+        return response()->json(['success' => true, 'message' => '메모장 카테고리가 변경되었습니다.']);
+    }
+
 //    사용자 메모장 카테고리들 가져오기
     public function GetNotepadsByCategory()
     {
@@ -127,22 +140,14 @@ class NotepadController extends Controller
     }
 
 //    메모장 내용 수정
-    public function UpdateNotepads(Request $request)
+    public function UpdateNotepads($uuid, Request $request)
     {
-        $notepad = Notepad::where('uuid', $request->noteId)->first();
+        $notepad = Notepad::where('uuid', $uuid)->first();
         if(!$notepad) return response()->json(['success' => false]);
 
-        $onlyTitle = $request->onlyTitle;
-
-        if ($onlyTitle) {
-            $notepad->update([
-                'title' => $request->title
-            ]);
-        } else {
-            $notepad->update([
-                'content' => $request->text
-            ]);
-        }
+        $notepad->update([
+            'content' => $request->text
+        ]);
 
         return response()->json(['success' => true, 'message'=>'메모장이 수정되었습니다.']);
     }

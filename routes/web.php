@@ -10,6 +10,7 @@ use App\Http\Controllers\NotepadController;
 use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\NotepadLikeController;
+use App\Models\Notepad;
 
 Route::post('api/lifebot/title', function (Request $request) {
     $apiKey = env('GEMINI_API_KEY');
@@ -84,8 +85,20 @@ Route::middleware('auth')->group(function () {
     })->name('notepad');
 
     Route::get('/calenote/notepad/{uuid}', function () {
-        return Inertia::render('Calenote/Sections/Notepad/NotepadWriteSection');
-    })->name('notepad');
+        $notepad = Notepad::where('user_id', Auth::id())->where('uuid', request('uuid'))->first();
+        if(!$notepad) return Inertia::render('Status/Status', [
+            'status' => 404,
+        ]);
+
+        return Inertia::render('Calenote/Sections/Notepad/NotepadWriteSection',
+        [
+            'content' => $notepad->content,
+            'uuid' => $notepad->uuid,
+            'title' => $notepad->title,
+            'status' => 200,
+        ]
+        );
+    })->name('notepad.write');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -103,13 +116,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/notepads/{uuid}/like', [NotepadLikeController::class, 'DeleteNotepadsLike'])->name('notepads.like.delete');
     Route::get('/notepads/likes', [NotepadLikeController::class, 'GetNotepadsLike'])->name('notepads.like.get');
     Route::put('/api/notepads/{uuid}/title', [NotepadController::class, 'UpdateNotepadTitle'])->name('notepads.title.update');
+    Route::put('/api/notepads/{uuid}/category', [NotepadController::class, 'UpdateNotepadCategory'])->name('notepads.category.update');
 
     Route::get('/api/notepads/categories', [NotepadController::class, 'GetNotepadsByCategory'])->name('notepads.category.get');
     Route::get('/api/notepads/count', [NotepadController::class, 'GetNotepadsCount'])->name('notepads.count.get');
 
     Route::get('/api/notepads/contents/{id}', [NotepadController::class, 'GetContents'])->name('notepads.contents.get');
 
-    Route::put('/api/notepads/{noteId}', [NotepadController::class, 'UpdateNotepads'])->name('notepads.update');
+    Route::put('/api/notepads/{uuid}', [NotepadController::class, 'UpdateNotepads'])->name('notepads.update');
     Route::delete('/api/notepads/{uuid}', [NotepadController::class, 'DeleteNotepads'])->name('notepads.delete');
 
     Route::post('/api/rooms', [ChatController::class, 'StoreRooms'])->name('rooms.store');
