@@ -354,8 +354,10 @@ export default function ChatInput({
                             {localCategory.map((category, index) => (
                                 <div
                                     onClick={() => {
-                                        handleSubmit(category);
-                                        setLocalCategory([]);
+                                        if(!load) {
+                                            handleSubmit(category);
+                                            setLocalCategory([]);
+                                        }
                                     }}
                                     key={index} className="px-3 h-[80%] cursor-pointer bg-gray-100 dark:bg-gray-950  border border-gray-300 dark:border-gray-800 normal-text font-semibold flex justify-center items-center rounded-2xl text-sm sm:text-base">
                                     {category}

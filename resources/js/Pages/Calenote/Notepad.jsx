@@ -7,6 +7,7 @@ import NotepadTitleSection from "@/Pages/Calenote/Sections/Notepad/NotepadTitleS
 import NotepadFilterSection from "@/Pages/Calenote/Sections/Notepad/NotepadFilterSection.jsx";
 import NotepadsSection from "@/Pages/Calenote/Sections/Notepad/NotepadsSection.jsx";
 import Modal from "@/Components/Elements/Modal.jsx";
+import axios from "axios";
 
 export default function Notepad({ auth }) {
     const [loading, setLoading] = useState(false);
@@ -20,6 +21,44 @@ export default function Notepad({ auth }) {
     const [temporaryEditTitle, setTemporaryEditTitle] = useState("");
 
     const [modal, setModal] = useState(false);
+
+    const [searchTitle, setSearchTitle] = useState("");
+
+    const handleSearchNotepadTitle = useCallback(async () => {
+        if(!searchTitle) {
+            getNotepads();
+        }
+        setLoading(true);
+        try {
+            const res = await axios.get(`/api/notepads/search/title/${searchTitle}`);
+            if(res.data.success) {
+                setNotepads(res.data.notepads);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    }, [searchTitle])
+
+    const getNotepads = useCallback(async () => {
+        if(!tab) return;
+        setLoading(true);
+        try {
+            const res = await axios.get(`/api/notepads?liked=${tab === "liked"}`);
+            if(res.data.success) {
+                setNotepads(res.data.notepads);
+            }
+        } catch (err) {
+            console.log(err);
+        } finally {
+            setLoading(false);
+        }
+    }, [tab]);
+
+    useEffect(() => {
+        getNotepads();
+    }, [getNotepads]);
 
     const handleDeleteNotepad = useCallback( async () => {
         if(!editId) return;
@@ -55,9 +94,9 @@ export default function Notepad({ auth }) {
                 {/*메모장 메인 타이틀 영역*/}
                 <NotepadTitleSection />
 
-                <div className="py-10 px-5 space-y-5 flex-1">
+                <div className="py-5 px-5 space-y-5 flex-1">
                     {/*메모장 필터 영역(search, grid)*/}
-                    <NotepadFilterSection viewOption={viewOption} setViewOption={setViewOption} tab={tab} setTab={setTab}/>
+                    <NotepadFilterSection handleSearchNotepadTitle={handleSearchNotepadTitle} searchTitle={searchTitle} setSearchTitle={setSearchTitle} viewOption={viewOption} setViewOption={setViewOption} tab={tab} setTab={setTab}/>
 
                     {/*메모장 read영역*/}
                     <NotepadsSection modal={modal} setModal={setModal} editId={editId} setEditId={setEditId} editStatus={editStatus} setEditStatus={setEditStatus} temporaryEditTitle={temporaryEditTitle} setTemporaryEditTitle={setTemporaryEditTitle} notepadLikes={notepadLikes} tab={tab} setNotepadLikes={setNotepadLikes} viewOption={viewOption} setLoading={setLoading} notepads={notepads} setNotepads={setNotepads} />

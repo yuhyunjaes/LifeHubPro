@@ -128,6 +128,12 @@ class NotepadController extends Controller
         return response()->json(['success' => true, 'notepads' => $notepads]);
     }
 
+    public function SearchTitleNotepads($title) {
+        $notepads = Notepad::where('title', 'like', '%'.$title.'%')->where(['user_id' => Auth::id()])->get();
+
+        return response()->json(['success' => true, 'notepads' => $notepads]);
+    }
+
 //    메모장 내용 가져오기
     public function GetContents($id) {
         $content = Notepad::where('uuid', $id)

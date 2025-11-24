@@ -1,38 +1,19 @@
 // 메모장 필터 영역 (찜, grid)
 
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import { faHeart, faLayerGroup, faGrip, faBarsStaggered } from "@fortawesome/free-solid-svg-icons";
+import NotepadTab from "@/Pages/Calenote/Sections/Notepad/NotepadFilterSection/NotepadTab.jsx";
+import NotepadGrid from "@/Pages/Calenote/Sections/Notepad/NotepadFilterSection/NotepadGrid.jsx";
+import NotepadTitle from "@/Pages/Calenote/Sections/Notepad/NotepadFilterSection/NotepadTitle.jsx";
 
-export default function NotepadFilterSection({ tab, setTab, viewOption, setViewOption }) {
+export default function NotepadFilterSection({ tab, setTab, viewOption, setViewOption, searchTitle, setSearchTitle, handleSearchNotepadTitle }) {
     return (
-        <div className="flex justify-between sticky top-0 py-3 z-[1] bg-gray-100 dark:bg-gray-950">
-            <div className="space-x-3 text-sm sm:text-base">
-                <button onClick={() => {
-                    setTab("all");
-                }} className={`font-semibold space-x-1 rounded-2xl cursor-pointer transition-colors duration-300 ${tab === "all" ? "normal-text" : "text-gray-500 hover:text-gray-950 dark:hover:text-white"}`}>
-                    <FontAwesomeIcon icon={faLayerGroup}/>
-                    <span>전체</span>
-                </button>
-                <button onClick={() => {
-                    setTab("liked");
-                }} className={`font-semibold space-x-1 rounded-2xl cursor-pointer transition-colors duration-300 ${tab === "liked" ? "normal-text" : "text-gray-500 hover:text-gray-950 dark:hover:text-white"}`}>
-                    <FontAwesomeIcon icon={faHeart} />
-                    <span>찜</span>
-                </button>
+        <div className="sticky top-0 py-3 z-[1] bg-gray-100 dark:bg-gray-950 space-y-3">
+            <div className="flex justify-between">
+                <NotepadTab tab={tab} setTab={setTab} />
+                <NotepadGrid viewOption={viewOption} setViewOption={setViewOption} />
             </div>
 
-
-            <div className="space-x-3 text-sm sm:text-base">
-                <button onClick={() => {
-                    setViewOption("list");
-                }} className={`font-semibold cursor-pointer transition-colors duration-300 ${viewOption === "list" ? "normal-text" : "text-gray-500 hover:text-gray-950 dark:hover:text-white"}`}>
-                    <FontAwesomeIcon icon={faBarsStaggered} />
-                </button>
-                <button onClick={() => {
-                    setViewOption("grid");
-                }} className={`font-semibold cursor-pointer transition-colors duration-300 ${viewOption === "grid" ? "normal-text" : "text-gray-500 hover:text-gray-950 dark:hover:text-white"}`}>
-                    <FontAwesomeIcon icon={faGrip} />
-                </button>
+            <div className="flex justify-between">
+                <NotepadTitle searchTitle={searchTitle} setSearchTitle={setSearchTitle} handleSearchNotepadTitle={handleSearchNotepadTitle} />
             </div>
         </div>
     );

@@ -12,7 +12,6 @@ import NotepadCategoryEdit from "@/Pages/Calenote/Sections/Notepad/NotepadsSecti
 
 export default function NotepadsSection({ notepads, setNotepads, setLoading, viewOption, notepadLikes, setNotepadLikes, tab, setEditId, setEditStatus, editId, editStatus, setTemporaryEditTitle, temporaryEditTitle, setModal, modal }) {
     const [shareId, setShareId] = useState("");
-
     const [categories, setCategories] = useState([]);
 
     const getNotepadCategories = useCallback(async () => {
@@ -53,25 +52,6 @@ export default function NotepadsSection({ notepads, setNotepads, setLoading, vie
         setEditStatus("delete");
         setModal(true);
     }, [editId, temporaryEditTitle]);
-
-    const getNotepads = useCallback(async () => {
-        if(!tab) return;
-        setLoading(true);
-        try {
-            const res = await axios.get(`/api/notepads?liked=${tab === "liked"}`);
-            if(res.data.success) {
-                setNotepads(res.data.notepads);
-            }
-        } catch (err) {
-            console.log(err);
-        } finally {
-            setLoading(false);
-        }
-    }, [tab]);
-
-    useEffect(() => {
-        getNotepads();
-    }, [getNotepads]);
 
     const getNotepadLikes = useCallback(async ()=> {
         setLoading(true);
@@ -184,9 +164,10 @@ export default function NotepadsSection({ notepads, setNotepads, setLoading, vie
                                 }}
                                        onKeyDown={(e) => {
                                            if (e.key === "Enter") {
-                                               if(temporaryEditTitle.trim().length <= 0) return;
-                                               e.stopPropagation();
-                                               handleEditNotepadTitle();
+                                               if(temporaryEditTitle.trim().length > 0) {
+                                                   e.stopPropagation();
+                                                   handleEditNotepadTitle();
+                                               }
                                            }
                                        }}
                                        type="text" name="" id="" className="normal-text font-semibold truncate border-0 outline-none max-w-full min-w-full" value={temporaryEditTitle}/>
@@ -200,10 +181,10 @@ export default function NotepadsSection({ notepads, setNotepads, setLoading, vie
                             </p>
                             <p className="text-sm normal-text truncate">{notepad.created_at.substring(0, 10)}</p>
                             <div className="flex justify-between items-center">
-                                <NotepadCategoryEdit categories={categories} setLoading={setLoading} setNotepads={setNotepads} notepadCategory={notepad.category} notepadId={notepad.id}/>
+                                <NotepadCategoryEdit categories={categories} setCategories={setCategories} getNotepadCategories={getNotepadCategories} setLoading={setLoading} setNotepads={setNotepads} notepadCategory={notepad.category} notepadId={notepad.id}/>
 
                                 <div className="space-x-2 flex">
-                                    <NotepadEdit modal={modal} deleteNotepad={deleteNotepad} EditTitle={EditTitle} temporaryEditTitle={temporaryEditTitle} setTemporaryEditTitle={setTemporaryEditTitle} editStatus={editStatus} setEditStatus={setEditStatus} editId={editId} setEditId={setEditId} notepadId={notepad.id} isLastInRow={isLastInRow}/>
+                                    <NotepadEdit handleEditNotepadTitle={handleEditNotepadTitle} modal={modal} deleteNotepad={deleteNotepad} EditTitle={EditTitle} temporaryEditTitle={temporaryEditTitle} setTemporaryEditTitle={setTemporaryEditTitle} editStatus={editStatus} setEditStatus={setEditStatus} editId={editId} setEditId={setEditId} notepadId={notepad.id} isLastInRow={isLastInRow}/>
 
                                     <NotepadShare
                                         isLastInRow={isLastInRow}
