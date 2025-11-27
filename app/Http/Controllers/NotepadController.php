@@ -180,9 +180,11 @@ class NotepadController extends Controller
             return response()->json(['success' => false]);
         }
 
-        Mail::raw($notepad->content, function ($message) use ($user, $notepad) {
+        $content = $notepad->content ?: "공유된 메모장의 내용이 없습니다.";
+
+        Mail::raw($content, function ($message) use ($user, $notepad) {
             $message->to($user->email)
-                ->subject($notepad->title);
+                ->subject($notepad->title ?: "메모장 공유");
         });
 
         return response()->json(['success' => true]);

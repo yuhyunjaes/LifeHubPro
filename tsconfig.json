@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "esnext",
+        "lib": ["esnext", "dom", "dom.iterable"],
+        "jsx": "react-jsx",
+        "moduleResolution": "bundler",
+
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "isolatedModules": true,
+        "allowJs": true,
+
+        "sourceMap": true,
+        "noUncheckedIndexedAccess": true,
+        "outDir": "dist",
+        "rootDir": ".",
+        "noEmitOnError": true
+    },
+    "include": [
+        "resources/**/*",
+        "resources/js/vite-env.d.ts",
+        "config/**/*"   // config 폴더 포함
+    ],
+    "exclude": ["node_modules"]
+}

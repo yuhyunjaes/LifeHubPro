@@ -1,6 +1,6 @@
 // 푸터 컴포넌트
 
-import Logo from "../Elements/Logo.jsx";
+import Logo from "../Elements/Logo.tsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub, faInstagram } from "@fortawesome/free-brands-svg-icons";
 
