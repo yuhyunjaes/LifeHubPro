@@ -1,4 +1,4 @@
-// 메안페이지 소개 영역
+// 메인페이지 소개 영역
 
 import { IntroduceData } from "./HomeData.js";
 export default function IntroduceSection() {
