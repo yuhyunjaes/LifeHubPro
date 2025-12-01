@@ -260,6 +260,3 @@ form > div {
 .ql-toolbar {
     @apply sticky top-[2.6rem] bg-white dark:bg-gray-950 z-[1];
 }
-.day-box {
-    @apply border-[0.5px] border-gray-800 p-2 min-h-[105px];
-}

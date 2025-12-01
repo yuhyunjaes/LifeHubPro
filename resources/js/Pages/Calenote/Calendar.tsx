@@ -21,6 +21,9 @@ export default function Calendar({ auth, mode } : CalendarProps) {
 
     const [viewMode, setViewMode] = useState<"month" | "week" | "day">(mode ? mode : "month");
 
+    const today = new Date();
+    const [activeAt, setActiveAt] = useState<Date>(today);
+
     useEffect(() => {
         if (mode) {
             setViewMode(mode);
@@ -34,7 +37,7 @@ export default function Calendar({ auth, mode } : CalendarProps) {
             <div className="min-h-full bg-gray-100 dark:bg-gray-950 relative flex flex-col">
                 <CalendarTitleSection />
                 <div className="flex-1 flex px-5 gap-5 flex-row pb-5">
-                    <MainCalendarSection viewMode={viewMode} setViewMode={setViewMode} sideBar={sideBar} />
+                    <MainCalendarSection activeAt={activeAt} setActiveAt={setActiveAt} today={today} viewMode={viewMode} setViewMode={setViewMode} sideBar={sideBar} />
                     <SideBarSection sideBar={sideBar} />
                 </div>
             </div>

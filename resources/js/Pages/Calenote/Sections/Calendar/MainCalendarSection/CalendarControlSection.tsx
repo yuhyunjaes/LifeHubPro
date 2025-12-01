@@ -10,10 +10,11 @@ interface Mode {
 
 interface CalendarControlSectionProps {
     viewMode: "month" | "week" | "day";
-    setViewMode: Dispatch<SetStateAction<"month" | "week" | "day">>
+    setViewMode: Dispatch<SetStateAction<"month" | "week" | "day">>;
+    activeAt: Date;
 }
 
-export default function CalendarControlSection({viewMode, setViewMode}: CalendarControlSectionProps) {
+export default function CalendarControlSection({viewMode, setViewMode, activeAt}: CalendarControlSectionProps) {
     const modes:Mode[] = [
         {
             title: "월",
@@ -32,7 +33,9 @@ export default function CalendarControlSection({viewMode, setViewMode}: Calendar
     return(
         <div className="h-[70px] border border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950  rounded-xl flex justify-between items-center px-5">
             <div className="normal-text">
-
+                {activeAt.getFullYear()}
+                -
+                {(activeAt.getMonth()+1 > 9) ? activeAt.getMonth()+1 : `0${activeAt.getMonth()+1}`}
             </div>
 
             <div className="relative flex items-center">
