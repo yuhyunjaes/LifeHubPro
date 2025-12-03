@@ -3,8 +3,15 @@ import CalendarSection from "./MainCalendarSection/CalendarSection";
 import CalendarControlSection from "./MainCalendarSection/CalendarControlSection";
 import { Dispatch, SetStateAction } from "react";
 import {CalendarAtData} from "../CalenoteSectionsData";
+import {data} from "autoprefixer";
 
 interface SideBarSectionProps {
+    isDragging: boolean;
+    setIsDragging: Dispatch<SetStateAction<boolean>>;
+    startAt: Date | null;
+    setStartAt: Dispatch<SetStateAction<Date | null>>;
+    endAt: Date | null;
+    setEndAt: Dispatch<SetStateAction<Date | null>>;
     months: Date[];
     setMonths: Dispatch<SetStateAction<Date[]>>;
     sideBar: number;
@@ -15,11 +22,11 @@ interface SideBarSectionProps {
     setActiveAt: Dispatch<SetStateAction<Date>>;
 }
 
-export default function MainCalendarSection({ months, setMonths, sideBar, activeAt, setActiveAt, viewMode, setViewMode, today }: SideBarSectionProps) {
+export default function MainCalendarSection({ isDragging, setIsDragging, months, setMonths, sideBar, activeAt, setActiveAt, viewMode, setViewMode, today, startAt, setStartAt, endAt, setEndAt }: SideBarSectionProps) {
     const scrollRef:RefObject<HTMLDivElement | null> = useRef<HTMLDivElement | null>(null);
     const [allDates, setAllDates] = useState<CalendarAtData[]>([]);
 
-    const [isScrolling, setIsScrolling] = useState(false);
+    const [isScrolling, setIsScrolling] = useState<boolean>(false);
 
     const handleScroll = useCallback(() => {
         if(!scrollRef.current || isScrolling) return;
@@ -60,12 +67,6 @@ export default function MainCalendarSection({ months, setMonths, sideBar, active
             setTimeout(() => setIsScrolling(false), 300);
         }
     }, [isScrolling]);
-
-    useEffect(() => {
-        if(months.length <= 0) return;
-
-        console.log(`${months[0] && months[0].getMonth()+1} ${months[1] && months[1].getMonth()+1} ${months[2] && months[2].getMonth()+1}`)
-    }, [months]);
 
     const center:()=>void = () => {
         const container = scrollRef.current;
@@ -132,7 +133,44 @@ export default function MainCalendarSection({ months, setMonths, sideBar, active
 
     }, [months]);
 
+    const formatDate:(dayData: CalendarAtData) => Date | undefined = (dayData: CalendarAtData):Date | undefined => {
+        if(!dayData.year || !dayData.month || !dayData.day) return;
 
+
+        return new Date(dayData.year, dayData.month, dayData.day);
+    }
+
+    const handleDateStart:(dayData: CalendarAtData) => void = useCallback((dayData: CalendarAtData):void => {
+        if(startAt) {
+            setStartAt(null);
+            setEndAt(null);
+            return;
+        }
+        setIsDragging(true);
+        const dateStr:Date | undefined = formatDate(dayData);
+        if(dateStr) {
+            setStartAt(dateStr);
+            setEndAt(dateStr);
+        }
+    }, [startAt]);
+
+    const handleDateMove:(dayData: CalendarAtData) => void = (dayData: CalendarAtData):void => {
+        if (!isDragging) return;
+        const dateStr:Date | undefined = formatDate(dayData);
+        if(dateStr) {
+            setEndAt(dateStr);
+        }
+    }
+
+    const handleDateEnd:(dayData: CalendarAtData) => void = (dayData: CalendarAtData):void => {
+        if (!isDragging) return;
+
+        const dateStr:Date | undefined = formatDate(dayData);
+        if(dateStr) {
+            setEndAt(dateStr);
+            setIsDragging(false);
+        }
+    };
 
     return (
         <div className="flex-1 flex flex-col gap-5">
@@ -174,10 +212,31 @@ export default function MainCalendarSection({ months, setMonths, sideBar, active
                                     <div key={index} className="grid grid-cols-7 text-right flex-1 snap-start">
                                         {week.map((dayData:CalendarAtData, i:number) => (
                                             <div
+                                                onMouseDown={() => handleDateStart(dayData)}
+                                                onMouseUp={() => handleDateEnd(dayData)}
+                                                onTouchStart={() => handleDateStart(dayData)}
+                                                onTouchEnd={() => handleDateEnd(dayData)}
+
+                                                onTouchMove={() => handleDateMove(dayData)}
+                                                onMouseEnter={() => handleDateMove(dayData)}
                                                 style={{height: `${scrollRef.current && (scrollRef.current.clientHeight/6)+'px'}` }}
-                                                key={`${index}-${i}`} className={`border-[0.5px] count-${dayData.count} border-gray-800 ${dayData.isWeekend ? "bg-[#0d1117]" : ""} ${dayData.isActive ? "normal-text text-base" : "text-gray-700 text-sm"}`}>
+                                                key={`${index}-${i}`} className={`border-[0.5px]
+                                              ${(startAt && endAt) && (
+                                                ((startAt <= new Date(dayData.year, dayData.month, dayData.day)) &&
+                                                    (endAt >= new Date(dayData.year, dayData.month, dayData.day)) ||
+                                                    (endAt <= new Date(dayData.year, dayData.month, dayData.day)) &&
+                                                    (startAt >= new Date(dayData.year, dayData.month, dayData.day)))
+                                            ) ? "bg-blue-500/10" : (
+                                                dayData.isWeekend ? "bg-[#0d1117]" : ""
+                                            ) }
+                                                 count-${dayData.count} border-gray-800 ${dayData.isActive ? "normal-text text-base" : "text-gray-700 text-sm"}`}>
                                                 <p className="py-2">
-                                                    <span className="px-2">{dayData.day}</span>
+                                                    <span className="px-2">{
+                                                        (dayData.day === 1) ?
+                                                            `${dayData.month+1}월 ${dayData.day}`
+                                                            :
+                                                            dayData.day
+                                                    }</span>
                                                 </p>
                                             </div>
                                         ))}

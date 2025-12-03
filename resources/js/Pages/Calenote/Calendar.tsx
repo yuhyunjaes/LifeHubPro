@@ -18,8 +18,8 @@ export default function Calendar({ auth, mode, year, month } : CalendarProps) {
     const [sideBar, setSideBar] = useState<number>((): 0 | 250 => (window.innerWidth <= 640 ? 0 : 250));
     const [sideBarToggle, setSideBarToggle] = useState<boolean>(false);
 
-    const [startAt, setStartAt] = useState<string>("");
-    const [endAt, setEndAt] = useState<string>("");
+    const [startAt, setStartAt] = useState<Date | null>(null);
+    const [endAt, setEndAt] = useState<Date | null>(null);
 
     const [viewMode, setViewMode] = useState<"month" | "week" | "day">(mode ? mode : "month");
 
@@ -31,6 +31,21 @@ export default function Calendar({ auth, mode, year, month } : CalendarProps) {
         At,
         new Date(At.getFullYear(), At.getMonth() + 1, 1),
     ]);
+    const [isDragging, setIsDragging] = useState<boolean>(false);
+
+    const eventAtUpdate = useCallback(() => {
+        if(!startAt || !endAt || isDragging) return;
+
+        if(startAt > endAt) {
+            setStartAt(endAt);
+            setEndAt(startAt)
+        }
+
+    }, [startAt, endAt, isDragging]);
+
+    useEffect(() => {
+        eventAtUpdate();
+    }, [eventAtUpdate]);
 
     useEffect(() => {
         if (mode) {
@@ -54,7 +69,7 @@ export default function Calendar({ auth, mode, year, month } : CalendarProps) {
             <div className="min-h-full bg-gray-100 dark:bg-gray-950 relative flex flex-col">
                 <CalendarTitleSection />
                 <div className="flex-1 flex px-5 gap-5 flex-row pb-5">
-                    <MainCalendarSection months={months} setMonths={setMonths} activeAt={activeAt} setActiveAt={setActiveAt} today={today} viewMode={viewMode} setViewMode={setViewMode} sideBar={sideBar} />
+                    <MainCalendarSection isDragging={isDragging} setIsDragging={setIsDragging} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} months={months} setMonths={setMonths} activeAt={activeAt} setActiveAt={setActiveAt} today={today} viewMode={viewMode} setViewMode={setViewMode} sideBar={sideBar} />
                     <SideBarSection sideBar={sideBar} />
                 </div>
             </div>
