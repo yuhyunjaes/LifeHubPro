@@ -6,6 +6,7 @@ import {AuthUser} from "../../Types/CalenoteTypes";
 import {useCallback, useEffect, useState} from "react";
 import {router} from "@inertiajs/react";
 import CalendarControlSection from "./Sections/Calendar/CalendarSection/CalendarControlSection";
+import WeekCalendarSection from "./Sections/Calendar/WeekCalendarSection";
 interface CalendarProps {
     auth: {
         user: AuthUser | null;
@@ -27,6 +28,8 @@ export default function Calendar({ auth, mode, year, month, day } : CalendarProp
     const today = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     const At:Date = (year && month) ? new Date(year, month-1, 1) : today;
     const [activeAt, setActiveAt] = useState<Date>(today);
+    const [activeDay, setActiveDay] = useState<number | null>(viewMode !== "month" ? day : null);
+
     const [months, setMonths] = useState<Date[]>([
         new Date(At.getFullYear(), At.getMonth() - 1, 1),
         At,
@@ -90,6 +93,11 @@ export default function Calendar({ auth, mode, year, month, day } : CalendarProp
                         {
                             mode === "month" && (
                                 <MonthCalendarSection isDragging={isDragging} setIsDragging={setIsDragging} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} months={months} setMonths={setMonths} activeAt={activeAt} setActiveAt={setActiveAt} today={today} viewMode={viewMode} setViewMode={setViewMode} sideBar={sideBar} />
+                            )
+                        }
+                        {
+                            mode === "week" && (
+                                <WeekCalendarSection activeAt={activeAt} setActiveAt={setActiveAt} activeDay={activeDay} setActiveDay={setActiveDay} />
                             )
                         }
                     </div>
