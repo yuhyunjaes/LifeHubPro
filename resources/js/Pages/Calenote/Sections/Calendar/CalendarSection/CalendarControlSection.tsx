@@ -14,9 +14,11 @@ interface CalendarControlSectionProps {
     viewMode: "month" | "week" | "day";
     setViewMode: Dispatch<SetStateAction<"month" | "week" | "day">>;
     activeAt: Date;
+    setActiveAt: Dispatch<SetStateAction<Date>>;
+    activeDay: number | null;
 }
 
-export default function CalendarControlSection({ setIsDragging, startAt, viewMode, setViewMode, activeAt}: CalendarControlSectionProps) {
+export default function CalendarControlSection({ setIsDragging, startAt, viewMode, setViewMode, activeAt, setActiveAt, activeDay}: CalendarControlSectionProps) {
     const modes:Mode[] = [
         {
             title: "월",
@@ -49,6 +51,7 @@ export default function CalendarControlSection({ setIsDragging, startAt, viewMod
                     onChange={(e) => {
                         const value:string = e.target.value;
                         setIsDragging(false);
+
                         if (value === "month") {
                             router.visit(`/calenote/calendar/${value}/${activeAt.getFullYear()}/${activeAt.getMonth()+1}`, {
                                 method: "get",
@@ -56,7 +59,19 @@ export default function CalendarControlSection({ setIsDragging, startAt, viewMod
                                 preserveScroll: true,
                             });
                         } else if (value === "week" || value === "day") {
-                            router.visit(`/calenote/calendar/${value}/${startAt ? startAt.getFullYear() : activeAt.getFullYear()}/${startAt ? startAt.getMonth()+1 : activeAt.getMonth()+1}${startAt ? ("/"+startAt.getDate()) : (new Date().getMonth() === activeAt.getMonth() ? "/"+new Date().getDate() : "/1")}`, {
+                            const year = startAt ? startAt.getFullYear() : activeAt.getFullYear();
+                            const month = startAt ? startAt.getMonth()+1 : activeAt.getMonth()+1;
+                            const day = startAt ? startAt.getDate() : activeDay ? activeDay : (
+                                activeAt.getMonth() === new Date().getMonth()
+                                &&
+                                activeAt.getFullYear() === new Date().getFullYear()
+                            ) ? new Date().getDate() : 1;
+
+                            if (startAt) {
+                                setActiveAt(new Date(startAt.getFullYear(), startAt.getMonth(), 1));
+                            }
+
+                            router.visit(`/calenote/calendar/${value}/${year}/${month}/${day}`, {
                                 method: "get",
                                 preserveState: true,
                                 preserveScroll: true,

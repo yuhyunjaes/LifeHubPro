@@ -55,7 +55,7 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
             });
 
             setTimeout(() => setIsScrolling(false), 300);
-        }else if (scrollTop + clientHeight >= scrollHeight) {
+        }else if (scrollTop + clientHeight >= scrollHeight - 0.5) {
             setAllDates([]);
             setIsScrolling(true);
 
@@ -139,14 +139,11 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
         return new Date(dayData.year, dayData.month, dayData.day);
     }
 
-    const toEndOfDay = (date: Date): Date => {
-        return new Date(
-            date.getFullYear(),
-            date.getMonth(),
-            date.getDate(),
-            23, 59, 59, 999
-        );
-    };
+    const toStartOfDay = (date: Date): Date =>
+        new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+
+    const toEndOfDay = (date: Date): Date =>
+        new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
 
 
     const handleDateStart = useCallback((dayData: CalendarAtData): void => {
@@ -163,10 +160,9 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
         const date = formatDate(dayData);
         if (!date) return;
 
-        setStartAt(date);
+        setStartAt(toStartOfDay(date));
         setEndAt(toEndOfDay(date));
     }, [startAt, isMobile]);
-
 
     const handleDateMove = useCallback((dayData: CalendarAtData): void => {
         if (!isDragging || isMobile) return;
@@ -245,10 +241,10 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
         if (!dateStr) return;
 
         if (!startAt) {
-            setStartAt(dateStr);
-            setEndAt(dateStr);
+            setStartAt(toStartOfDay(dateStr));
+            setEndAt(toEndOfDay(dateStr));
         } else if (!endAt || startAt.getTime() === endAt.getTime()) {
-            setEndAt(dateStr);
+            setEndAt(toEndOfDay(dateStr));
         } else {
             setStartAt(null);
             setEndAt(null);
@@ -428,7 +424,7 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
                                              ${isSelected ? "bg-blue-500/10" : (
                                                 dayData.isWeekend ? "bg-gray-50 dark:bg-[#0d1117]" : "bg-white dark:bg-gray-950"
                                             ) }
-                                                count-${dayData.count} border-gray-300 dark:border-gray-800 ${dayData.isToday ? "today text-white font-semibold text-sm md:text-base" : (dayData.isActive ? "normal-text text-sm md:text-base font-semibold" : "text-gray-400 text-sm")} user-select-none`}
+                                                count-${dayData.count} border-gray-300 dark:border-gray-800 cursor-pointer transition-colors ${dayData.isToday ? "today text-white font-semibold text-sm md:text-base" : (dayData.isActive ? "normal-text text-sm md:text-base font-semibold" : "text-gray-400 text-sm")} user-select-none`}
                                             >
                                                 {(dayData.day === 1) ?
                                                     <><span className="px-2 hidden xl:block">
