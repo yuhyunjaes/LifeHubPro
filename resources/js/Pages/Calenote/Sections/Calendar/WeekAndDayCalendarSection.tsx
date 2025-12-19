@@ -210,22 +210,30 @@ export default function WeekAndDayCalendarSection({
         setIsDragging(false);
     }, [isDragging, isMobile]);
 
+    const isInitialRange = (start: Date, end: Date) =>
+        end.getTime() === add15Minutes(start).getTime();
+
     const handleMobileDateClick = useCallback((e: any) => {
         if (!isMobile) return;
 
-        const dateStr = new Date(e.target.dataset.date);
-        if (!dateStr) return;
+        const date = new Date(e.target.dataset.date);
+        if (!date) return;
 
         if (!startAt) {
-            setStartAt(dateStr);
-            setEndAt(add15Minutes(dateStr));
-        } else if (!endAt || startAt.getTime() === endAt.getTime()) {
-            setEndAt(add15Minutes(dateStr));
-        } else {
-            setStartAt(null);
-            setEndAt(null);
+            setStartAt(date);
+            setEndAt(add15Minutes(date));
+            return;
         }
+
+        if (!endAt || isInitialRange(startAt, endAt)) {
+            setEndAt(add15Minutes(date));
+            return;
+        }
+
+        setStartAt(null);
+        setEndAt(null);
     }, [isMobile, startAt, endAt]);
+
 
     useEffect(() => {
         const container = scrollRef.current;

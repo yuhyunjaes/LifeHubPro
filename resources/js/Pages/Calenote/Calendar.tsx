@@ -5,7 +5,7 @@ import { Head } from '@inertiajs/react';
 import {AuthUser} from "../../Types/CalenoteTypes";
 import {useCallback, useEffect, useState} from "react";
 import {router} from "@inertiajs/react";
-import CalendarControlSection from "./Sections/Calendar/CalendarSection/CalendarControlSection";
+import CalendarControlSection from "./Sections/Calendar/CalendarControlSection";
 import WeekAndDayCalendarSection from "./Sections/Calendar/WeekAndDayCalendarSection";
 
 interface CalendarProps {
@@ -34,6 +34,8 @@ export default function Calendar({ auth, mode, year, month, day } : CalendarProp
     const [activeAt, setActiveAt] = useState<Date>(At);
     const [activeDay, setActiveDay] = useState<number | null>(viewMode !== "month" ? day : null);
 
+    const [isDragging, setIsDragging] = useState<boolean>(false);
+
     const [months, setMonths] = useState<Date[]>([]);
 
     const handleResize = () => {
@@ -55,9 +57,6 @@ export default function Calendar({ auth, mode, year, month, day } : CalendarProp
             new Date(activeAt.getFullYear(), activeAt.getMonth() + 1, 1),
         ]);
     }, [activeAt]);
-
-
-    const [isDragging, setIsDragging] = useState<boolean>(false);
 
     useEffect(() => {
         const handleResize = () => {

@@ -15,17 +15,17 @@ interface FormInputProps {
 }
 
 export default function FormInput({
-                                      label,
-                                      id,
-                                      name,
-                                      type = "text",
-                                      value,
-                                      onChange,
-                                      message = "",
-                                      messageType = "default",
-                                      readOnly = false,
-                                      autoFocus = false
-                                  }: FormInputProps) {
+label,
+id,
+name,
+type = "text",
+value,
+onChange,
+message = "",
+messageType = "default",
+readOnly = false,
+autoFocus = false
+}: FormInputProps) {
     return (
         <div>
             <label htmlFor={id} className="form-label">{label}</label>

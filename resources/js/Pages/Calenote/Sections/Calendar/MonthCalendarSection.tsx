@@ -1,5 +1,5 @@
 import {useState, useRef, useEffect, RefObject, useCallback} from "react";
-import MonthCreator from "./CalendarSection/MonthCreator";
+import MonthCreator from "./MonthCalendarSection/MonthCreator";
 import { Dispatch, SetStateAction } from "react";
 import {CalendarAtData} from "../CalenoteSectionsData";
 
@@ -27,10 +27,6 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
     const [isScrolling, setIsScrolling] = useState<boolean>(false);
     const [isMobile, setIsMobile] = useState<boolean>(false);
 
-    useEffect(() => {
-        console.log(`startAt${startAt?.getTime()} --------- endAt${endAt?.getTime()}`)
-    }, [startAt, endAt]);
-
     const handleScroll = useCallback(() => {
         if(!scrollRef.current || isScrolling) return;
 
@@ -40,7 +36,6 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
         const scrollHeight = container.scrollHeight;
 
         if (scrollTop <= 0) {
-            setAllDates([]);
             setIsScrolling(true);
 
             setMonths(prev => {
@@ -48,8 +43,8 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
                 if (!first) return prev;
 
                 const newCenter = new Date(first.getFullYear(), first.getMonth(), 1);
-
                 setActiveAt(newCenter);
+                setAllDates([]);
 
                 return [
                     new Date(newCenter.getFullYear(), newCenter.getMonth() - 1, 1),
@@ -60,7 +55,6 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
 
             setTimeout(() => setIsScrolling(false), 300);
         } else if (scrollTop + clientHeight >= scrollHeight - 0.5) {
-            setAllDates([]);
             setIsScrolling(true);
 
             setMonths(prev => {
@@ -68,8 +62,8 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
                 if (!last) return prev;
 
                 const newCenter = new Date(last.getFullYear(), last.getMonth(), 1);
-
                 setActiveAt(newCenter);
+                setAllDates([]);
 
                 return [
                     new Date(newCenter.getFullYear(), newCenter.getMonth() - 1, 1),
@@ -143,11 +137,16 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
         return new Date(dayData.year, dayData.month, dayData.day);
     }
 
-    const toStartOfDay = (date: Date): Date =>
-        new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+    const eventAtSetting = useCallback((date:Date | null): Date | null => {
+        if(!date) return date;
 
-    const toEndOfDay = (date: Date): Date =>
-        new Date(date.getFullYear(), date.getMonth(), date.getDate()+1);
+        if(startAt && date < startAt) {
+            setStartAt(new Date(startAt.getFullYear(), startAt.getMonth(), startAt.getDate() + 1));
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+        }
+
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate()+1);
+    }, [startAt]);
 
 
     const handleDateStart = useCallback((dayData: CalendarAtData): void => {
@@ -164,8 +163,8 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
         const date = formatDate(dayData);
         if (!date) return;
 
-        setStartAt(toStartOfDay(date));
-        setEndAt(toEndOfDay(date));
+        setStartAt(date);
+        setEndAt(eventAtSetting(date));
     }, [startAt, isMobile]);
 
     const handleDateMove = useCallback((dayData: CalendarAtData): void => {
@@ -174,7 +173,7 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
         const date = formatDate(dayData);
         if (!date) return;
 
-        setEndAt(toEndOfDay(date));
+        setEndAt(eventAtSetting(date));
     }, [isDragging, isMobile]);
 
 
@@ -184,7 +183,7 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
         const date = formatDate(dayData);
         if (!date) return;
 
-        setEndAt(toEndOfDay(date));
+        setEndAt(eventAtSetting(date));
         setIsDragging(false);
     }, [isDragging, isMobile]);
 
@@ -215,7 +214,7 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
 
                 if (year !== undefined && month !== undefined && day !== undefined) {
                     const date = new Date(year, month, day);
-                    setEndAt(toEndOfDay(date));
+                    setEndAt(eventAtSetting(date));
                 }
             }
         });
@@ -227,21 +226,32 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
         return () => document.removeEventListener("mousemove", handleDateMoveOut);
     }, [handleDateMoveOut]);
 
+    const checkMobile = () => {
+        setIsMobile('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    };
+
     useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile('ontouchstart' in window || navigator.maxTouchPoints > 0);
-        };
-
         checkMobile();
-
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
-    }, []);
+    }, [checkMobile]);
 
-    const isSameDay = (a: Date, b: Date) =>
-        a.getFullYear() === b.getFullYear() &&
-        a.getMonth() === b.getMonth() &&
-        a.getDate() === b.getDate();
+    const isSameSelectedDay = (start: Date, end: Date) => {
+        const startDay = new Date(
+            start.getFullYear(),
+            start.getMonth(),
+            start.getDate()
+        );
+
+        const nextDay = new Date(
+            startDay.getFullYear(),
+            startDay.getMonth(),
+            startDay.getDate() + 1,
+            0, 0, 0, 0
+        );
+
+        return end.getTime() === nextDay.getTime();
+    };
 
     const handleMobileDateClick = useCallback((dayData: CalendarAtData): void => {
         if (!isMobile) return;
@@ -250,10 +260,10 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
         if (!dateStr) return;
 
         if (!startAt) {
-            setStartAt(toStartOfDay(dateStr));
-            setEndAt(toEndOfDay(dateStr));
-        } else if (!endAt || isSameDay(startAt, endAt)) {
-            setEndAt(toEndOfDay(dateStr));
+            setStartAt(dateStr);
+            setEndAt(eventAtSetting(dateStr));
+        } else if (!endAt || isSameSelectedDay(startAt, endAt)) {
+            setEndAt(eventAtSetting(dateStr));
         } else {
             setStartAt(null);
             setEndAt(null);
