@@ -1,74 +1,255 @@
-import FormInput from "../../../../../Components/Elements/FormInput";
+import {Dispatch, SetStateAction, useCallback, useEffect, useRef, useState} from "react";
 
 interface EventDateViewProps {
     startAt: Date | null;
+    setStartAt: Dispatch<SetStateAction<Date | null>>;
     endAt: Date | null;
+    setEndAt: Dispatch<SetStateAction<Date | null>>;
 }
 
-export default function EventDateView({ startAt, endAt }:EventDateViewProps) {
-    const leftDate =
-        startAt && endAt
-            ? new Date(Math.min(startAt.getTime(), endAt.getTime()))
-            : null;
+function formatDate(date: Date): string {
+    return date.getFullYear() + "-" +
+        String(date.getMonth() + 1).padStart(2, '0') + "-" +
+        String(date.getDate()).padStart(2, '0');
+}
 
-    const rightDate =
-        startAt && endAt
-            ? new Date(Math.max(startAt.getTime(), endAt.getTime()))
-            : null;
+function formatTime(date: Date): string {
+    return date.toLocaleTimeString("ko-KR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    });
+}
+
+export default function EventDateView({ startAt, setStartAt, endAt, setEndAt }:EventDateViewProps) {
+    const [editType, setEditType] = useState<"startDate" | "startTime" | "endDate" | "endTime" | null>(null);
+    const EditDateAreaRef = useRef<HTMLDivElement>(null);
+
+    const [leftDate, setLeftDate] = useState(startAt && endAt
+        ? new Date(Math.min(startAt.getTime(), endAt.getTime()))
+        : null);
+
+    const [rightDate, setRightDate] = useState(startAt && endAt
+        ? new Date(Math.max(startAt.getTime(), endAt.getTime()))
+        : null);
+
+    useEffect(() => {
+        setLeftDate(
+            startAt && endAt
+                ? new Date(Math.min(startAt.getTime(), endAt.getTime()))
+                : null
+        )
+        setRightDate(
+            startAt && endAt
+                ? new Date(Math.max(startAt.getTime(), endAt.getTime()))
+                : null
+        )
+    }, [startAt, endAt]);
+
+    const [startAtDate, setStartAtDate] = useState("");
+    const [startAtTime, setStartAtTime] = useState("");
+    const [endAtDate, setEndAtDate] = useState("");
+    const [endAtTime, setEndAtTime] = useState("");
+
+    useEffect(() => {
+        setStartAtDate(leftDate ? formatDate(leftDate) : "");
+        setStartAtTime(leftDate ? formatTime(leftDate) : "");
+        setEndAtDate(rightDate ? formatDate(rightDate) : "");
+        setEndAtTime(rightDate ? formatTime(rightDate) : "");
+    }, [leftDate, rightDate]);
+
+    const handleClickOutside = useCallback((e: MouseEvent) => {
+        if (!editType) return;
+
+        if (EditDateAreaRef.current && !EditDateAreaRef.current.contains(e.target as Node)) {
+            setEditType(null);
+            resetDates();
+        }
+    }, [editType]);
+
+    useEffect(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [handleClickOutside]);
+
+    const editEventAt = useCallback((type: "startDate" | "startTime" | "endDate" | "endTime" | null) => {
+        if(!type || !startAt || !endAt) return;
+
+        const eventDataMap = {
+            startDate: startAtDate,
+            startTime: startAtTime,
+            endDate: endAtDate,
+            endTime: endAtTime
+        };
+
+        const selectedData = eventDataMap[type];
+
+        if(!selectedData) return;
+
+        if(type.includes("Date")) {
+            let [year, month, day] = selectedData.split("-").map(Number);
+
+            if(!year || !month || !day) {
+                resetDates();
+                return;
+            }
+
+            if(year < 2015) {
+                year = 2015;
+            } else if(year > 5000) {
+                year = 5000;
+            }
+
+            if(month < 1) {
+                month = 1;
+            } else if(month > 12) {
+                month = 12;
+            }
+
+            const lastDayOfMonth = new Date(year, month - 1, 0).getDate();
+
+            if(day < 1) {
+                day = 1;
+            } else if(day > lastDayOfMonth) {
+                day = lastDayOfMonth;
+            }
+
+            const isStartDate = type.includes("start");
+            const sourceDate = isStartDate ? startAt : endAt;
+
+            const newDate = new Date(
+                year,
+                month - 1,
+                day,
+                sourceDate.getHours(),
+                sourceDate.getMinutes(),
+                sourceDate.getSeconds(),
+            );
+
+            if(!newDate) return;
+
+            isStartDate ? setStartAt(newDate) : setEndAt(newDate);
+            setEditType(null);
+
+        } else if(type.includes("Time")) {
+            const parts = selectedData.split(":").map(Number);
+            let hour = parts[0] ?? 0;
+            let minute = parts[1] ?? 0;
+
+            if(isNaN(hour) || isNaN(minute)) {
+                resetDates();
+                return;
+            }
+
+            if(hour < 0) {
+                hour = 0;
+            } else if(hour > 23) {
+                hour = 23;
+            }
+
+            if(minute < 0) {
+                minute = 0;
+            } else if(minute > 59) {
+                minute = 59;
+            }
+
+            const isStartTime = type.includes("start");
+            const sourceDate = isStartTime ? startAt : endAt;
+
+            const newDate = new Date(sourceDate);
+            newDate.setHours(hour, minute, 0);
+
+            if(!newDate) return;
+
+            isStartTime ? setStartAt(newDate) : setEndAt(newDate);
+
+            setEditType(null);
+        }
+
+    }, [startAtDate, startAtTime, endAtDate, endAtTime, startAt, endAt]);
+
+    const resetDates = useCallback(() => {
+        setStartAtDate(leftDate ? formatDate(leftDate) : "");
+        setStartAtTime(leftDate ? formatTime(leftDate) : "");
+        setEndAtDate(rightDate ? formatDate(rightDate) : "");
+        setEndAtTime(rightDate ? formatTime(rightDate) : "");
+    }, [leftDate, rightDate]);
 
     return (
-        <div className="pt-17 px-5 flex-wrap">
-            <div className="flex">
-                <input type="text" className="border-0 bg-transparent outline-none max-w-1/2" value="11"/>
-                <input type="text" className="border-0 bg-transparent outline-none max-w-1/2" value="11"/>
-            </div>
+        <>
+            {
+                (startAt && endAt) ? (
+                    <>
+                        <div className="pt-5 px-5 pb-1 flex">
+                            <div className="w-1/2">
+                                <p className="normal-text text-xs font-semibold">시작일</p>
+                            </div>
+                            <div className="w-1/2">
+                                <p className="normal-text text-xs font-semibold">종료일</p>
+                            </div>
+                        </div>
+                        <div ref={EditDateAreaRef} className="px-5 pb-5 flex space-x-1">
+                            <div className="w-1/2 flex flex-col space-y-1">
+                                {
+                                    editType === "startDate" ? (
+                                        <input autoFocus={true} type="text" className="border border-gray-300 dark:border-gray-800 p-1 rounded bg-transparent text-xs font-semibold outline-none"onKeyDown={(e) => {
+                                            if(e.key === "Enter") {
+                                                editEventAt("startDate");
+                                                setEditType(null);
+                                            }
+                                        }} onChange={(e) => setStartAtDate(e.target.value)} value={startAtDate}/>
+                                    ) : (
+                                        <div className="border border-gray-300 dark:border-gray-800 p-1 rounded bg-transparent text-xs font-semibold cursor-pointer" onClick={() => {setEditType("startDate")}}>{formatDate(startAt)}</div>
+                                    )
+                                }
 
-            <div className="flex">
-                <input type="text" className="border-0 bg-transparent outline-none max-w-1/2" value="11"/>
-                <input type="text" className="border-0 bg-transparent outline-none max-w-1/2" value="11"/>
-            </div>
-            {/*여기까지*/}
+                                {
+                                    editType === "startTime" ? (
+                                        <input autoFocus={true} type="text" className="border border-gray-300 dark:border-gray-800 p-1 rounded bg-transparent text-xs font-semibold outline-none" onKeyDown={(e) => {
+                                            if(e.key === "Enter") {
+                                                editEventAt("startTime");
+                                                setEditType(null);
+                                            }
+                                        }} onChange={(e) => setStartAtTime(e.target.value)} value={startAtTime}/>
+                                    ) : (
+                                        <div className="border border-gray-300 dark:border-gray-800 p-1 rounded bg-transparent text-xs font-semibold cursor-pointer" onClick={() => {setEditType("startTime")}}>{formatTime(startAt)}</div>
+                                    )
+                                }
+                            </div>
 
-            {/*<div className="w-full text-xs flex justify-between items-center font-semibold">*/}
-            {/*    {(leftDate && rightDate) && (*/}
-            {/*        <>*/}
-            {/*            <p>*/}
-            {/*                {leftDate.getFullYear()}-*/}
-            {/*                {leftDate.getMonth() + 1}-*/}
-            {/*                {leftDate.getDate()}*/}
-            {/*            </p>*/}
+                            <div className="w-1/2 flex flex-col space-y-1">
+                                {
+                                    editType === "endDate" ? (
+                                        <input autoFocus={true} type="text" className="border border-gray-300 dark:border-gray-800 p-1 rounded bg-transparent text-xs font-semibold outline-none" onKeyDown={(e) => {
+                                            if(e.key === "Enter") {
+                                                editEventAt("endDate");
+                                                setEditType(null);
+                                            }
+                                        }} onChange={(e) => setEndAtDate(e.target.value)} value={endAtDate}/>
+                                    ) : (
+                                        <div className="border border-gray-300 dark:border-gray-800 p-1 rounded bg-transparent text-xs font-semibold cursor-pointer" onClick={() => {setEditType("endDate")}}>{formatDate(endAt)}</div>
+                                    )
+                                }
 
-            {/*            <p>*/}
-            {/*                {rightDate.getFullYear()}-*/}
-            {/*                {rightDate.getMonth() + 1}-*/}
-            {/*                {rightDate.getDate()}*/}
-            {/*            </p>*/}
-            {/*        </>*/}
-            {/*    )}*/}
-            {/*</div>*/}
-
-            {/*<div className="w-full text-xs font-semibold flex justify-between items-center ">*/}
-            {/*    {(leftDate && rightDate) && (() => {*/}
-            {/*        const leftTime = leftDate.toLocaleTimeString("ko-KR", {*/}
-            {/*            hour: "2-digit",*/}
-            {/*            minute: "2-digit",*/}
-            {/*            hour12: false,*/}
-            {/*        });*/}
-
-            {/*        const rightTime = rightDate.toLocaleTimeString("ko-KR", {*/}
-            {/*            hour: "2-digit",*/}
-            {/*            minute: "2-digit",*/}
-            {/*            hour12: false,*/}
-            {/*        });*/}
-
-            {/*        return (*/}
-            {/*            <>*/}
-            {/*                <p>{leftTime}</p>*/}
-            {/*                <p>{rightTime}</p>*/}
-            {/*            </>*/}
-            {/*        );*/}
-            {/*    })()}*/}
-            {/*</div>*/}
-        </div>
+                                {
+                                    editType === "endTime" ? (
+                                        <input autoFocus={true} type="text" className="border border-gray-300 dark:border-gray-800 p-1 rounded bg-transparent text-xs font-semibold outline-none" onKeyDown={(e) => {
+                                            if(e.key === "Enter") {
+                                                editEventAt("endTime");
+                                                setEditType(null);
+                                            }
+                                        }} onChange={(e) => setEndAtTime(e.target.value)} value={endAtTime}/>
+                                    ) : (
+                                        <div className="border border-gray-300 dark:border-gray-800 p-1 rounded bg-transparent text-xs font-semibold cursor-pointer" onClick={() => {setEditType("endTime")}}>{formatTime(endAt)}</div>
+                                    )
+                                }
+                            </div>
+                        </div>
+                    </>
+                ) : ""
+            }
+        </>
     );
 }
