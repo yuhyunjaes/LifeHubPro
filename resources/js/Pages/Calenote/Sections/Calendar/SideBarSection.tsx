@@ -1,8 +1,20 @@
 import {Dispatch, SetStateAction, useEffect, useState} from "react";
-import EventDateView from "./SideBarSection/EventDateView";
+import EventDateViewAndControl from "./SideBarSection/EventDateViewAndControl";
+import EventTitleControl from "./SideBarSection/EventTitleControl";
+import EventDescriptionControl from "./SideBarSection/EventDescriptionControl";
+import EventColorControl from "./SideBarSection/EventColorControl";
+import ReminderControl from "./SideBarSection/ReminderControl";
 
 interface SideBarSectionProps {
-
+    saveEvent: ()=> Promise<void>;
+    eventReminder: "5min" | "10min" | "15min" | "30min" | "1day" | "2day" | "3day" | "start";
+    setEventReminder: Dispatch<SetStateAction<"5min" | "10min" | "15min" | "30min" | "1day" | "2day" | "3day" | "start">>;
+    eventDescription: string;
+    setEventDescription: Dispatch<SetStateAction<string>>;
+    eventColor: "bg-red-500" | "bg-orange-500" | "bg-yellow-500" | "bg-green-500" | "bg-blue-500" | "bg-purple-500" | "bg-gray-500";
+    setEventColor: Dispatch<SetStateAction<"bg-red-500" | "bg-orange-500" | "bg-yellow-500" | "bg-green-500" | "bg-blue-500" | "bg-purple-500" | "bg-gray-500">>;
+    eventTitle: string;
+    setEventTitle: Dispatch<SetStateAction<string>>;
     viewMode: "month" | "week" | "day";
     sideBar: number;
     startAt: Date | null;
@@ -11,14 +23,24 @@ interface SideBarSectionProps {
     setEndAt: Dispatch<SetStateAction<Date | null>>;
 }
 
-export default function SideBarSection({  viewMode, sideBar, startAt, setStartAt, endAt, setEndAt }:SideBarSectionProps) {
+export default function SideBarSection({ saveEvent, eventReminder, setEventReminder, eventDescription, setEventDescription, eventColor, setEventColor, eventTitle, setEventTitle, viewMode, sideBar, startAt, setStartAt, endAt, setEndAt }:SideBarSectionProps) {
 
     return (
         <div
-            className={`${sideBar <= 0 ? "hidden" : ""} border max-h-[calc(100vh-(70px+2.5rem))] sticky top-[1.25rem] bg-white dark:bg-[#0d1117] border-gray-300 dark:border-gray-800 rounded-xl normal-text user-select-none`}
+            className={`${sideBar <= 0 ? "hidden" : ""} border max-h-[calc(100vh-(70px+2.5rem))] sticky top-[1.25rem] bg-white dark:bg-[#0d1117] border-gray-300 dark:border-gray-800 rounded-xl normal-text user-select-none space-y-5`}
             style={{ width: `${sideBar}px` }}
         >
-            <EventDateView startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} />
+            {
+                (startAt && endAt) ? (
+                    <>
+                        <EventTitleControl saveEvent={saveEvent} eventTitle={eventTitle} setEventTitle={setEventTitle} />
+                        <EventDateViewAndControl startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} />
+                        <EventDescriptionControl eventDescription={eventDescription} setEventDescription={setEventDescription} />
+                        <EventColorControl eventColor={eventColor} setEventColor={setEventColor} />
+                        <ReminderControl eventReminder={eventReminder} setEventReminder={setEventReminder} />
+                    </>
+                ) : ""
+            }
         </div>
     );
 }

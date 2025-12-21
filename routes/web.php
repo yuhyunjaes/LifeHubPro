@@ -11,6 +11,7 @@ use App\Http\Controllers\NotepadController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\NotepadLikeController;
 use App\Http\Controllers\ChatCategoryController;
+use App\Http\Controllers\EventController;
 use App\Models\Notepad;
 
 /*
@@ -160,6 +161,11 @@ Route::middleware('web')->group(function () {
 
         Route::post('/api/messages', [ChatController::class, 'StoreMessages'])->name('messages.store');
         Route::get('/api/messages/{roomId}', [ChatController::class, 'getMessages'])->name('messages.get');
+
+        // --------------------
+        // Event Api
+        // --------------------
+        Route::post('/api/events', [EventController::class, 'StoreEvents'])->name('event.store');
 
         // --------------------
         // Gemini API

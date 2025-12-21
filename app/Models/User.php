@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Notepad;
 use App\Models\ChatRoom;
+use App\Models\Event;
 
 class User extends Authenticatable
 {
@@ -22,6 +23,10 @@ class User extends Authenticatable
 
     public function notepads() {
         return $this->hasMany(Notepad::class);
+    }
+
+    public function events() {
+        return $this->hasMany(Event::class);
     }
 
     public function chatrooms() {

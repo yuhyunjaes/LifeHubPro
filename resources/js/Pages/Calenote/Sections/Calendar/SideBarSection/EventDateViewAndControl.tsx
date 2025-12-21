@@ -21,42 +21,21 @@ function formatTime(date: Date): string {
     });
 }
 
-export default function EventDateView({ startAt, setStartAt, endAt, setEndAt }:EventDateViewProps) {
+export default function EventDateViewAndControl({ startAt, setStartAt, endAt, setEndAt }:EventDateViewProps) {
     const [editType, setEditType] = useState<"startDate" | "startTime" | "endDate" | "endTime" | null>(null);
     const EditDateAreaRef = useRef<HTMLDivElement>(null);
 
-    const [leftDate, setLeftDate] = useState(startAt && endAt
-        ? new Date(Math.min(startAt.getTime(), endAt.getTime()))
-        : null);
-
-    const [rightDate, setRightDate] = useState(startAt && endAt
-        ? new Date(Math.max(startAt.getTime(), endAt.getTime()))
-        : null);
+    const [startAtDate, setStartAtDate] = useState((startAt && endAt) ? formatDate(new Date(Math.min(startAt.getTime(), endAt.getTime()))) : "");
+    const [startAtTime, setStartAtTime] = useState((startAt && endAt) ? formatTime(new Date(Math.min(startAt.getTime(), endAt.getTime()))) : "");
+    const [endAtDate, setEndAtDate] = useState((startAt && endAt) ? formatDate(new Date(endAt.getTime(), Math.max(startAt.getTime()))) : "");
+    const [endAtTime, setEndAtTime] = useState((startAt && endAt) ? formatTime(new Date(endAt.getTime(), Math.max(startAt.getTime()))) : "");
 
     useEffect(() => {
-        setLeftDate(
-            startAt && endAt
-                ? new Date(Math.min(startAt.getTime(), endAt.getTime()))
-                : null
-        )
-        setRightDate(
-            startAt && endAt
-                ? new Date(Math.max(startAt.getTime(), endAt.getTime()))
-                : null
-        )
+        setStartAtDate((startAt && endAt) ? formatDate(new Date(Math.min(startAt.getTime(), endAt.getTime()))) : "");
+        setStartAtTime((startAt && endAt) ? formatTime(new Date(Math.min(startAt.getTime(), endAt.getTime()))) : "");
+        setEndAtDate((startAt && endAt) ? formatDate(new Date(endAt.getTime(), Math.max(startAt.getTime()))) : "");
+        setEndAtTime((startAt && endAt) ? formatTime(new Date(endAt.getTime(), Math.max(startAt.getTime()))) : "");
     }, [startAt, endAt]);
-
-    const [startAtDate, setStartAtDate] = useState("");
-    const [startAtTime, setStartAtTime] = useState("");
-    const [endAtDate, setEndAtDate] = useState("");
-    const [endAtTime, setEndAtTime] = useState("");
-
-    useEffect(() => {
-        setStartAtDate(leftDate ? formatDate(leftDate) : "");
-        setStartAtTime(leftDate ? formatTime(leftDate) : "");
-        setEndAtDate(rightDate ? formatDate(rightDate) : "");
-        setEndAtTime(rightDate ? formatTime(rightDate) : "");
-    }, [leftDate, rightDate]);
 
     const handleClickOutside = useCallback((e: MouseEvent) => {
         if (!editType) return;
@@ -171,18 +150,18 @@ export default function EventDateView({ startAt, setStartAt, endAt, setEndAt }:E
     }, [startAtDate, startAtTime, endAtDate, endAtTime, startAt, endAt]);
 
     const resetDates = useCallback(() => {
-        setStartAtDate(leftDate ? formatDate(leftDate) : "");
-        setStartAtTime(leftDate ? formatTime(leftDate) : "");
-        setEndAtDate(rightDate ? formatDate(rightDate) : "");
-        setEndAtTime(rightDate ? formatTime(rightDate) : "");
-    }, [leftDate, rightDate]);
+        setStartAtDate((startAt && endAt) ? formatDate(new Date(Math.min(startAt.getTime(), endAt.getTime()))) : "");
+        setStartAtTime((startAt && endAt) ? formatTime(new Date(Math.min(startAt.getTime(), endAt.getTime()))) : "");
+        setEndAtDate((startAt && endAt) ? formatDate(new Date(endAt.getTime(), Math.max(startAt.getTime()))) : "");
+        setEndAtTime((startAt && endAt) ? formatTime(new Date(endAt.getTime(), Math.max(startAt.getTime()))) : "");
+    }, [startAt, endAt]);
 
     return (
         <>
             {
                 (startAt && endAt) ? (
-                    <>
-                        <div className="pt-5 px-5 pb-1 flex">
+                    <div>
+                        <div className="px-5 pb-1 flex">
                             <div className="w-1/2">
                                 <p className="normal-text text-xs font-semibold">시작일</p>
                             </div>
@@ -190,11 +169,11 @@ export default function EventDateView({ startAt, setStartAt, endAt, setEndAt }:E
                                 <p className="normal-text text-xs font-semibold">종료일</p>
                             </div>
                         </div>
-                        <div ref={EditDateAreaRef} className="px-5 pb-5 flex space-x-1">
+                        <div ref={EditDateAreaRef} className="px-5 flex space-x-1">
                             <div className="w-1/2 flex flex-col space-y-1">
                                 {
                                     editType === "startDate" ? (
-                                        <input autoFocus={true} type="text" className="border border-gray-300 dark:border-gray-800 p-1 rounded bg-transparent text-xs font-semibold outline-none"onKeyDown={(e) => {
+                                        <input autoFocus={true} type="text" className="border border-gray-300 dark:border-gray-800 p-1 rounded bg-transparent text-xs font-semibold outline-none" onKeyDown={(e) => {
                                             if(e.key === "Enter") {
                                                 editEventAt("startDate");
                                                 setEditType(null);
@@ -247,7 +226,7 @@ export default function EventDateView({ startAt, setStartAt, endAt, setEndAt }:E
                                 }
                             </div>
                         </div>
-                    </>
+                    </div>
                 ) : ""
             }
         </>

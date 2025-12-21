@@ -4,6 +4,10 @@ import { Dispatch, SetStateAction } from "react";
 import {CalendarAtData} from "../CalenoteSectionsData";
 
 interface SideBarSectionProps {
+    setEventReminder: Dispatch<SetStateAction<"5min" | "10min" | "15min" | "30min" | "1day" | "2day" | "3day" | "start">>;
+    setEventDescription: Dispatch<SetStateAction<string>>;
+    setEventColor: Dispatch<SetStateAction<"bg-red-500" | "bg-orange-500" | "bg-yellow-500" | "bg-green-500" | "bg-blue-500" | "bg-purple-500" | "bg-gray-500">>;
+    setEventTitle: Dispatch<SetStateAction<string>>;
     isDragging: boolean;
     setIsDragging: Dispatch<SetStateAction<boolean>>;
     startAt: Date | null;
@@ -20,7 +24,7 @@ interface SideBarSectionProps {
     setActiveAt: Dispatch<SetStateAction<Date>>;
 }
 
-export default function MonthCalendarSection({ isDragging, setIsDragging, months, setMonths, sideBar, activeAt, setActiveAt, viewMode, setViewMode, today, startAt, setStartAt, endAt, setEndAt }: SideBarSectionProps) {
+export default function MonthCalendarSection({ setEventReminder, setEventDescription,setEventColor, setEventTitle, isDragging, setIsDragging, months, setMonths, sideBar, activeAt, setActiveAt, viewMode, setViewMode, today, startAt, setStartAt, endAt, setEndAt }: SideBarSectionProps) {
     const scrollRef:RefObject<HTMLDivElement | null> = useRef<HTMLDivElement | null>(null);
     const [allDates, setAllDates] = useState<CalendarAtData[]>([]);
 
@@ -155,6 +159,10 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
         if (startAt) {
             setStartAt(null);
             setEndAt(null);
+            setEventTitle("");
+            setEventReminder("30min");
+            setEventDescription("");
+            setEventColor("bg-blue-500");
             return;
         }
 
@@ -267,6 +275,10 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
         } else {
             setStartAt(null);
             setEndAt(null);
+            setEventTitle("");
+            setEventReminder("30min");
+            setEventDescription("");
+            setEventColor("bg-blue-500");
         }
     }, [isMobile, startAt, endAt]);
 
@@ -453,7 +465,7 @@ export default function MonthCalendarSection({ isDragging, setIsDragging, months
                                              ${isSelected ? "bg-blue-500/10" : (
                                                 dayData.isWeekend ? "bg-gray-50 dark:bg-[#0d1117]" : "bg-white dark:bg-gray-950"
                                             ) }
-                                                count-${dayData.count} border-gray-300 ${maxTime} dark:border-gray-800 cursor-pointer transition-colors ${dayData.isToday ? "today text-white font-semibold text-sm md:text-base" : (dayData.isActive ? "normal-text text-sm md:text-base font-semibold" : "text-gray-400 text-sm")} user-select-none`}
+                                                count-${dayData.count} border-gray-100 ${maxTime} dark:border-gray-800 cursor-pointer transition-colors ${dayData.isToday ? "today text-white font-semibold text-sm md:text-base" : (dayData.isActive ? "normal-text text-xs md:text-sm font-semibold" : "text-gray-400 text-sm")} user-select-none`}
                                             >
                                                 {(dayData.day === 1) ?
                                                     <><span className="px-2 hidden xl:block">

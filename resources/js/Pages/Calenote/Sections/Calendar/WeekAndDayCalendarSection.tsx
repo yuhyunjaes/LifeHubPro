@@ -1,6 +1,10 @@
 import {Dispatch, RefObject, SetStateAction, useCallback, useEffect, useRef, useState} from "react";
 
 interface WeekCalendarSectionProps {
+    setEventReminder: Dispatch<SetStateAction<"5min" | "10min" | "15min" | "30min" | "1day" | "2day" | "3day" | "start">>;
+    setEventDescription: Dispatch<SetStateAction<string>>;
+    setEventColor: Dispatch<SetStateAction<"bg-red-500" | "bg-orange-500" | "bg-yellow-500" | "bg-green-500" | "bg-blue-500" | "bg-purple-500" | "bg-gray-500">>;
+    setEventTitle: Dispatch<SetStateAction<string>>;
     mobileView: boolean;
     viewMode: "month" | "week" | "day";
     isDragging: boolean;
@@ -16,6 +20,10 @@ interface WeekCalendarSectionProps {
 }
 
 export default function WeekAndDayCalendarSection({
+    setEventReminder,
+    setEventDescription,
+    setEventColor,
+    setEventTitle,
     mobileView,
     viewMode,
     isDragging,
@@ -182,6 +190,10 @@ export default function WeekAndDayCalendarSection({
         if(startAt) {
             setStartAt(null);
             setEndAt(null);
+            setEventTitle("");
+            setEventReminder("30min");
+            setEventDescription("");
+            setEventColor("bg-blue-500");
             return;
         }
         setIsDragging(true);
@@ -232,6 +244,10 @@ export default function WeekAndDayCalendarSection({
 
         setStartAt(null);
         setEndAt(null);
+        setEventTitle("");
+        setEventReminder("30min");
+        setEventDescription("");
+        setEventColor("bg-blue-500");
     }, [isMobile, startAt, endAt]);
 
 
