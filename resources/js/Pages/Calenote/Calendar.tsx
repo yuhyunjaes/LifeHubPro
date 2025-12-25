@@ -33,22 +33,47 @@ export default function Calendar({ auth, mode, year, month, day, setAlertSwitch,
 
     const [viewMode, setViewMode] = useState<"month" | "week" | "day">(mode ? mode : "month");
 
+    const [temporaryYear, setTemporaryYear] = useState<number | null>(year);
+    const [temporaryMonth, setTemporaryMonth] = useState<number | null>(month);
+    const [temporaryDay, setTemporaryDay] = useState<number | null>(day);
+
     const today = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-    const At:Date = (year && month) ? new Date(year, month-1, 1) : today;
+    const At:Date = (temporaryYear && temporaryMonth) ? new Date(temporaryYear, temporaryMonth-1, 1) : today;
     const [activeAt, setActiveAt] = useState<Date>(At);
-    const [activeDay, setActiveDay] = useState<number | null>(viewMode !== "month" ? day : null);
+
+    useEffect(() => {
+        setActiveAt((temporaryYear && temporaryMonth) ? new Date(temporaryYear, temporaryMonth-1, 1) : new Date(today.getFullYear(), today.getMonth(), 1));
+    }, [temporaryYear, temporaryMonth]);
+
+    const [activeDay, setActiveDay] = useState<number | null>(viewMode !== "month" ? temporaryDay : null);
+
+    useEffect(() => {
+        if (viewMode !== "month" && temporaryDay) {
+            setActiveDay(temporaryDay);
+        } else if (viewMode === "month") {
+            setActiveDay(null);
+        }
+    }, [temporaryDay, viewMode]);
 
     const [isDragging, setIsDragging] = useState<boolean>(false);
 
-    const [months, setMonths] = useState<Date[]>([]);
+    const [months, setMonths] = useState<Date[]>([
+        new Date(At.getFullYear(), At.getMonth() - 1, 1),
+        new Date(At.getFullYear(), At.getMonth(), 1),
+        new Date(At.getFullYear(), At.getMonth() + 1, 1),
+    ]);
 
     const [eventTitle, setEventTitle] = useState<string>("");
     const [eventDescription, setEventDescription] = useState<string>("");
     const [eventColor, setEventColor] = useState<"bg-red-500" | "bg-orange-500" | "bg-yellow-500" | "bg-green-500" | "bg-blue-500" | "bg-purple-500" | "bg-gray-500">("bg-blue-500");
     const [eventReminder, setEventReminder] = useState<"5min" | "10min" | "15min" | "30min" | "1day" | "2day" | "3day" | "start">("30min");
 
+
+    const [eventId, setEventId] = useState<string | null>(null);
+    const [events, setEvents] = useState([]);
+
     const saveEvent:()=>Promise<void> = useCallback(async ():Promise<void> => {
-        if(!startAt || !endAt || !eventColor) return;
+        if(!startAt || !endAt || !eventColor || eventId) return;
         try {
             const res = await axios.post("/api/events", {
                 eventSwitch: "normal",
@@ -60,7 +85,12 @@ export default function Calendar({ auth, mode, year, month, day, setAlertSwitch,
             });
 
             if(res.data.success) {
-                console.log(res.data.event);
+                setEventId(res.data.event.uuid);
+                router.visit(`/calenote/calendar${res.data.event.uuid ? "/"+res.data.event.uuid : ""}`, {
+                    method: "get",
+                    preserveState: true,
+                    preserveScroll: true,
+                });
             } else {
                 setAlertSwitch(true);
                 setAlertType(res.data.type);
@@ -69,7 +99,7 @@ export default function Calendar({ auth, mode, year, month, day, setAlertSwitch,
         } catch (err) {
             console.log(err);
         }
-    }, [eventTitle, eventDescription, eventColor, startAt, endAt]);
+    }, [eventTitle, eventDescription, eventColor, startAt, endAt, eventId]);
 
     const handleResize = () => {
         setMobileView(window.innerWidth <= 640);
@@ -123,43 +153,25 @@ export default function Calendar({ auth, mode, year, month, day, setAlertSwitch,
         }
     }, [mode]);
 
-    useEffect(() => {
-        if(viewMode !== "month") {
-            setActiveDay(day);
-        } else {
-            setActiveDay(null);
-        }
-    }, [viewMode, day]);
-
-    useEffect(() => {
-        if(!activeAt || !viewMode || (viewMode !== "month" && !activeDay) || startAt) return;
-        router.visit(`/calenote/calendar/${viewMode}/${activeAt.getFullYear()}/${activeAt.getMonth()+1}${(activeDay && viewMode !== 'month') ? ("/"+activeDay) : ""}`, {
-            method: "get",
-            preserveState: true,
-            preserveScroll: true,
-        });
-    }, [activeAt, activeDay, viewMode, startAt]);
-
-
     return (
         <>
             <Head title="Calendar"/>
             <div className="min-h-full bg-gray-100 dark:bg-gray-950 relative flex flex-col">
                 <div className="flex-1 flex px-5 gap-5 flex-row py-5">
                     <div className="flex-1 flex flex-col gap-5">
-                        <CalendarControlSection setIsDragging={setIsDragging} startAt={startAt} activeAt={activeAt} setActiveAt={setActiveAt} viewMode={viewMode} setViewMode={setViewMode} activeDay={activeDay}/>
+                        <CalendarControlSection setTemporaryYear={setTemporaryYear} setTemporaryMonth={setTemporaryMonth} setTemporaryDay={setTemporaryDay} setIsDragging={setIsDragging} startAt={startAt} activeAt={activeAt} setActiveAt={setActiveAt} viewMode={viewMode} setViewMode={setViewMode} activeDay={activeDay}/>
                         {
-                            mode === "month" && (
+                            viewMode === "month" && (
                                 <MonthCalendarSection setEventReminder={setEventReminder} setEventDescription={setEventDescription} setEventColor={setEventColor} setEventTitle={setEventTitle} isDragging={isDragging} setIsDragging={setIsDragging} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} months={months} setMonths={setMonths} activeAt={activeAt} setActiveAt={setActiveAt} today={today} viewMode={viewMode} setViewMode={setViewMode} sideBar={sideBar} />
                             )
                         }
                         {
-                            (mode === "week" || mode === "day") && (
+                            (viewMode === "week" || viewMode === "day") && (
                                 <WeekAndDayCalendarSection setEventReminder={setEventReminder} setEventDescription={setEventDescription} setEventColor={setEventColor} setEventTitle={setEventTitle} mobileView={mobileView} viewMode={viewMode} isDragging={isDragging} setIsDragging={setIsDragging} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} activeAt={activeAt} setActiveAt={setActiveAt} activeDay={activeDay} setActiveDay={setActiveDay} />
                             )
                         }
                     </div>
-                    <SideBarSection saveEvent={saveEvent} eventReminder={eventReminder} setEventReminder={setEventReminder} eventDescription={eventDescription} setEventDescription={setEventDescription} eventColor={eventColor} setEventColor={setEventColor} eventTitle={eventTitle} setEventTitle={setEventTitle} viewMode={viewMode} sideBar={sideBar} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} />
+                    <SideBarSection eventId={eventId} saveEvent={saveEvent} eventReminder={eventReminder} setEventReminder={setEventReminder} eventDescription={eventDescription} setEventDescription={setEventDescription} eventColor={eventColor} setEventColor={setEventColor} eventTitle={eventTitle} setEventTitle={setEventTitle} viewMode={viewMode} sideBar={sideBar} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} />
                 </div>
             </div>
         </>

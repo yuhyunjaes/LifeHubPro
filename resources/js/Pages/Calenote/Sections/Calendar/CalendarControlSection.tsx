@@ -9,6 +9,9 @@ interface Mode {
 }
 
 interface CalendarControlSectionProps {
+    setTemporaryYear: Dispatch<SetStateAction<number | null>>;
+    setTemporaryMonth: Dispatch<SetStateAction<number | null>>;
+    setTemporaryDay: Dispatch<SetStateAction<number | null>>;
     setIsDragging: Dispatch<SetStateAction<boolean>>;
     startAt: null | Date;
     viewMode: "month" | "week" | "day";
@@ -18,7 +21,7 @@ interface CalendarControlSectionProps {
     activeDay: number | null;
 }
 
-export default function CalendarControlSection({ setIsDragging, startAt, viewMode, setViewMode, activeAt, setActiveAt, activeDay}: CalendarControlSectionProps) {
+export default function CalendarControlSection({ setTemporaryYear, setTemporaryMonth, setTemporaryDay, setIsDragging, startAt, viewMode, setViewMode, activeAt, setActiveAt, activeDay}: CalendarControlSectionProps) {
     const modes:Mode[] = [
         {
             title: "월",
@@ -53,29 +56,24 @@ export default function CalendarControlSection({ setIsDragging, startAt, viewMod
                         setIsDragging(false);
 
                         if (value === "month") {
-                            router.visit(`/calenote/calendar/${value}/${activeAt.getFullYear()}/${activeAt.getMonth()+1}`, {
-                                method: "get",
-                                preserveState: true,
-                                preserveScroll: true,
-                            });
+                            setViewMode(value);
+                            setTemporaryYear(activeAt.getFullYear());
+                            setTemporaryMonth(activeAt.getMonth()+1)
                         } else if (value === "week" || value === "day") {
                             const year = startAt ? startAt.getFullYear() : activeAt.getFullYear();
-                            const month = startAt ? startAt.getMonth()+1 : activeAt.getMonth()+1;
-                            const day = startAt ? startAt.getDate() : activeDay ? activeDay : (
-                                activeAt.getMonth() === new Date().getMonth()
-                                &&
-                                activeAt.getFullYear() === new Date().getFullYear()
-                            ) ? new Date().getDate() : 1;
+                            const month = startAt ? startAt.getMonth() + 1 : activeAt.getMonth() + 1;
+                            const day = startAt
+                                ? startAt.getDate()
+                                : activeDay
+                                    ? activeDay
+                                    : (activeAt.getMonth() === new Date().getMonth() && activeAt.getFullYear() === new Date().getFullYear())
+                                        ? new Date().getDate()
+                                        : 1;
 
-                            if (startAt) {
-                                setActiveAt(new Date(startAt.getFullYear(), startAt.getMonth(), 1));
-                            }
-
-                            router.visit(`/calenote/calendar/${value}/${year}/${month}/${day}`, {
-                                method: "get",
-                                preserveState: true,
-                                preserveScroll: true,
-                            });
+                            setViewMode(value);
+                            setTemporaryYear(year);
+                            setTemporaryMonth(month);
+                            setTemporaryDay(day);
                         }
                     }}
                 >

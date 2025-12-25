@@ -68,7 +68,7 @@ Route::middleware('web')->group(function () {
             return Inertia::render('Calenote/Calendar');
         })->name('calendar');
 
-        Route::get('/calenote/calendar/{mode}/{year?}/{month?}/{day?}', function ($mode, $year = 0, $month = 0, $day = 0) {
+        Route::get('/calenote/calendar/{mode}/{year}/{month}/{day?}', function ($mode, $year = 0, $month = 0, $day = 0) {
             // mode 체크
             $modeTypes = ['month', 'week', 'day'];
             if (!in_array($mode, $modeTypes)) {
@@ -104,6 +104,12 @@ Route::middleware('web')->group(function () {
                 'day' => $day !== null ? (int)$day : null,
             ]);
         })->name('calendar');
+
+        Route::get('/calenote/calendar/{uuid}', function () {
+            return Inertia::render('Calenote/Calendar');
+        })->name('calendar');
+
+//        여기까지
 
         Route::get('/calenote/notepad', function () {
             return Inertia::render('Calenote/Notepad');

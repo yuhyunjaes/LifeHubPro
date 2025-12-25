@@ -6,6 +6,7 @@ import EventColorControl from "./SideBarSection/EventColorControl";
 import ReminderControl from "./SideBarSection/ReminderControl";
 
 interface SideBarSectionProps {
+    eventId: string | null;
     saveEvent: ()=> Promise<void>;
     eventReminder: "5min" | "10min" | "15min" | "30min" | "1day" | "2day" | "3day" | "start";
     setEventReminder: Dispatch<SetStateAction<"5min" | "10min" | "15min" | "30min" | "1day" | "2day" | "3day" | "start">>;
@@ -23,7 +24,8 @@ interface SideBarSectionProps {
     setEndAt: Dispatch<SetStateAction<Date | null>>;
 }
 
-export default function SideBarSection({ saveEvent, eventReminder, setEventReminder, eventDescription, setEventDescription, eventColor, setEventColor, eventTitle, setEventTitle, viewMode, sideBar, startAt, setStartAt, endAt, setEndAt }:SideBarSectionProps) {
+export default function SideBarSection({ eventId, saveEvent, eventReminder, setEventReminder, eventDescription, setEventDescription, eventColor, setEventColor, eventTitle, setEventTitle, viewMode, sideBar, startAt, setStartAt, endAt, setEndAt }:SideBarSectionProps) {
+    const [onlyOneClick, setOnlyOneClick] = useState(false);
 
     return (
         <div
@@ -33,11 +35,23 @@ export default function SideBarSection({ saveEvent, eventReminder, setEventRemin
             {
                 (startAt && endAt) ? (
                     <>
-                        <EventTitleControl saveEvent={saveEvent} eventTitle={eventTitle} setEventTitle={setEventTitle} />
+                        <EventTitleControl eventTitle={eventTitle} setEventTitle={setEventTitle} />
                         <EventDateViewAndControl startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} />
                         <EventDescriptionControl eventDescription={eventDescription} setEventDescription={setEventDescription} />
                         <EventColorControl eventColor={eventColor} setEventColor={setEventColor} />
                         <ReminderControl eventReminder={eventReminder} setEventReminder={setEventReminder} />
+                        <div className="px-5">
+                        {
+                            (!eventId && !onlyOneClick) ? (
+                                <button onClick={() => {
+                                    saveEvent();
+                                    setOnlyOneClick(true);
+                                }} className="btn text-xs bg-blue-500 text-white w-full">
+                                    생성
+                                </button>
+                            ) : ""
+                        }
+                        </div>
                     </>
                 ) : ""
             }
