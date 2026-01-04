@@ -14,7 +14,6 @@ interface SideBarSectionProps {
     firstCenter: boolean;
     eventId: string | null;
     setEventId: Dispatch<SetStateAction<string | null>>;
-    setEventReminder: Dispatch<SetStateAction<"5min" | "10min" | "15min" | "30min" | "1day" | "2day" | "3day" | "start">>;
     setEventDescription: Dispatch<SetStateAction<string>>;
     setEventColor: Dispatch<SetStateAction<"bg-red-500" | "bg-orange-500" | "bg-yellow-500" | "bg-green-500" | "bg-blue-500" | "bg-purple-500" | "bg-gray-500">>;
     setEventTitle: Dispatch<SetStateAction<string>>;
@@ -29,7 +28,7 @@ interface SideBarSectionProps {
     sideBar: number;
     viewMode: "month" | "week" | "day";
     setViewMode: Dispatch<SetStateAction<"month" | "week" | "day">>;
-    today: Date;
+    now: Date;
     activeAt: Date;
     setActiveAt: Dispatch<SetStateAction<Date>>;
 }
@@ -41,13 +40,33 @@ interface EventWithLayout extends EventsData {
     column: number;
 }
 
-export default function MonthCalendarSection({ setEventIdChangeDone, setLoading, setIsHaveEvent, events, IsHaveEvent, firstCenter, eventId, setEventId, setEventReminder, setEventDescription,setEventColor, setEventTitle, isDragging, setIsDragging, months, setMonths, sideBar, activeAt, setActiveAt, viewMode, setViewMode, today, startAt, setStartAt, endAt, setEndAt }: SideBarSectionProps) {
+export default function MonthCalendarSection({ setEventIdChangeDone, setLoading, setIsHaveEvent, events, IsHaveEvent, firstCenter, eventId, setEventId, setEventDescription,setEventColor, setEventTitle, isDragging, setIsDragging, months, setMonths, sideBar, activeAt, setActiveAt, viewMode, setViewMode, now, startAt, setStartAt, endAt, setEndAt }: SideBarSectionProps) {
     const [allDates, setAllDates] = useState<CalendarAtData[]>([]);
 
     const scrollRef:RefObject<HTMLDivElement | null> = useRef<HTMLDivElement | null>(null);
 
     const [isScrolling, setIsScrolling] = useState<boolean>(false);
     const [isMobile, setIsMobile] = useState<boolean>(false);
+
+    const updateAllDates = useCallback(() => {
+        if (allDates.length <= 0 || !now) return;
+
+        const nowYear = now.getFullYear();
+        const nowMonth = now.getMonth();
+        const nowDate = now.getDate();
+
+        setAllDates(prev =>
+            prev.map(date => ({
+                ...date,
+                isToday: date.year === nowYear && date.month === nowMonth && date.day === nowDate
+            }))
+        );
+    }, [allDates, now]);
+
+
+    useEffect(() => {
+        updateAllDates();
+    }, [now]);
 
     const handleScroll = useCallback(() => {
         if(!scrollRef.current || isScrolling) return;
@@ -199,7 +218,6 @@ export default function MonthCalendarSection({ setEventIdChangeDone, setLoading,
             setStartAt(null);
             setEndAt(null);
             setEventTitle("");
-            setEventReminder("30min");
             setEventDescription("");
             setEventColor("bg-blue-500");
             return;
@@ -317,7 +335,6 @@ export default function MonthCalendarSection({ setEventIdChangeDone, setLoading,
                 setStartAt(null);
                 setEndAt(null);
                 setEventTitle("");
-                setEventReminder("30min");
                 setEventDescription("");
                 setEventColor("bg-blue-500");
             }
@@ -590,6 +607,7 @@ export default function MonthCalendarSection({ setEventIdChangeDone, setLoading,
                     return months.map((m: Date, index: number) => {
                         return (
                             <MonthCreator
+                                now={now}
                                 key={index}
                                 scrollRef={scrollRef}
                                 count={index+1}

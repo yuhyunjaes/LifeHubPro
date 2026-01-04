@@ -8,7 +8,7 @@ import {router} from "@inertiajs/react";
 import CalendarControlSection from "./Sections/Calendar/CalendarControlSection";
 import WeekAndDayCalendarSection from "./Sections/Calendar/WeekAndDayCalendarSection";
 import axios from "axios";
-import {EventsData} from "./Sections/CalenoteSectionsData";
+import { EventsData } from "./Sections/CalenoteSectionsData";
 
 interface CalendarProps {
     setLoading: Dispatch<SetStateAction<boolean>>;
@@ -47,11 +47,14 @@ export default function Calendar({ setLoading, event, auth, mode, year, month, d
     const today = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     const At:Date = (temporaryYear && temporaryMonth) ? new Date(temporaryYear, temporaryMonth-1, 1) : today;
     const [activeAt, setActiveAt] = useState<Date>(At);
+    const [now, setNow] = useState(new Date());
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setNow(new Date());
+        }, 1000);
 
-    // useEffect(() => {
-    //     setActiveAt((temporaryYear && temporaryMonth) ? new Date(temporaryYear, temporaryMonth-1, 1) : new Date(today.getFullYear(), today.getMonth(), 1));
-    // }, [temporaryYear, temporaryMonth]);
-
+        return () => clearInterval(timer);
+    }, []);
 
     const [activeDay, setActiveDay] = useState<number | null>(viewMode !== "month" ? temporaryDay : null);
 
@@ -74,7 +77,7 @@ export default function Calendar({ setLoading, event, auth, mode, year, month, d
     const [eventTitle, setEventTitle] = useState<string>("");
     const [eventDescription, setEventDescription] = useState<string>("");
     const [eventColor, setEventColor] = useState<"bg-red-500" | "bg-orange-500" | "bg-yellow-500" | "bg-green-500" | "bg-blue-500" | "bg-purple-500" | "bg-gray-500">("bg-blue-500");
-    const [eventReminder, setEventReminder] = useState<"5min" | "10min" | "15min" | "30min" | "1day" | "2day" | "3day" | "start">("30min");
+    const [eventReminder, setEventReminder] = useState<string[]>([]);
 
 
     const [eventId, setEventId] = useState<string | null>(null);
@@ -249,7 +252,6 @@ export default function Calendar({ setLoading, event, auth, mode, year, month, d
                 setEventTitle("");
                 setEventDescription("");
                 setEventColor("bg-blue-500");
-                setEventReminder("30min");
                 setStartAt(null);
                 setEndAt(null);
 
@@ -428,16 +430,16 @@ export default function Calendar({ setLoading, event, auth, mode, year, month, d
                         <CalendarControlSection setMonths={setMonths} setTemporaryYear={setTemporaryYear} setTemporaryMonth={setTemporaryMonth} setTemporaryDay={setTemporaryDay} setIsDragging={setIsDragging} startAt={startAt} activeAt={activeAt} setActiveAt={setActiveAt} viewMode={viewMode} setViewMode={setViewMode} activeDay={activeDay}/>
                         {
                             viewMode === "month" && (
-                                <MonthCalendarSection setEventIdChangeDone={setEventIdChangeDone} setLoading={setLoading} setIsHaveEvent={setIsHaveEvent} events={events} IsHaveEvent={IsHaveEvent} firstCenter={firstCenter} eventId={eventId} setEventId={setEventId} setEventReminder={setEventReminder} setEventDescription={setEventDescription} setEventColor={setEventColor} setEventTitle={setEventTitle} isDragging={isDragging} setIsDragging={setIsDragging} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} months={months} setMonths={setMonths} activeAt={activeAt} setActiveAt={setActiveAt} today={today} viewMode={viewMode} setViewMode={setViewMode} sideBar={sideBar} />
+                                <MonthCalendarSection setEventIdChangeDone={setEventIdChangeDone} setLoading={setLoading} setIsHaveEvent={setIsHaveEvent} events={events} IsHaveEvent={IsHaveEvent} firstCenter={firstCenter} eventId={eventId} setEventId={setEventId} setEventDescription={setEventDescription} setEventColor={setEventColor} setEventTitle={setEventTitle} isDragging={isDragging} setIsDragging={setIsDragging} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} months={months} setMonths={setMonths} activeAt={activeAt} setActiveAt={setActiveAt} now={now} viewMode={viewMode} setViewMode={setViewMode} sideBar={sideBar} />
                             )
                         }
                         {
                             (viewMode === "week" || viewMode === "day") && (
-                                <WeekAndDayCalendarSection eventId={eventId} setEventReminder={setEventReminder} setEventDescription={setEventDescription} setEventColor={setEventColor} setEventTitle={setEventTitle} mobileView={mobileView} viewMode={viewMode} isDragging={isDragging} setIsDragging={setIsDragging} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} activeAt={activeAt} setActiveAt={setActiveAt} activeDay={activeDay} setActiveDay={setActiveDay} />
+                                <WeekAndDayCalendarSection eventId={eventId} setEventDescription={setEventDescription} setEventColor={setEventColor} setEventTitle={setEventTitle} mobileView={mobileView} viewMode={viewMode} isDragging={isDragging} setIsDragging={setIsDragging} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} activeAt={activeAt} setActiveAt={setActiveAt} activeDay={activeDay} setActiveDay={setActiveDay} />
                             )
                         }
                     </div>
-                    <SideBarSection deleteEvent={deleteEvent} updateEvent={updateEvent} eventId={eventId} setEventId={setEventId} saveEvent={saveEvent} eventReminder={eventReminder} setEventReminder={setEventReminder} eventDescription={eventDescription} setEventDescription={setEventDescription} eventColor={eventColor} setEventColor={setEventColor} eventTitle={eventTitle} setEventTitle={setEventTitle} viewMode={viewMode} sideBar={sideBar} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} />
+                    <SideBarSection eventReminder={eventReminder} setEventReminder={setEventReminder} deleteEvent={deleteEvent} updateEvent={updateEvent} eventId={eventId} setEventId={setEventId} saveEvent={saveEvent} eventDescription={eventDescription} setEventDescription={setEventDescription} eventColor={eventColor} setEventColor={setEventColor} eventTitle={eventTitle} setEventTitle={setEventTitle} viewMode={viewMode} sideBar={sideBar} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} />
                 </div>
             </div>
         </>

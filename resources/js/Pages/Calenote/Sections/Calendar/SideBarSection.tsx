@@ -7,13 +7,13 @@ import ReminderControl from "./SideBarSection/ReminderControl";
 import {router} from "@inertiajs/react";
 
 interface SideBarSectionProps {
+    eventReminder: string[];
+    setEventReminder: Dispatch<SetStateAction<string[]>>;
     deleteEvent: () => Promise<void>;
     updateEvent: () => Promise<void>;
     eventId: string | null;
     setEventId: Dispatch<SetStateAction<string | null>>;
     saveEvent: ()=> Promise<void>;
-    eventReminder: "5min" | "10min" | "15min" | "30min" | "1day" | "2day" | "3day" | "start";
-    setEventReminder: Dispatch<SetStateAction<"5min" | "10min" | "15min" | "30min" | "1day" | "2day" | "3day" | "start">>;
     eventDescription: string;
     setEventDescription: Dispatch<SetStateAction<string>>;
     eventColor: "bg-red-500" | "bg-orange-500" | "bg-yellow-500" | "bg-green-500" | "bg-blue-500" | "bg-purple-500" | "bg-gray-500";
@@ -28,7 +28,7 @@ interface SideBarSectionProps {
     setEndAt: Dispatch<SetStateAction<Date | null>>;
 }
 
-export default function SideBarSection({ deleteEvent, updateEvent, eventId, setEventId, saveEvent, eventReminder, setEventReminder, eventDescription, setEventDescription, eventColor, setEventColor, eventTitle, setEventTitle, viewMode, sideBar, startAt, setStartAt, endAt, setEndAt }:SideBarSectionProps) {
+export default function SideBarSection({ eventReminder, setEventReminder, deleteEvent, updateEvent, eventId, setEventId, saveEvent, eventDescription, setEventDescription, eventColor, setEventColor, eventTitle, setEventTitle, viewMode, sideBar, startAt, setStartAt, endAt, setEndAt }:SideBarSectionProps) {
     const [onlyOneClick, setOnlyOneClick] = useState(false);
     useEffect(() => {
         if(eventId && onlyOneClick) {
