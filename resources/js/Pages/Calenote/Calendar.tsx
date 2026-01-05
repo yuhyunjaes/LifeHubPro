@@ -3,12 +3,12 @@ import SideBarSection from "./Sections/Calendar/SideBarSection";
 import MonthCalendarSection from "./Sections/Calendar/MonthCalendarSection";
 import { Head } from '@inertiajs/react';
 import {AuthUser} from "../../Types/CalenoteTypes";
-import {Dispatch, SetStateAction, useCallback, useEffect, useState} from "react";
+import {Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState} from "react";
 import {router} from "@inertiajs/react";
 import CalendarControlSection from "./Sections/Calendar/CalendarControlSection";
 import WeekAndDayCalendarSection from "./Sections/Calendar/WeekAndDayCalendarSection";
 import axios from "axios";
-import { EventsData, ReminderData } from "./Sections/CalenoteSectionsData";
+import {EventsData, ReminderData, ReminderEventsData} from "./Sections/CalenoteSectionsData";
 
 interface CalendarProps {
     setLoading: Dispatch<SetStateAction<boolean>>;
@@ -86,16 +86,32 @@ export default function Calendar({ setLoading, event, auth, mode, year, month, d
 
     useEffect(() => {
         setEventId(event ? event : null);
-    }, [event]);
-
-    useEffect(() => {
-        if (eventId !== null) {
+        if(event) {
             setEventIdChangeDone(true);
         }
-    }, [eventId]);
+    }, [event]);
 
     const [events, setEvents] = useState<EventsData[]>([]);
     const [reminders, setReminders] = useState<ReminderData[]>([]);
+
+    const reminderEvents: ReminderEventsData[] = useMemo((): ReminderEventsData[] => {
+        if (events.length === 0 || reminders.length === 0) return [];
+
+        const eventStartMap = new Map<string, Date>();
+        events.forEach(e => eventStartMap.set(e.uuid, new Date(e.start_at)));
+
+        return reminders.map(r => {
+            const start = eventStartMap.get(r.event_id);
+            if (!start) return null;
+            return {
+                id: r.id,
+                event_id: r.event_id,
+                event_at: new Date(start.getTime() + r.seconds * 1000)
+            };
+        }).filter(Boolean) as ReminderEventsData[];
+    }, [events, reminders]);
+
+    // reminderEvents를 사용하여 사용자에게 알람을 보내는 기능을 만들어야 함.
 
     const [temporarySaveEvent, setTemporarySaveEvent] = useState<TemporarySaveEvent[]>([]);
 
@@ -192,8 +208,8 @@ export default function Calendar({ setLoading, event, auth, mode, year, month, d
     }, [eventTitle, eventDescription, eventColor, startAt, endAt, eventId, eventReminder]);
 
     const saveEventReminder = useCallback(async (eventUuid: string): Promise<void> => {
-        if(eventReminder.length <= 0 || !eventUuid) return;
-        // 여기가 문제
+        if(!eventUuid) return;
+
         try {
             const res = await axios.post(`/api/event/${eventUuid}/reminders`, {
                 seconds: eventReminder,
@@ -273,7 +289,7 @@ export default function Calendar({ setLoading, event, auth, mode, year, month, d
     }, [eventColor, startAt, endAt, isDragging]);
 
     const updateEventReminder = useCallback(async () => {
-        if(eventReminder.length <= 0 || !eventId) return;
+        if(!eventId) return;
 
         if(!eventIdChangeDone) {
             setEventIdChangeDone(true);
@@ -338,6 +354,8 @@ export default function Calendar({ setLoading, event, auth, mode, year, month, d
             return;
         }
 
+        setLoading(true);
+
         try {
             const res = await axios.get(`/api/events/${event}`);
             if(res.data.success) {
@@ -382,6 +400,7 @@ export default function Calendar({ setLoading, event, auth, mode, year, month, d
             console.error(err);
         } finally {
             setGetDone(true);
+            setLoading(false);
         }
     }
 

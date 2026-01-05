@@ -695,23 +695,30 @@ export default function MonthCalendarSection({ getActiveEventReminder, setEventR
                                                         }}
                                                     >
                                                         <div
-                                                            onClick={() => {
+                                                            onClick={async () => {
                                                                 if(includeEvent.uuid !== eventId) {
-                                                                    setEventIdChangeDone(false);
-                                                                    getActiveEventReminder(includeEvent.uuid);
-                                                                    setEventId(includeEvent.uuid);
+                                                                    setLoading(true);
+                                                                    try {
+                                                                        setEventIdChangeDone(false);
+                                                                        await getActiveEventReminder(includeEvent.uuid);
+                                                                        setEventId(includeEvent.uuid);
 
-                                                                    router.visit(`/calenote/calendar/${includeEvent.uuid}`, {
-                                                                        method: "get",
-                                                                        preserveState: true,
-                                                                        preserveScroll: true,
-                                                                    });
+                                                                        router.visit(`/calenote/calendar/${includeEvent.uuid}`, {
+                                                                            method: "get",
+                                                                            preserveState: true,
+                                                                            preserveScroll: true,
+                                                                        });
 
-                                                                    setEventTitle(includeEvent.title);
-                                                                    setEventDescription(includeEvent.description);
-                                                                    setEventColor(includeEvent.color);
-                                                                    setStartAt(new Date(includeEvent.start_at));
-                                                                    setEndAt(new Date(includeEvent.end_at));
+                                                                        setEventTitle(includeEvent.title);
+                                                                        setEventDescription(includeEvent.description);
+                                                                        setEventColor(includeEvent.color);
+                                                                        setStartAt(new Date(includeEvent.start_at));
+                                                                        setEndAt(new Date(includeEvent.end_at));
+                                                                    } catch (err) {
+
+                                                                    } finally {
+                                                                        setLoading(false);
+                                                                    }
                                                                 }
                                                             }}
                                                             className={`h-full rounded overflow-hidden flex cursor-pointer transition-opacity hover:opacity-80`}

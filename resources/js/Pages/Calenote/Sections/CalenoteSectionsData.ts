@@ -54,4 +54,12 @@ export interface ReminderData {
     user_id: number;
     event_id: string;
     seconds: number;
+    updated_at: string;
+    created_at: string;
+}
+
+export interface ReminderEventsData {
+    id: number;
+    event_id: string;
+    event_at: Date;
 }
