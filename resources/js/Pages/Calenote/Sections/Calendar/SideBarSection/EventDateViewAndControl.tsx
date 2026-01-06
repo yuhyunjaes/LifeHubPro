@@ -161,7 +161,7 @@ export default function EventDateViewAndControl({ startAt, setStartAt, endAt, se
             {
                 (startAt && endAt) ? (
                     <div>
-                        <div className="px-5 pb-1 flex">
+                        <div className="px-5 pb-2 flex">
                             <div className="w-1/2">
                                 <p className="normal-text text-xs font-semibold">시작일</p>
                             </div>

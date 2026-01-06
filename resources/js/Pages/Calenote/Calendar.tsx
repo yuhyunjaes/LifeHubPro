@@ -111,8 +111,6 @@ export default function Calendar({ setLoading, event, auth, mode, year, month, d
         }).filter(Boolean) as ReminderEventsData[];
     }, [events, reminders]);
 
-    // reminderEvents를 사용하여 사용자에게 알람을 보내는 기능을 만들어야 함.
-
     const [temporarySaveEvent, setTemporarySaveEvent] = useState<TemporarySaveEvent[]>([]);
 
     const [getEventDone, setGetEventDone] = useState<boolean>(false);
@@ -569,7 +567,7 @@ export default function Calendar({ setLoading, event, auth, mode, year, month, d
                             )
                         }
                     </div>
-                    <SideBarSection eventReminder={eventReminder} setEventReminder={setEventReminder} deleteEvent={deleteEvent} updateEvent={updateEvent} eventId={eventId} setEventId={setEventId} saveEvent={saveEvent} eventDescription={eventDescription} setEventDescription={setEventDescription} eventColor={eventColor} setEventColor={setEventColor} eventTitle={eventTitle} setEventTitle={setEventTitle} viewMode={viewMode} sideBar={sideBar} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} />
+                    <SideBarSection now={now} events={events} reminderEvents={reminderEvents} eventReminder={eventReminder} setEventReminder={setEventReminder} deleteEvent={deleteEvent} updateEvent={updateEvent} eventId={eventId} setEventId={setEventId} saveEvent={saveEvent} eventDescription={eventDescription} setEventDescription={setEventDescription} eventColor={eventColor} setEventColor={setEventColor} eventTitle={eventTitle} setEventTitle={setEventTitle} viewMode={viewMode} sideBar={sideBar} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} />
                 </div>
             </div>
         </>

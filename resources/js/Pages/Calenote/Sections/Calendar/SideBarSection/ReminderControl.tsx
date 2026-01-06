@@ -124,7 +124,7 @@ export default function ReminderControl({ eventReminder, setEventReminder }:Remi
         <div className="px-5 flex flex-wrap">
             <label
                 htmlFor="eventReminder"
-                className="text-xs font-semibold mb-1"
+                className="text-xs font-semibold mb-2"
             >
                 리마인더
             </label>

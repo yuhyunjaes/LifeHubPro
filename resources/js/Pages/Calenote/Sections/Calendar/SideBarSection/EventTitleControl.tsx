@@ -27,12 +27,14 @@ export default function EventTitleControl({
 
     return (
         <div className="px-5 pt-5">
-            <label
-                htmlFor="eventTitle"
-                className="text-xs font-semibold mb-1"
-            >
-                제목
-            </label>
+            <div className="mb-2">
+                <label
+                    htmlFor="eventTitle"
+                    className="text-xs font-semibold"
+                >
+                    제목
+                </label>
+            </div>
             <input
                 autoFocus
                 type="text"

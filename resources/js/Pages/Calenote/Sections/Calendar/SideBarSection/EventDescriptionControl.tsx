@@ -29,7 +29,7 @@ export default function EventDescriptionControl({
         <div className="px-5 flex flex-wrap">
             <label
                 htmlFor="eventDescription"
-                className="text-xs font-semibold mb-1"
+                className="text-xs font-semibold mb-2"
             >
                 설명
             </label>

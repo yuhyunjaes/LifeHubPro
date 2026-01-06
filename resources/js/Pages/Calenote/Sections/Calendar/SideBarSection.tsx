@@ -5,8 +5,13 @@ import EventDescriptionControl from "./SideBarSection/EventDescriptionControl";
 import EventColorControl from "./SideBarSection/EventColorControl";
 import ReminderControl from "./SideBarSection/ReminderControl";
 import {router} from "@inertiajs/react";
+import {EventsData, ReminderEventsData} from "../CalenoteSectionsData";
+import ReminderView from "./SideBarSection/ReminderView";
 
 interface SideBarSectionProps {
+    now: Date;
+    events: EventsData[];
+    reminderEvents: ReminderEventsData[];
     eventReminder: number[];
     setEventReminder: Dispatch<SetStateAction<number[]>>;
     deleteEvent: () => Promise<void>;
@@ -28,7 +33,7 @@ interface SideBarSectionProps {
     setEndAt: Dispatch<SetStateAction<Date | null>>;
 }
 
-export default function SideBarSection({ eventReminder, setEventReminder, deleteEvent, updateEvent, eventId, setEventId, saveEvent, eventDescription, setEventDescription, eventColor, setEventColor, eventTitle, setEventTitle, viewMode, sideBar, startAt, setStartAt, endAt, setEndAt }:SideBarSectionProps) {
+export default function SideBarSection({ now, events, reminderEvents, eventReminder, setEventReminder, deleteEvent, updateEvent, eventId, setEventId, saveEvent, eventDescription, setEventDescription, eventColor, setEventColor, eventTitle, setEventTitle, viewMode, sideBar, startAt, setStartAt, endAt, setEndAt }:SideBarSectionProps) {
     const [onlyOneClick, setOnlyOneClick] = useState(false);
     useEffect(() => {
         if(eventId && onlyOneClick) {
@@ -41,8 +46,7 @@ export default function SideBarSection({ eventReminder, setEventReminder, delete
             className={`${sideBar <= 0 ? "hidden" : ""} border max-h-[calc(100vh-(70px+2.5rem))] sticky top-[1.25rem] bg-white dark:bg-[#0d1117] border-gray-300 dark:border-gray-800 rounded-xl normal-text user-select-none space-y-5`}
             style={{ width: `${sideBar}px` }}
         >
-            {
-                (eventId || (startAt && endAt)) ? (
+            {(eventId || (startAt && endAt)) ? (
                     <>
                         <EventTitleControl updateEvent={updateEvent} eventTitle={eventTitle} setEventTitle={setEventTitle} />
                         <EventDateViewAndControl startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} />
@@ -66,8 +70,13 @@ export default function SideBarSection({ eventReminder, setEventReminder, delete
                         }
                         </div>
                     </>
-                ) : ""
-            }
+                ) : (
+                    <div className="p-5 space-y-5 h-full overflow-y-auto overflow-x-hidden relative flex flex-col">
+                        <ReminderView events={events} reminderEvents={reminderEvents} now={now} />
+                    </div>
+            )}
+
+
         </div>
     );
 }
