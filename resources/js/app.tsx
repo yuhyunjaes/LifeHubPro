@@ -4,7 +4,9 @@ import './bootstrap';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
-import { ComponentType, ReactElement } from 'react';
+import {ComponentType, ReactElement, useState} from 'react';
+import GlobalProvider from "./Providers/GlobalProvider";
+import Root from "./Root";
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -31,47 +33,48 @@ interface AliasMap {
     [key: string]: string;
 }
 
+interface PageProps {
+    auth: any;
+    [key: string]: any;
+}
+
 interface PageModule {
 default: ComponentType<any> & {
         layout?: (page: ReactElement) => ReactElement;
     };
 }
 
-// 이동
 createInertiaApp({
     title: (title: string) => `${title} - ${appName}`,
-    resolve: async (name: string) => {
-        const aliasMap: AliasMap = {
-            LifeBot: 'LifeBot/LifeBot',
-        };
+        resolve: async (name: string) => {
+            const pages = import.meta.glob<PageModule>('./Pages/**/*.tsx');
+            const page = await resolvePageComponent<PageModule>(`./Pages/${name}.tsx`, pages);
 
-        const normalizedName = aliasMap[name] ?? name;
+            page.default.layout = (pageElement: ReactElement) => {
+                const pProps = pageElement.props as PageProps;
 
-        const pages = import.meta.glob<PageModule>('./Pages/**/*.tsx', { eager: false });
-        const page = await resolvePageComponent<PageModule>(
-            `./Pages/${normalizedName}.tsx`,
-                pages,
-        );
+                const content = name.startsWith('Calenote/') ? (
+                    <CalenoteLayout {...pProps}>
+                        {pageElement}
+                    </CalenoteLayout>
+                ) : (
+                    pageElement
+                );
 
-        if (normalizedName.startsWith('Calenote/')) {
-            page.default.layout = (pageProps: any) => (
-                <CalenoteLayout {...pageProps.props}>
-                    {pageProps}
-                </CalenoteLayout>
-            );
-        } else {
-            page.default.layout = (pageProps: any) => <>{pageProps}</>;
-        }
+                return <Root {...pProps}>{content}</Root>;
+            };
 
-        return page;
-    },
-    setup({ el, App, props }) {
+            return page;
+        },setup({ el, App, props }) {
         initializeDarkMode();
 
         const root = createRoot(el);
-        root.render(<App {...props} />);
-    },
-    progress: {
+        root.render(
+            <GlobalProvider>
+                <App {...props} />
+            </GlobalProvider>
+        );
+    }, progress: {
         color: '#ffffff',
     },
 });

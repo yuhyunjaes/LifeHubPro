@@ -10,20 +10,30 @@ import FormModal from "../../Components/Elements/FormModal";
 import Modal from "../../Components/Elements/Modal";
 import NotepadsSection from "./Sections/Notepad/NotepadsSection";
 import NotepadFilterSection from "./Sections/Notepad/NotepadFilterSection";
-import Loading from "../../Components/Elements/Loading";
+import { useContext } from "react";
+import {GlobalUIContext} from "../../Providers/GlobalUIContext";
 
 
 interface NotepadProps {
     auth: {
         user: AuthUser | null;
     };
-    setAlertSwitch: Dispatch<SetStateAction<boolean>>;
-    setAlertMessage: Dispatch<SetStateAction<any>>;
-    setAlertType: Dispatch<SetStateAction<"success" | "danger" | "info" | "warning">>;
 }
 
-export default function Notepad({ auth, setAlertSwitch, setAlertMessage, setAlertType } : NotepadProps) {
-    const [loading, setLoading] = useState<boolean>(false);
+export default function Notepad({ auth } : NotepadProps) {
+    const ui = useContext(GlobalUIContext);
+
+    if (!ui) {
+        throw new Error("Calendar must be used within GlobalProvider");
+    }
+
+    const {
+        setAlertSwitch,
+        setAlertMessage,
+        setAlertType,
+        setLoading,
+    } = ui;
+
     const [tab, setTab] = useState<"all" | "liked">("all");
     const [viewOption, setViewOption] = useState<"grid" | "list">("grid");
     const [notepads, setNotepads] = useState<Notepads[]>([]);
@@ -166,11 +176,8 @@ export default function Notepad({ auth, setAlertSwitch, setAlertMessage, setAler
                     <NotepadFilterSection setSearchCategory={setSearchCategory} categories={categories} setSearchTitle={setSearchTitle} viewOption={viewOption} setViewOption={setViewOption} tab={tab} setTab={setTab}/>
 
                     {/*메모장 read영역*/}
-                    <NotepadsSection setAlertSwitch={setAlertSwitch} setAlertMessage={setAlertMessage} setAlertType={setAlertType} getNotepadCategories={getNotepadCategories} categories={categories} modal={modal} setModal={setModal} editId={editId} setEditId={setEditId} editStatus={editStatus} setEditStatus={setEditStatus} temporaryEditTitle={temporaryEditTitle} setTemporaryEditTitle={setTemporaryEditTitle} notepadLikes={notepadLikes} tab={tab} setNotepadLikes={setNotepadLikes} viewOption={viewOption} setLoading={setLoading} notepads={notepads} setNotepads={setNotepads} />
+                    <NotepadsSection getNotepadCategories={getNotepadCategories} categories={categories} modal={modal} setModal={setModal} editId={editId} setEditId={setEditId} editStatus={editStatus} setEditStatus={setEditStatus} temporaryEditTitle={temporaryEditTitle} setTemporaryEditTitle={setTemporaryEditTitle} notepadLikes={notepadLikes} tab={tab} setNotepadLikes={setNotepadLikes} viewOption={viewOption} notepads={notepads} setNotepads={setNotepads} />
                 </div>
-
-                {/*로딩창*/}
-                <Loading Toggle={loading}/>
 
                 {/*메모장 삭제 모달창*/}
                 {modal && <Modal Title="메모장 삭제" onClickEvent={handleDeleteNotepad} setModal={setModal} setEditId={setEditId} setEditStatus={setEditStatus} Text={editId && '"'+notepads.find(item => item.id === editId)?.title+'"' + " 메모장을 정말 삭제 하시겠습니까?"} Position="top" CloseText="삭제" />}

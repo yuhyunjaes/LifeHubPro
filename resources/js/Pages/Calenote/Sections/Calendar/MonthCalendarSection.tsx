@@ -4,12 +4,13 @@ import { Dispatch, SetStateAction } from "react";
 import {CalendarAtData} from "../CalenoteSectionsData";
 import {EventsData} from "../CalenoteSectionsData";
 import {router} from "@inertiajs/react";
+import { useContext } from "react";
+import {GlobalUIContext} from "../../../../Providers/GlobalUIContext";
 
 interface SideBarSectionProps {
     getActiveEventReminder: (eventUuid:string) => Promise<void>;
     setEventReminder: Dispatch<SetStateAction<number[]>>;
     setEventIdChangeDone: Dispatch<SetStateAction<boolean>>;
-    setLoading: Dispatch<SetStateAction<boolean>>;
     setIsHaveEvent: Dispatch<SetStateAction<boolean>>;
     events: EventsData[];
     IsHaveEvent: boolean;
@@ -42,7 +43,16 @@ interface EventWithLayout extends EventsData {
     column: number;
 }
 
-export default function MonthCalendarSection({ getActiveEventReminder, setEventReminder, setEventIdChangeDone, setLoading, setIsHaveEvent, events, IsHaveEvent, firstCenter, eventId, setEventId, setEventDescription,setEventColor, setEventTitle, isDragging, setIsDragging, months, setMonths, sideBar, activeAt, setActiveAt, viewMode, setViewMode, now, startAt, setStartAt, endAt, setEndAt }: SideBarSectionProps) {
+export default function MonthCalendarSection({ getActiveEventReminder, setEventReminder, setEventIdChangeDone, setIsHaveEvent, events, IsHaveEvent, firstCenter, eventId, setEventId, setEventDescription,setEventColor, setEventTitle, isDragging, setIsDragging, months, setMonths, sideBar, activeAt, setActiveAt, viewMode, setViewMode, now, startAt, setStartAt, endAt, setEndAt }: SideBarSectionProps) {
+    const ui = useContext(GlobalUIContext);
+
+    if (!ui) {
+        throw new Error("Calendar must be used within GlobalProvider");
+    }
+
+    const {
+        setLoading,
+    } = ui;
     const [allDates, setAllDates] = useState<CalendarAtData[]>([]);
 
     const scrollRef:RefObject<HTMLDivElement | null> = useRef<HTMLDivElement | null>(null);

@@ -5,13 +5,13 @@ import EventDescriptionControl from "./SideBarSection/EventDescriptionControl";
 import EventColorControl from "./SideBarSection/EventColorControl";
 import ReminderControl from "./SideBarSection/ReminderControl";
 import {router} from "@inertiajs/react";
-import {EventsData, ReminderEventsData} from "../CalenoteSectionsData";
+import {EventsData, ReminderData, ReminderEventsData} from "../CalenoteSectionsData";
 import ReminderView from "./SideBarSection/ReminderView";
 
 interface SideBarSectionProps {
+    reminders: ReminderData[];
     now: Date;
     events: EventsData[];
-    reminderEvents: ReminderEventsData[];
     eventReminder: number[];
     setEventReminder: Dispatch<SetStateAction<number[]>>;
     deleteEvent: () => Promise<void>;
@@ -33,7 +33,7 @@ interface SideBarSectionProps {
     setEndAt: Dispatch<SetStateAction<Date | null>>;
 }
 
-export default function SideBarSection({ now, events, reminderEvents, eventReminder, setEventReminder, deleteEvent, updateEvent, eventId, setEventId, saveEvent, eventDescription, setEventDescription, eventColor, setEventColor, eventTitle, setEventTitle, viewMode, sideBar, startAt, setStartAt, endAt, setEndAt }:SideBarSectionProps) {
+export default function SideBarSection({ reminders, now, events, eventReminder, setEventReminder, deleteEvent, updateEvent, eventId, setEventId, saveEvent, eventDescription, setEventDescription, eventColor, setEventColor, eventTitle, setEventTitle, viewMode, sideBar, startAt, setStartAt, endAt, setEndAt }:SideBarSectionProps) {
     const [onlyOneClick, setOnlyOneClick] = useState(false);
     useEffect(() => {
         if(eventId && onlyOneClick) {
@@ -72,7 +72,7 @@ export default function SideBarSection({ now, events, reminderEvents, eventRemin
                     </>
                 ) : (
                     <div className="p-5 space-y-5 h-full overflow-y-auto overflow-x-hidden relative flex flex-col">
-                        <ReminderView events={events} reminderEvents={reminderEvents} now={now} />
+                        <ReminderView events={events} now={now} reminders={reminders} />
                     </div>
             )}
 

@@ -3,20 +3,31 @@ import axios from "axios";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import { faFloppyDisk } from "@fortawesome/free-solid-svg-icons";
 import {Category, Notepads} from "../../../../../Types/CalenoteTypes";
+import { useContext } from "react";
+import {GlobalUIContext} from "../../../../../Providers/GlobalUIContext";
 
 interface NotepadCategoryEdit {
-    setAlertSwitch: Dispatch<SetStateAction<boolean>>;
-    setAlertMessage: Dispatch<SetStateAction<any>>;
-    setAlertType: Dispatch<SetStateAction<"success" | "danger" | "info" | "warning">>;
     notepadId: string;
     notepadCategory: string;
     setNotepads: Dispatch<SetStateAction<Notepads[]>>;
-    setLoading: Dispatch<SetStateAction<boolean>>;
     categories: Category[];
     getNotepadCategories: () => Promise<void>;
 }
 
-export default function NotepadCategoryEdit({ setAlertSwitch, setAlertMessage, setAlertType, notepadId, notepadCategory, setNotepads, setLoading, categories, getNotepadCategories } : NotepadCategoryEdit) {
+export default function NotepadCategoryEdit({ notepadId, notepadCategory, setNotepads, categories, getNotepadCategories } : NotepadCategoryEdit) {
+    const ui = useContext(GlobalUIContext);
+
+    if (!ui) {
+        throw new Error("Calendar must be used within GlobalProvider");
+    }
+
+    const {
+        setAlertSwitch,
+        setAlertMessage,
+        setAlertType,
+        setLoading,
+    } = ui;
+
     const [categoryEditId, setCategoryEditId] = useState<string>("");
     const [temporaryEditCategory, setTemporaryEditCategory] = useState<string>("");
 

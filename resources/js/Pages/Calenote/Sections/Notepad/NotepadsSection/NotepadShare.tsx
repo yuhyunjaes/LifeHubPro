@@ -1,22 +1,32 @@
-// 메모장 공유 영역
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShareNodes, faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import {Dispatch, SetStateAction, useCallback, useEffect, useRef} from "react";
 import axios from "axios";
+import { useContext } from "react";
+import {GlobalUIContext} from "../../../../../Providers/GlobalUIContext";
 
 interface NotepadShareProps {
-    setAlertSwitch: Dispatch<SetStateAction<boolean>>;
-    setAlertMessage: Dispatch<SetStateAction<any>>;
-    setAlertType: Dispatch<SetStateAction<"success" | "danger" | "info" | "warning">>;
     notepadId: string;
     shareId: string;
     setShareId: Dispatch<SetStateAction<string>>;
-    setLoading: Dispatch<SetStateAction<boolean>>;
     isLastInRow: boolean;
 }
 
-export default function NotepadShare({ setAlertSwitch, setAlertMessage, setAlertType, notepadId, shareId, setShareId, setLoading, isLastInRow } : NotepadShareProps) {
+export default function NotepadShare({ notepadId, shareId, setShareId, isLastInRow } : NotepadShareProps) {
+    const ui = useContext(GlobalUIContext);
+
+    if (!ui) {
+        throw new Error("Calendar must be used within GlobalProvider");
+    }
+
+    const {
+        setAlertSwitch,
+        setAlertMessage,
+        setAlertType,
+        setLoading,
+    } = ui;
+
     const menuRef = useRef<HTMLDivElement>(null);
 
     const handleClickOutside = useCallback( (e: MouseEvent) => {

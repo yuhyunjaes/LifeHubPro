@@ -3,15 +3,17 @@ import SideBarSection from "./Sections/Calendar/SideBarSection";
 import MonthCalendarSection from "./Sections/Calendar/MonthCalendarSection";
 import { Head } from '@inertiajs/react';
 import {AuthUser} from "../../Types/CalenoteTypes";
-import {Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState} from "react";
+import {Dispatch, SetStateAction, useCallback, useEffect, useState} from "react";
 import {router} from "@inertiajs/react";
 import CalendarControlSection from "./Sections/Calendar/CalendarControlSection";
 import WeekAndDayCalendarSection from "./Sections/Calendar/WeekAndDayCalendarSection";
 import axios from "axios";
 import {EventsData, ReminderData, ReminderEventsData} from "./Sections/CalenoteSectionsData";
+import { useContext } from "react";
+import {GlobalUIContext} from "../../Providers/GlobalUIContext";
+
 
 interface CalendarProps {
-    setLoading: Dispatch<SetStateAction<boolean>>;
     event: string | null;
     auth: {
         user: AuthUser | null;
@@ -19,17 +21,35 @@ interface CalendarProps {
     mode: "month" | "week" | "day";
     year: number | null;
     month: number | null;
-    day:  number | null;
-    setAlertSwitch: Dispatch<SetStateAction<boolean>>;
-    setAlertMessage: Dispatch<SetStateAction<any>>;
-    setAlertType: Dispatch<SetStateAction<"success" | "danger" | "info" | "warning">>;
+    day: number | null;
+    events: EventsData[];
+    setEvents: Dispatch<SetStateAction<EventsData[]>>;
+    reminders: ReminderData[];
+    setReminders: Dispatch<SetStateAction<ReminderData[]>>;
+    getEventDone: boolean;
+    setGetEventDone: Dispatch<SetStateAction<boolean>>;
+    now: Date;
+    setNow: Dispatch<SetStateAction<Date>>;
 }
 
 interface TemporarySaveEvent extends EventsData {
     index: number;
 }
 
-export default function Calendar({ setLoading, event, auth, mode, year, month, day, setAlertSwitch, setAlertMessage, setAlertType } : CalendarProps) {
+export default function Calendar({ event, auth, mode, year, month, day, events, setEvents, reminders, setReminders, now, setNow, getEventDone, setGetEventDone } : CalendarProps) {
+    const ui = useContext(GlobalUIContext);
+
+    if (!ui) {
+        throw new Error("Calendar must be used within GlobalProvider");
+    }
+
+    const {
+        setAlertSwitch,
+        setAlertMessage,
+        setAlertType,
+        setLoading,
+    } = ui;
+
     const [sideBar, setSideBar] = useState<number>((): 0 | 250 => (window.innerWidth <= 640 ? 0 : 250));
     const [sideBarToggle, setSideBarToggle] = useState<boolean>(false);
 
@@ -47,14 +67,6 @@ export default function Calendar({ setLoading, event, auth, mode, year, month, d
     const today = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     const At:Date = (temporaryYear && temporaryMonth) ? new Date(temporaryYear, temporaryMonth-1, 1) : today;
     const [activeAt, setActiveAt] = useState<Date>(At);
-    const [now, setNow] = useState(new Date());
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setNow(new Date());
-        }, 1000);
-
-        return () => clearInterval(timer);
-    }, []);
 
     const [activeDay, setActiveDay] = useState<number | null>(viewMode !== "month" ? temporaryDay : null);
 
@@ -91,29 +103,7 @@ export default function Calendar({ setLoading, event, auth, mode, year, month, d
         }
     }, [event]);
 
-    const [events, setEvents] = useState<EventsData[]>([]);
-    const [reminders, setReminders] = useState<ReminderData[]>([]);
-
-    const reminderEvents: ReminderEventsData[] = useMemo((): ReminderEventsData[] => {
-        if (events.length === 0 || reminders.length === 0) return [];
-
-        const eventStartMap = new Map<string, Date>();
-        events.forEach(e => eventStartMap.set(e.uuid, new Date(e.start_at)));
-
-        return reminders.map(r => {
-            const start = eventStartMap.get(r.event_id);
-            if (!start) return null;
-            return {
-                id: r.id,
-                event_id: r.event_id,
-                event_at: new Date(start.getTime() + r.seconds * 1000)
-            };
-        }).filter(Boolean) as ReminderEventsData[];
-    }, [events, reminders]);
-
     const [temporarySaveEvent, setTemporarySaveEvent] = useState<TemporarySaveEvent[]>([]);
-
-    const [getEventDone, setGetEventDone] = useState<boolean>(false);
 
     const activeEventFirstChange = useCallback(() => {
         if(temporarySaveEvent[0]) {
@@ -418,36 +408,8 @@ export default function Calendar({ setLoading, event, auth, mode, year, month, d
         }
     }
 
-    const getEvents:()=>Promise<void> = async ():Promise<void> => {
-        try {
-            const res = await axios.get("/api/events");
-            if(res.data.success) {
-                const currentEvents = res.data.events;
-                if(currentEvents.length <= 0) return;
-                setEvents(currentEvents);
-            }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setGetEventDone(true);
-        }
-    }
-
-    const getEventReminders:()=>Promise<void> = async ():Promise<void> => {
-        try {
-            const res = await axios.get("/api/event/reminders");
-            if(res.data.success) {
-                setReminders(res.data.reminders);
-            }
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
     useEffect(() => {
-        getEvents();
         getActiveEvent();
-        getEventReminders();
     }, []);
 
     useEffect(() => {
@@ -558,7 +520,7 @@ export default function Calendar({ setLoading, event, auth, mode, year, month, d
                         <CalendarControlSection setMonths={setMonths} setTemporaryYear={setTemporaryYear} setTemporaryMonth={setTemporaryMonth} setTemporaryDay={setTemporaryDay} setIsDragging={setIsDragging} startAt={startAt} activeAt={activeAt} setActiveAt={setActiveAt} viewMode={viewMode} setViewMode={setViewMode} activeDay={activeDay}/>
                         {
                             viewMode === "month" && (
-                                <MonthCalendarSection getActiveEventReminder={getActiveEventReminder} setEventReminder={setEventReminder} setEventIdChangeDone={setEventIdChangeDone} setLoading={setLoading} setIsHaveEvent={setIsHaveEvent} events={events} IsHaveEvent={IsHaveEvent} firstCenter={firstCenter} eventId={eventId} setEventId={setEventId} setEventDescription={setEventDescription} setEventColor={setEventColor} setEventTitle={setEventTitle} isDragging={isDragging} setIsDragging={setIsDragging} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} months={months} setMonths={setMonths} activeAt={activeAt} setActiveAt={setActiveAt} now={now} viewMode={viewMode} setViewMode={setViewMode} sideBar={sideBar} />
+                                <MonthCalendarSection getActiveEventReminder={getActiveEventReminder} setEventReminder={setEventReminder} setEventIdChangeDone={setEventIdChangeDone} setIsHaveEvent={setIsHaveEvent} events={events} IsHaveEvent={IsHaveEvent} firstCenter={firstCenter} eventId={eventId} setEventId={setEventId} setEventDescription={setEventDescription} setEventColor={setEventColor} setEventTitle={setEventTitle} isDragging={isDragging} setIsDragging={setIsDragging} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} months={months} setMonths={setMonths} activeAt={activeAt} setActiveAt={setActiveAt} now={now} viewMode={viewMode} setViewMode={setViewMode} sideBar={sideBar} />
                             )
                         }
                         {
@@ -567,7 +529,7 @@ export default function Calendar({ setLoading, event, auth, mode, year, month, d
                             )
                         }
                     </div>
-                    <SideBarSection now={now} events={events} reminderEvents={reminderEvents} eventReminder={eventReminder} setEventReminder={setEventReminder} deleteEvent={deleteEvent} updateEvent={updateEvent} eventId={eventId} setEventId={setEventId} saveEvent={saveEvent} eventDescription={eventDescription} setEventDescription={setEventDescription} eventColor={eventColor} setEventColor={setEventColor} eventTitle={eventTitle} setEventTitle={setEventTitle} viewMode={viewMode} sideBar={sideBar} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} />
+                    <SideBarSection reminders={reminders} now={now} events={events} eventReminder={eventReminder} setEventReminder={setEventReminder} deleteEvent={deleteEvent} updateEvent={updateEvent} eventId={eventId} setEventId={setEventId} saveEvent={saveEvent} eventDescription={eventDescription} setEventDescription={setEventDescription} eventColor={eventColor} setEventColor={setEventColor} eventTitle={eventTitle} setEventTitle={setEventTitle} viewMode={viewMode} sideBar={sideBar} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} />
                 </div>
             </div>
         </>

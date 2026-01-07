@@ -1,14 +1,14 @@
-import {EventsData, ReminderEventsData} from "../../CalenoteSectionsData";
+import {EventsData, ReminderData} from "../../CalenoteSectionsData";
 import {useState} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faClock} from "@fortawesome/free-solid-svg-icons";
 
 interface ReminderViewProps {
     events: EventsData[];
-    reminderEvents: ReminderEventsData[];
     now: Date;
+    reminders: ReminderData[];
 }
-export default function ReminderView({ events, reminderEvents, now }:ReminderViewProps) {
+export default function ReminderView({ events, now, reminders }:ReminderViewProps) {
     const [searchReminder, setSearchReminder] = useState<string>("");
     const koreanDate:String[] = [
         "일",
@@ -85,12 +85,15 @@ export default function ReminderView({ events, reminderEvents, now }:ReminderVie
                                         const startAt = new Date(eventStartIncludeAfterNowEvent.start_at);
                                         const endAt = new Date(eventStartIncludeAfterNowEvent.end_at);
 
+                                        const eventStartIncludeAfterNowEventReminder:ReminderData[] = reminders.filter(reminder => reminder.event_id === eventStartIncludeAfterNowEvent.uuid).sort((a, b) => b.seconds - a.seconds);
+
                                         return(
                                             <div key={index} className="flex flex-row">
                                                 <div className={`w-[4px] ${eventStartIncludeAfterNowEvent.color} rounded`}></div>
-                                                <div className="flex-1 px-2">
-                                                    <p className={`text-sm font-semibold ${eventStartIncludeAfterNowEvent.title ? "normal-text" : "text-gray-500"}`}>{eventStartIncludeAfterNowEvent.title ? eventStartIncludeAfterNowEvent.title : "이벤트 제목"}</p>
-                                                    <p className="text-gray-500 text-xs font-semibold">
+                                                <div className="flex-1 pl-2 flex flex-row gap-2">
+                                                    <div className="flex-1">
+                                                        <p className={`text-sm font-semibold ${eventStartIncludeAfterNowEvent.title ? "normal-text" : "text-gray-500"}`}>{eventStartIncludeAfterNowEvent.title ? eventStartIncludeAfterNowEvent.title : "이벤트 제목"}</p>
+                                                        <p className="text-gray-500 text-xs font-semibold">
                                                         <span>
                                                             {startAt.getFullYear()}.
                                                             {(startAt.getMonth()+1 > 9) ? startAt.getMonth()+1 : `0${startAt.getMonth()+1}`}.
@@ -100,17 +103,21 @@ export default function ReminderView({ events, reminderEvents, now }:ReminderVie
                                                             {(startAt.getHours() > 9) ? startAt.getHours() : `0${startAt.getHours()}`}:
                                                             {(startAt.getMinutes() > 9) ? startAt.getMinutes() : `0${startAt.getMinutes()}`}
                                                         </span>
-                                                        ~ <br/>
-                                                        <span>
+                                                            ~ <br/>
+                                                            <span>
                                                             {endAt.getFullYear()}.
-                                                            {(endAt.getMonth()+1 > 9) ? endAt.getMonth()+1 : `0${endAt.getMonth()+1}`}.
-                                                            {(endAt.getDate() > 9) ? endAt.getDate() : `0${endAt.getDate()}`}
-                                                            ({koreanDate[endAt.getDay()]})
+                                                                {(endAt.getMonth()+1 > 9) ? endAt.getMonth()+1 : `0${endAt.getMonth()+1}`}.
+                                                                {(endAt.getDate() > 9) ? endAt.getDate() : `0${endAt.getDate()}`}
+                                                                ({koreanDate[endAt.getDay()]})
 
-                                                            {(endAt.getHours() > 9) ? endAt.getHours() : `0${endAt.getHours()}`}:
-                                                            {(endAt.getMinutes() > 9) ? endAt.getMinutes() : `0${endAt.getMinutes()}`}
+                                                                {(endAt.getHours() > 9) ? endAt.getHours() : `0${endAt.getHours()}`}:
+                                                                {(endAt.getMinutes() > 9) ? endAt.getMinutes() : `0${endAt.getMinutes()}`}
                                                         </span>
-                                                    </p>
+                                                        </p>
+                                                    </div>
+                                                    <div className="w-[60px]">
+
+                                                    </div>
                                                 </div>
                                             </div>
                                         );

@@ -10,14 +10,12 @@ import NotepadShare from "./NotepadsSection/NotepadShare";
 import NotepadEdit from "./NotepadsSection/NotepadEdit";
 import NotepadCategoryEdit from "./NotepadsSection/NotepadCategoryEdit";
 import {Notepads, NotepadsLike, Category} from "../../../../Types/CalenoteTypes";
+import { useContext } from "react";
+import {GlobalUIContext} from "../../../../Providers/GlobalUIContext";
 
 interface NotepadsSectionProps {
-    setAlertSwitch: Dispatch<SetStateAction<boolean>>;
-    setAlertMessage: Dispatch<SetStateAction<any>>;
-    setAlertType: Dispatch<SetStateAction<"success" | "danger" | "info" | "warning">>;
     notepads: Notepads[];
     setNotepads: Dispatch<SetStateAction<Notepads[]>>;
-    setLoading: Dispatch<SetStateAction<boolean>>;
     viewOption: "grid" | "list";
     notepadLikes: NotepadsLike[];
     setNotepadLikes: Dispatch<SetStateAction<NotepadsLike[]>>;
@@ -34,7 +32,19 @@ interface NotepadsSectionProps {
     getNotepadCategories: () => Promise<void>;
 }
 
-export default function NotepadsSection({ setAlertSwitch, setAlertMessage, setAlertType, notepads, setNotepads, setLoading, viewOption, notepadLikes, setNotepadLikes, tab, setEditId, setEditStatus, editId, editStatus, setTemporaryEditTitle, temporaryEditTitle, setModal, modal, categories, getNotepadCategories } : NotepadsSectionProps) {
+export default function NotepadsSection({ notepads, setNotepads, viewOption, notepadLikes, setNotepadLikes, tab, setEditId, setEditStatus, editId, editStatus, setTemporaryEditTitle, temporaryEditTitle, setModal, modal, categories, getNotepadCategories } : NotepadsSectionProps) {
+    const ui = useContext(GlobalUIContext);
+
+    if (!ui) {
+        throw new Error("Calendar must be used within GlobalProvider");
+    }
+
+    const {
+        setAlertSwitch,
+        setAlertMessage,
+        setAlertType,
+        setLoading,
+    } = ui;
     const [shareId, setShareId] = useState<string>("");
 
     const EditTitle = useCallback(() => {
@@ -194,20 +204,16 @@ export default function NotepadsSection({ setAlertSwitch, setAlertMessage, setAl
                             </p>
                             <p className="text-sm normal-text truncate">{notepad.created_at.substring(0, 10)}</p>
                             <div className="flex justify-between items-center">
-                                <NotepadCategoryEdit setAlertSwitch={setAlertSwitch} setAlertMessage={setAlertMessage} setAlertType={setAlertType} categories={categories} getNotepadCategories={getNotepadCategories} setLoading={setLoading} setNotepads={setNotepads} notepadCategory={notepad.category} notepadId={notepad.id}/>
+                                <NotepadCategoryEdit categories={categories} getNotepadCategories={getNotepadCategories} setNotepads={setNotepads} notepadCategory={notepad.category} notepadId={notepad.id}/>
 
                                 <div className="space-x-2 flex">
                                     <NotepadEdit handleEditNotepadTitle={handleEditNotepadTitle} modal={modal} deleteNotepad={deleteNotepad} EditTitle={EditTitle} temporaryEditTitle={temporaryEditTitle} setTemporaryEditTitle={setTemporaryEditTitle} editStatus={editStatus} setEditStatus={setEditStatus} editId={editId} setEditId={setEditId} notepadId={notepad.id} isLastInRow={isLastInRow}/>
 
                                     <NotepadShare
-                                        setAlertSwitch={setAlertSwitch}
-                                        setAlertMessage={setAlertMessage}
-                                        setAlertType={setAlertType}
                                         isLastInRow={isLastInRow}
                                         notepadId={notepad.id}
                                         shareId={shareId}
                                         setShareId={setShareId}
-                                        setLoading={setLoading}
                                     />
 
                                     <button
