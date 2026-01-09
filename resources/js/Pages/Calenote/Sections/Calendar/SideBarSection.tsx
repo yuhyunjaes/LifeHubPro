@@ -43,8 +43,7 @@ export default function SideBarSection({ reminders, now, events, eventReminder, 
 
     return (
         <div
-            className={`${sideBar <= 0 ? "hidden" : ""} border max-h-[calc(100vh-(70px+2.5rem))] sticky top-[1.25rem] bg-white dark:bg-[#0d1117] border-gray-300 dark:border-gray-800 rounded-xl normal-text user-select-none space-y-5`}
-            style={{ width: `${sideBar}px` }}
+            className={`${sideBar <= 0 ? "hidden" : "flex-1"} border max-h-[calc(100vh-(70px+2.5rem))] sticky top-[1.25rem] bg-white dark:bg-[#0d1117] border-gray-300 dark:border-gray-800 rounded-xl normal-text user-select-none space-y-5`}
         >
             {(eventId || (startAt && endAt)) ? (
                     <>

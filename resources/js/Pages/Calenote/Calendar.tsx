@@ -467,7 +467,7 @@ export default function Calendar({ event, auth, mode, year, month, day, events, 
             <Head title="Calendar"/>
             <div className="min-h-full bg-gray-100 dark:bg-gray-950 relative flex flex-col">
                 <div className="flex-1 flex px-5 gap-5 flex-row py-5">
-                    <div className="flex-1 flex flex-col gap-5">
+                    <div className="w-[1150px] max-w-[1150px] flex flex-col gap-5">
                         <CalendarControlSection setMonths={setMonths} setTemporaryYear={setTemporaryYear} setTemporaryMonth={setTemporaryMonth} setTemporaryDay={setTemporaryDay} setIsDragging={setIsDragging} startAt={startAt} activeAt={activeAt} setActiveAt={setActiveAt} viewMode={viewMode} setViewMode={setViewMode} activeDay={activeDay}/>
                         {
                             viewMode === "month" && (

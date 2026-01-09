@@ -21,24 +21,24 @@ interface WeekCalendarSectionProps {
 }
 
 export default function WeekAndDayCalendarSection({
-    setEventReminder,
-    eventId,
-    setEventDescription,
-    setEventColor,
-    setEventTitle,
-    mobileView,
-    viewMode,
-    isDragging,
-    setIsDragging,
-    startAt,
-    setStartAt,
-    endAt,
-    setEndAt,
-    activeAt,
-    setActiveAt,
-    activeDay,
-    setActiveDay
-}: WeekCalendarSectionProps) {
+                                                      setEventReminder,
+                                                      eventId,
+                                                      setEventDescription,
+                                                      setEventColor,
+                                                      setEventTitle,
+                                                      mobileView,
+                                                      viewMode,
+                                                      isDragging,
+                                                      setIsDragging,
+                                                      startAt,
+                                                      setStartAt,
+                                                      endAt,
+                                                      setEndAt,
+                                                      activeAt,
+                                                      setActiveAt,
+                                                      activeDay,
+                                                      setActiveDay
+                                                  }: WeekCalendarSectionProps) {
     const [days, setDays] = useState<Date[]>([]);
     const [isMobile, setIsMobile] = useState<boolean>(false);
     const [baseDate, setBaseDate] = useState<null | Date>(null);
@@ -109,7 +109,7 @@ export default function WeekAndDayCalendarSection({
                 center();
             });
         }, 1);
-    }, [center]);
+    }, []);
 
     useEffect(() => {
         if (days.length > 0) {
@@ -117,7 +117,7 @@ export default function WeekAndDayCalendarSection({
                 center();
             });
         }
-    }, [days, center]);
+    }, [days]);
 
     const scrollTimeoutRef = useRef<number | null>(null);
 
@@ -313,7 +313,7 @@ export default function WeekAndDayCalendarSection({
         if(!dateStr) return;
 
         setEndAt(add15Minutes(dateStr));
-    }, [isDragging]);
+    }, [isDragging, isMobile, viewMode]);
 
     const startInterval = useCallback(() => {
         if (intervalRef.current !== null) return;
@@ -356,7 +356,7 @@ export default function WeekAndDayCalendarSection({
                 }
             }, 300);
         }, 1000);
-    }, [center, handleDateMoveOut]);
+    }, [handleDateMoveOut]);
 
     const stopInterval = useCallback(() => {
         directionRef.current = 0;

@@ -172,7 +172,7 @@ export default function Root({ auth, children, ...props }: RootProps) {
                             const event = events.find(event => event.uuid === reminder.event_id);
                             if (!event) return null;
 
-                            const title = `${event.title.trim() ? (event.title.trim().length > 3 ? event.title.trim().substring(0, 12)+"..." : event.title.trim()) : ""}${event.title.trim() ? "<br>" : ""}이벤트 시작 ${reminderChangeKorean(reminder.seconds)}`;
+                            const title = `${event.title ? (event.title.length > 3 ? event.title.substring(0, 12)+"..." : event.title) : ""}${event.title ? "<br>" : ""}이벤트 시작 ${reminderChangeKorean(reminder.seconds)}`;
 
                             const startDate = formatDate(new Date(event.start_at));
                             const endDate = formatDate(new Date(event.end_at));
