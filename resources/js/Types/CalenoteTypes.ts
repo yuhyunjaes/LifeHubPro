@@ -13,7 +13,7 @@ export interface Notepads {
 }
 
 export interface NotepadsLike {
-    notepad_id: string;
+    notepad_uuid: string;
 }
 
 export interface Category {

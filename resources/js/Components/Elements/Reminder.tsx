@@ -36,7 +36,7 @@ export default function Reminder({ title, message, color, uuid, type, url, arr, 
 
     const updateReminder = async () => {
         try {
-            const res = await axios.put(`/api/event/${uuid}/reminders/${id}`);
+            const res = await axios.put(`/api/event/reminders/${id}`);
             if(res.data.success) {
                 arr(prev =>
                     prev.map(pre =>

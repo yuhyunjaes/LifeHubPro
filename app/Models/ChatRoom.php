@@ -17,11 +17,11 @@ class ChatRoom extends Model
     }
 
     public function chatmessages() {
-        return $this->hasMany(ChatMessage::class, 'room_id', 'uuid');
+        return $this->hasMany(ChatMessage::class, 'room_id', 'id');
     }
 
     public function chatcategories() {
-        return $this->hasMany(ChatCategory::class, 'room_id', 'uuid');
+        return $this->hasMany(ChatCategory::class, 'room_id', 'id');
     }
 
     protected $fillable = [

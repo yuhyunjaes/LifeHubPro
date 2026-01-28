@@ -10,18 +10,18 @@ export interface Room {
 }
 
 export interface Message {
-    id: string | null;
+    id: number | null;
     role: 'user' | 'model';
     text: string;
 }
 
 export interface Notepad {
-    id: string;
+    id: number;
     text: string;
     category?: string;
 }
 
 export interface Categories {
-    room_id: string;
+    room_id: number;
     category: string;
 }

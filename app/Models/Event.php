@@ -10,15 +10,26 @@ class Event extends Model
     use HasFactory;
 
     public function user() {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class); // owner
     }
 
-    public function message() {
-        return $this->belongsTo(ChatMessage::class, 'chat_id', 'id');
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'event_users')
+            ->withPivot('role')
+            ->withTimestamps();
     }
 
     public function reminders() {
-        return $this->hasMany(EventReminder::class, 'event_id', 'uuid');
+        return $this->hasMany(EventReminder::class, 'event_id', 'id');
+    }
+
+    public function eventUsers() {
+        return $this->hasMany(EventUser::class, 'event_id', 'id');
+    }
+
+    public function invitations() {
+        return $this->hasMany(EventInvitation::class, 'event_id', 'id');
     }
 
     protected $fillable = [

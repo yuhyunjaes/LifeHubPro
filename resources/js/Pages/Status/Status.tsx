@@ -14,41 +14,54 @@ interface StatusProps {
     auth: {
         user: AuthUser | null;
     };
+    message: string;
 }
 
-export default function Status({ status, auth }: StatusProps) {
-    let message: string;
+export default function Status({ status, auth, message }: StatusProps) {
+    let errorMessage: string;
 
-    switch(status) {
+    switch (status) {
+        case 200:
+            errorMessage = "Success";
+            break;
+        case 403:
+            errorMessage = "Access Forbidden";
+            break;
         case 404:
-            message = "Not Found";
+            errorMessage = "Not Found";
+            break;
+        case 410:
+            errorMessage = "Gone";
             break;
         case 419:
-            message = "Page Expired";
+            errorMessage = "Page Expired";
             break;
         case 500:
-            message = "Internal Server Error";
+            errorMessage = "Internal Server Error";
             break;
         case 503:
-            message = "Service Unavailable";
+            errorMessage = "Service Unavailable";
             break;
         default:
-            message = "Unknown Error";
+            errorMessage = "Unknown Error";
     }
 
     return (
         <>
-            <Head title={message} />
+            <Head title={errorMessage} />
 
             <div className="flex flex-col h-screen bg-gray-100 dark:bg-[#0d1117]">
                 <Header auth={auth} />
 
-                <div className="w-full flex flex-col justify-center items-center flex-1">
-                    <h1 className="text-6xl normal-text font-bold mb-4">{status}</h1>
-                    <p className="text-gray-600 dark:text-gray-300">{message}</p>
+                <div className="w-full flex flex-col justify-center items-center flex-1 space-y-4">
+                    <h1 className="text-6xl normal-text font-bold">{status}</h1>
+                    <p className="text-gray-600 font-semibold dark:text-gray-500">{errorMessage}</p>
+                    {message ? (
+                        <p className="text-gray-600 font-semibold dark:text-gray-300">{message}</p>
+                    ) : ""}
                 </div>
 
-                <Footer />
+                {/*<Footer />*/}
             </div>
         </>
     );

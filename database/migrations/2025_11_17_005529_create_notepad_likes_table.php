@@ -14,10 +14,8 @@ return new class extends Migration
         Schema::create('notepad_likes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->uuid('notepad_id');
+            $table->foreignId('notepad_id')->constrained('notepads')->onDelete('cascade');
             $table->timestamps();
-
-            $table->foreign('notepad_id')->references('uuid')->on('notepads')->onDelete('cascade');
             $table->unique(['user_id', 'notepad_id']);
         });
     }

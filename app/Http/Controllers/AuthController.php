@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\EventInvitation;
+use App\Models\EventUser;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
@@ -29,21 +32,25 @@ class AuthController extends Controller
 
 //    이메일 확인 코드 전송
     public function sendEmail(Request $request) {
-        $email = $request->email;
-        if(empty($email)) return response()->json(['success' => false, 'message' => '이메일을 작성해주세요.', 'type' => 'danger']);
+        try {
+            $email = $request->email;
+            if(empty($email)) return response()->json(['success' => false, 'message' => '이메일을 작성해주세요.', 'type' => 'danger']);
 
-        $exists = User::where('email', $email)->exists();
-        if($exists) return response()->json(['success' => false, 'message' => '이미 가입된 이메일입니다', 'type' => 'danger']);
+            $exists = User::where('email', $email)->exists();
+            if($exists) return response()->json(['success' => false, 'message' => '이미 가입된 이메일입니다', 'type' => 'danger']);
 
-        $code = rand(100000,999999);
-        Session::put('code', $code);
+            $code = rand(100000,999999);
+            Session::put('code', $code);
 
-        Mail::raw("회원가입 인증번호 : $code", function($message) use ($email) {
-            $message->to($email)
-                ->subject('라이프허브 회원가입 이메일 인증');
-        });
+            Mail::raw("회원가입 인증번호 : $code", function($message) use ($email) {
+                $message->to($email)
+                    ->subject('라이프허브 회원가입 이메일 인증');
+            });
 
-        return response()->json(['success' => true, 'message' => '인증번호가 발송되었습니다.', 'type' => 'success']);
+            return response()->json(['success' => true, 'message' => '인증번호가 발송되었습니다.', 'type' => 'success']);
+        } catch(\Exception $e) {
+            return response()->json(['success' => false, 'message' => '이메일이 존재하지 않습니다.', 'type' => 'danger']);
+        }
     }
 
 //    이메일 코드 확인(세션기반)
@@ -63,38 +70,119 @@ class AuthController extends Controller
     }
 
 //    회원가입
-    public function register(Request $request) {
+    public function register(Request $request)
+    {
         $data = $request->validate([
-            'user_id'=>['required', 'string', 'min:4', 'max:15', 'unique:users,user_id', 'regex:/^[a-zA-Z0-9]+$/'],
-            'password'=>['required', 'confirmed', 'min:8', 'string'],
-            'name'=>['required', 'string', 'min:2', 'max:5', 'regex:/^[가-힣]+$/'],
+            'user_id' => ['required', 'string', 'min:4', 'max:15', 'unique:users,user_id', 'regex:/^[a-zA-Z0-9]+$/'],
+            'password' => ['required', 'confirmed', 'min:8', 'string'],
+            'name' => ['required', 'string', 'min:2', 'max:5', 'regex:/^[가-힣]+$/'],
             'email' => ['required', 'email', 'unique:users,email'],
         ]);
 
-        User::create([
+        $user = User::create([
             'user_id' => $data['user_id'],
             'password' => Hash::make($data['password']),
             'name' => $data['name'],
             'email' => $data['email'],
         ]);
 
-        return Inertia::render('Auth/Login');
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        if (Session::has('invitation_token')) {
+            try {
+                $token = Session::get('invitation_token');
+
+                $invitation = EventInvitation::where('token', $token)
+                    ->where('status', 'pending')
+                    ->firstOrFail();
+
+                if ($invitation->email !== $user->email) {
+                    abort(403);
+                }
+
+                DB::transaction(function () use ($invitation, $user) {
+                    $invitation->update(['status' => 'accepted']);
+
+                    EventUser::create([
+                        'event_id' => $invitation->event_id,
+                        'user_id' => $user->id,
+                        'role' => $invitation->role,
+                    ]);
+                });
+
+                Session::forget(['invitation_token', 'invitation_email']);
+
+                return Inertia::location("/calenote/calendar/{$invitation->event->uuid}");
+            } catch (\Throwable $e) {
+                abort(404);
+            }
+        }
+
+        return Inertia::location('/');
     }
 
 //    로그인
     public function login(Request $request)
     {
-        if (Auth::attempt($request->only(['user_id', 'password']))) {
-            $request->session()->regenerate();
+        try {
+            $request->validate([
+                'login' => 'required|string',
+                'password' => 'required|string',
+            ]);
 
-            return Inertia::location('/');
+            $loginType = filter_var($request->login, FILTER_VALIDATE_EMAIL)
+                ? 'email'
+                : 'user_id';
+
+            if (Auth::attempt([
+                $loginType => $request->login,
+                'password' => $request->password,
+            ])) {
+                $request->session()->regenerate();
+
+                if (Session::has('invitation_token')) {
+                    $token = Session::get('invitation_token');
+
+                    if (!$token) {
+                        return inertia::location('/');
+                    }
+
+                    $invitation = EventInvitation::where('token', $token)
+                        ->where('status', 'pending')
+                        ->firstOrFail();
+
+                    if (Auth::user()->email !== $invitation->email) {
+                        abort(403);
+                    }
+
+                    DB::transaction(function () use ($invitation) {
+                        $invitation->update(['status' => 'accepted']);
+
+                        EventUser::create([
+                            'event_id' => $invitation->event_id,
+                            'user_id' => Auth::id(),
+                            'role' => $invitation->role,
+                        ]);
+                    });
+
+                    Session::forget(['invitation_token', 'invitation_email']);
+
+                    return inertia::location("/calenote/calendar/{$invitation->event->uuid}");
+                }
+
+                return Inertia::location('/');
+            }
+
+            throw ValidationException::withMessages([
+                'message' => '아이디 또는 이메일, 비밀번호를 확인해주세요.',
+            ]);
+        } catch (\Throwable $e) {
+            throw ValidationException::withMessages([
+                'message' => '아이디 또는 이메일, 비밀번호를 확인해주세요.',
+            ]);
         }
-
-        throw ValidationException::withMessages([
-            'message' => '아이디 또는 비밀번호를 확인해주세요.',
-        ]);
     }
-
 
 //    로그아웃
     public function logout(Request $request)

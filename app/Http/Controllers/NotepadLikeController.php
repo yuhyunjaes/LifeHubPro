@@ -16,7 +16,7 @@ class NotepadLikeController extends Controller
         $notepad = Notepad::where('uuid', $uuid)->firstOrFail();
 
         $exists = NotepadLike::where('user_id', $user->id)
-            ->where('notepad_id', $notepad->uuid)
+            ->where('notepad_id', $notepad->id)
             ->exists();
 
         if ($exists) {
@@ -25,7 +25,7 @@ class NotepadLikeController extends Controller
 
         NotepadLike::create([
             'user_id' => $user->id,
-            'notepad_id' => $notepad->uuid,
+            'notepad_id' => $notepad->id,
         ]);
 
         return response()->json(['success' => true, 'message' => '노트 찜']);
@@ -38,18 +38,27 @@ class NotepadLikeController extends Controller
         $notepad = Notepad::where('uuid', $uuid)->firstOrFail();
 
         NotepadLike::where('user_id', $user->id)
-            ->where('notepad_id', $notepad->uuid)
+            ->where('notepad_id', $notepad->id)
             ->delete();
 
         return response()->json(['success' => true, 'message' => '노트 찜 취소']);
     }
 
 //    찜된 메모장들 가져오기
-    public function GetNotepadsLike() {
+    public function GetNotepadsLike()
+    {
         $user = auth()->user();
 
-        $likes = NotepadLike::where('user_id', $user->id)->get('notepad_id');
+        $likes = NotepadLike::where('user_id', $user->id)
+            ->with('notepad:id,uuid')
+            ->get();
 
-        return response()->json(['success' => true, 'likes' => $likes]);
+        return response()->json([
+            'success' => true,
+            'likes' => $likes->map(fn ($like) => [
+                'notepad_uuid' => $like->notepad?->uuid,
+            ]),
+        ]);
     }
+
 }

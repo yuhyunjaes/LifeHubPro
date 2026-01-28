@@ -14,12 +14,10 @@ return new class extends Migration
         Schema::create('event_reminders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->uuid('event_id');
+            $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
             $table->integer('seconds');
             $table->boolean('read')->default(false);
             $table->timestamps();
-
-            $table->foreign('event_id')->references('uuid')->on('events')->onDelete('cascade');
         });
     }
 

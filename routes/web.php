@@ -13,7 +13,11 @@ use App\Http\Controllers\NotepadLikeController;
 use App\Http\Controllers\ChatCategoryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventReminderController;
+use App\Http\Controllers\EventParticipantController;
+use App\Http\Controllers\EventInvitationController;
+use App\Http\Controllers\InvitationController;
 use App\Models\Notepad;
+use Illuminate\Support\Facades\Session;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,17 +32,32 @@ Route::middleware('web')->group(function () {
     Route::get('/', function () {
         return Inertia::render('Home/Home');
     })->name('home');
+
+    Route::get('/invitations/{token}', [InvitationController::class, 'show'])->name('invitations.show');
+    Route::post('/invitations/{token}/accept', [InvitationController::class, 'Accept'])->name('invitations.accept');
+    Route::post('/invitations/{token}/accept/session', [InvitationController::class, 'AcceptSession'])->name('invitations.accept.session.store');
+
+    Route::post('/invitations/{token}/decline', [InvitationController::class, 'Decline'])->name('invitations.decline');
+
+
     // --------------------
     // Guest routes
     // --------------------
     Route::middleware('guest')->group(function () {
 
         Route::get('/login', function () {
-            return Inertia::render('Auth/Login');
+            $email = Session::get('invitation_email', null);
+            return Inertia::render('Auth/Login', [
+                'sessionEmail' => $email,
+            ]);
         })->name('login');
 
         Route::get('/register', function () {
-            return Inertia::render('Auth/Register');
+            $email = Session::get('invitation_email', null);
+
+            return Inertia::render('Auth/Register', [
+                'sessionEmail' => $email,
+            ]);
         })->name('register');
 
         Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
@@ -178,12 +197,18 @@ Route::middleware('web')->group(function () {
         Route::get('/api/event/{uuid}/reminders', [EventReminderController::class, 'getActiveEventReminder'])->name('event.active.reminder.get');
         Route::put('/api/event/{uuid}/reminders', [EventReminderController::class, 'updateEventRemindersRead'])->name('event.reminders.read.update');
         Route::get('/api/event/reminders', [EventReminderController::class, 'getEventReminders'])->name('event.reminder.get');
-        Route::put('/api/event/{uuid}/reminders/{id}', [EventReminderController::class, 'updateEventReminderRead'])->name('event.reminder.read.update');
+        Route::put('/api/event/reminders/{id}', [EventReminderController::class, 'updateEventReminderRead'])->name('event.reminder.read.update');
+
+        // --------------------
+        // Participant Api
+        // --------------------
+        Route::get('/api/event/{uuid}/participants', [EventParticipantController::class, 'GetActiveParticipants'])->name('event.active.participant.get');
+        Route::post('/api/event/{uuid}/invitations', [EventInvitationController::class, 'StoreInvitation'])->name('event.invitation.store');
 
         // --------------------
         // Gemini API
         // --------------------
-        Route::post('api/lifebot/title', function (Request $request) {
+        Route::post('/api/lifebot/title', function (Request $request) {
             $apiKey = env('GEMINI_API_KEY');
             $model = $request->input('model_name', 'models/gemini-2.5-flash');
             $prompt = $request->input('prompt', '테스트');

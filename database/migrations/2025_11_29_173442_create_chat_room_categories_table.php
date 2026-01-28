@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('chat_room_categories', function (Blueprint $table) {
             $table->id();
-            $table->uuid('room_id');
-            $table->foreign('room_id')->references('uuid')->on('chat_rooms')->onDelete('cascade');
+            $table->foreignId('room_id')->constrained('chat_rooms')->onDelete('cascade');
             $table->string('category');
             $table->timestamps();
         });

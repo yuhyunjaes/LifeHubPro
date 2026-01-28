@@ -52,7 +52,8 @@ export interface EventsData {
 export interface ReminderData {
     id: number;
     user_id: number;
-    event_id: string;
+    event_id: number;
+    event_uuid: string;
     seconds: number;
     read: number;
     updated_at: string;
@@ -63,4 +64,35 @@ export interface ReminderEventsData {
     id: number;
     event_id: string;
     event_at: Date;
+}
+
+export interface EventUsersData {
+    id: number;
+    event_id: number;
+    user_id: number;
+    role: "owner" | "editor" | "viewer"
+    updated_at: string;
+    created_at: string;
+}
+
+export interface EventInvitationsData {
+    id: number;
+    event_id: number;
+    inviter_id: number;
+    email: string;
+    role: "editor" | "viewer";
+    token: string;
+    status: "pending" | "declined" | "expired";
+    expires_at: string;
+    updated_at: string;
+    created_at: string;
+}
+
+export interface ParticipantsData {
+    user_name: string | null;
+    user_id: number | null;
+    event_id: string;
+    email: string;
+    role: "owner" | "editor" | "viewer" | null;
+    status: "pending" | "declined" | "expired" | null;
 }

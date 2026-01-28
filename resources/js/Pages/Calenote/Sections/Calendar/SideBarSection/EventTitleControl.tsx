@@ -1,15 +1,17 @@
 import { Dispatch, SetStateAction, useEffect, useRef } from "react";
 
 interface EventTitleControlProps {
+    disabled: boolean;
     updateEvent: () => Promise<void>;
     eventTitle: string;
     setEventTitle: Dispatch<SetStateAction<string>>;
 }
 
 export default function EventTitleControl({
-                                              updateEvent,
-                                              eventTitle,
-                                              setEventTitle
+disabled,
+updateEvent,
+eventTitle,
+setEventTitle
                                           }: EventTitleControlProps) {
     const timer = useRef<number | null>(null);
 
@@ -36,6 +38,7 @@ export default function EventTitleControl({
                 </label>
             </div>
             <input
+                disabled={disabled}
                 autoFocus
                 type="text"
                 id="eventTitle"

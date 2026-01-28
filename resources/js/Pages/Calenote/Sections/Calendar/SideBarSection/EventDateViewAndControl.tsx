@@ -1,6 +1,7 @@
 import {Dispatch, SetStateAction, useCallback, useEffect, useRef, useState} from "react";
 
 interface EventDateViewProps {
+    disabled: boolean;
     startAt: Date | null;
     setStartAt: Dispatch<SetStateAction<Date | null>>;
     endAt: Date | null;
@@ -21,7 +22,7 @@ function formatTime(date: Date): string {
     });
 }
 
-export default function EventDateViewAndControl({ startAt, setStartAt, endAt, setEndAt }:EventDateViewProps) {
+export default function EventDateViewAndControl({ disabled, startAt, setStartAt, endAt, setEndAt }:EventDateViewProps) {
     const [editType, setEditType] = useState<"startDate" | "startTime" | "endDate" | "endTime" | null>(null);
     const EditDateAreaRef = useRef<HTMLDivElement>(null);
 
@@ -172,7 +173,7 @@ export default function EventDateViewAndControl({ startAt, setStartAt, endAt, se
                         <div ref={EditDateAreaRef} className="px-5 flex space-x-1">
                             <div className="w-1/2 flex flex-col space-y-1">
                                 {
-                                    editType === "startDate" ? (
+                                    (editType === "startDate" && !disabled) ? (
                                         <input autoFocus={true} type="text" className="border border-gray-300 dark:border-gray-800 p-1 rounded bg-transparent text-xs font-semibold outline-none" onKeyDown={(e) => {
                                             if(e.key === "Enter") {
                                                 editEventAt("startDate");
@@ -185,7 +186,7 @@ export default function EventDateViewAndControl({ startAt, setStartAt, endAt, se
                                 }
 
                                 {
-                                    editType === "startTime" ? (
+                                    (editType === "startTime" && !disabled) ? (
                                         <input autoFocus={true} type="text" className="border border-gray-300 dark:border-gray-800 p-1 rounded bg-transparent text-xs font-semibold outline-none" onKeyDown={(e) => {
                                             if(e.key === "Enter") {
                                                 editEventAt("startTime");
@@ -200,7 +201,7 @@ export default function EventDateViewAndControl({ startAt, setStartAt, endAt, se
 
                             <div className="w-1/2 flex flex-col space-y-1">
                                 {
-                                    editType === "endDate" ? (
+                                    (editType === "endDate" && !disabled) ? (
                                         <input autoFocus={true} type="text" className="border border-gray-300 dark:border-gray-800 p-1 rounded bg-transparent text-xs font-semibold outline-none" onKeyDown={(e) => {
                                             if(e.key === "Enter") {
                                                 editEventAt("endDate");
@@ -213,7 +214,7 @@ export default function EventDateViewAndControl({ startAt, setStartAt, endAt, se
                                 }
 
                                 {
-                                    editType === "endTime" ? (
+                                    (editType === "endTime" && !disabled) ? (
                                         <input autoFocus={true} type="text" className="border border-gray-300 dark:border-gray-800 p-1 rounded bg-transparent text-xs font-semibold outline-none" onKeyDown={(e) => {
                                             if(e.key === "Enter") {
                                                 editEventAt("endTime");

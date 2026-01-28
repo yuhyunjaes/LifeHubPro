@@ -1,7 +1,7 @@
 import {useState, useRef, useEffect, RefObject, useCallback} from "react";
 import MonthCreator from "./MonthCalendarSection/MonthCreator";
 import { Dispatch, SetStateAction } from "react";
-import {CalendarAtData} from "../CalenoteSectionsData";
+import {CalendarAtData, ParticipantsData} from "../CalenoteSectionsData";
 import {EventsData} from "../CalenoteSectionsData";
 import {router} from "@inertiajs/react";
 import { useContext } from "react";
@@ -10,6 +10,7 @@ import {GlobalUIContext} from "../../../../Providers/GlobalUIContext";
 interface SideBarSectionProps {
     handleEventClick: (Event:EventsData) => Promise<void>;
     getActiveEventReminder: (eventUuid:string) => Promise<void>;
+    setEventParticipants: Dispatch<SetStateAction<ParticipantsData[]>>;
     setEventReminder: Dispatch<SetStateAction<number[]>>;
     setEventIdChangeDone: Dispatch<SetStateAction<boolean>>;
     setIsHaveEvent: Dispatch<SetStateAction<boolean>>;
@@ -45,7 +46,7 @@ interface EventWithLayout extends EventsData {
     column: number;
 }
 
-export default function MonthCalendarSection({ handleEventClick, getActiveEventReminder, setEventReminder, setEventIdChangeDone, setIsHaveEvent, events, IsHaveEvent, firstCenter, setFirstCenter, eventId, setEventId, setEventDescription,setEventColor, setEventTitle, isDragging, setIsDragging, months, setMonths, sideBar, activeAt, setActiveAt, viewMode, setViewMode, now, startAt, setStartAt, endAt, setEndAt }: SideBarSectionProps) {
+export default function MonthCalendarSection({ handleEventClick, getActiveEventReminder, setEventParticipants, setEventReminder, setEventIdChangeDone, setIsHaveEvent, events, IsHaveEvent, firstCenter, setFirstCenter, eventId, setEventId, setEventDescription,setEventColor, setEventTitle, isDragging, setIsDragging, months, setMonths, sideBar, activeAt, setActiveAt, viewMode, setViewMode, now, startAt, setStartAt, endAt, setEndAt }: SideBarSectionProps) {
     const ui = useContext(GlobalUIContext);
 
     if (!ui) {
@@ -236,6 +237,7 @@ export default function MonthCalendarSection({ handleEventClick, getActiveEventR
             setEndAt(null);
             setEventTitle("");
             setEventReminder([]);
+            setEventParticipants([]);
             setEventDescription("");
             setEventColor("bg-blue-500");
             return;
@@ -354,6 +356,7 @@ export default function MonthCalendarSection({ handleEventClick, getActiveEventR
                 setEndAt(null);
                 setEventTitle("");
                 setEventReminder([]);
+                setEventParticipants([]);
                 setEventDescription("");
                 setEventColor("bg-blue-500");
             }

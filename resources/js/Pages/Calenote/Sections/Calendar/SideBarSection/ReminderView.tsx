@@ -1,5 +1,4 @@
 import {EventsData, ReminderData} from "../../CalenoteSectionsData";
-import {useState} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faClock} from "@fortawesome/free-solid-svg-icons";
 
@@ -10,7 +9,6 @@ interface ReminderViewProps {
     reminders: ReminderData[];
 }
 export default function ReminderView({ handleEventClick, events, now, reminders }:ReminderViewProps) {
-    const [searchReminder, setSearchReminder] = useState<string>("");
     const koreanDate:String[] = [
         "일",
         "월",
@@ -89,7 +87,7 @@ export default function ReminderView({ handleEventClick, events, now, reminders 
                                         const startAt = new Date(eventStartIncludeAfterNowEvent.start_at);
                                         const endAt = new Date(eventStartIncludeAfterNowEvent.end_at);
 
-                                        const eventStartIncludeAfterNowEventReminder:ReminderData[] = reminders.filter(reminder => reminder.event_id === eventStartIncludeAfterNowEvent.uuid).sort((a, b) => b.seconds - a.seconds);
+                                        const eventStartIncludeAfterNowEventReminder:ReminderData[] = reminders.filter(reminder => reminder.event_uuid === eventStartIncludeAfterNowEvent.uuid).sort((a, b) => b.seconds - a.seconds);
 
                                         return(
                                             <div onClick={async () => {

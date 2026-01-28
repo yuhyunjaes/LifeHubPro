@@ -96,7 +96,7 @@ export default function NotepadsSection({ notepads, setNotepads, viewOption, not
         try {
             const res = await axios.post(`/notepads/${uuid}/like`);
             if(res.data.success) {
-                setNotepadLikes(prev => [...prev, { notepad_id: uuid }]);
+                setNotepadLikes(prev => [...prev, { notepad_uuid: uuid }]);
             }
         } catch (err) {
             console.error(err);
@@ -110,7 +110,7 @@ export default function NotepadsSection({ notepads, setNotepads, viewOption, not
         try {
             const res = await axios.delete(`/notepads/${uuid}/like`);
             if(res.data.success) {
-                setNotepadLikes(prev => prev.filter(like => like.notepad_id !== uuid));
+                setNotepadLikes(prev => prev.filter(like => like.notepad_uuid !== uuid));
             }
             if(res.data.success && (tab === "liked")) {
                 setNotepads(prev => prev.filter(notepad => notepad.id !== uuid));
@@ -220,14 +220,14 @@ export default function NotepadsSection({ notepads, setNotepads, viewOption, not
                                         className="transition-colors duration-300 text-blue-500 cursor-pointer hover:text-blue-600 active:text-blue-700"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            if(notepadLikes.some(like => like.notepad_id === notepad.id)) {
+                                            if(notepadLikes.some(like => like.notepad_uuid === notepad.id)) {
                                                 handleLikeDelete(notepad.id);
                                             } else {
                                                 handleLikeInsert(notepad.id);
                                             }
                                         }}
                                     >
-                                        <FontAwesomeIcon icon={(notepadLikes.some(like => like.notepad_id === notepad.id)) ? (faHeartSolid) : (faHeartRegular)} />
+                                        <FontAwesomeIcon icon={(notepadLikes.some(like => like.notepad_uuid === notepad.id)) ? (faHeartSolid) : (faHeartRegular)} />
                                     </button>
                                 </div>
                             </div>

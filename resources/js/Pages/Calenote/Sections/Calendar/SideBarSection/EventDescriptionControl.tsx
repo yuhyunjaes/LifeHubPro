@@ -1,12 +1,14 @@
 import { Dispatch, SetStateAction, useEffect, useRef } from "react";
 
 interface EventDescriptionControlProps {
+    disabled: boolean;
     updateEvent: () => Promise<void>;
     eventDescription: string;
     setEventDescription: Dispatch<SetStateAction<string>>;
 }
 
 export default function EventDescriptionControl({
+    disabled,
     updateEvent,
     eventDescription,
     setEventDescription
@@ -34,6 +36,7 @@ export default function EventDescriptionControl({
                 설명
             </label>
             <textarea
+                disabled={disabled}
                 id="eventDescription"
                 className="border bg-transparent rounded outline-none border-gray-300 w-full dark:border-gray-800 font-semibold text-xs min-h-[70px] max-h-[150px] p-1"
                 placeholder="설명"

@@ -1,11 +1,12 @@
 import {Dispatch, SetStateAction} from "react";
 
 interface EventColorControlProps {
+    disabled: boolean;
     eventColor: "bg-red-500" | "bg-orange-500" | "bg-yellow-500" | "bg-green-500" | "bg-blue-500" | "bg-purple-500" | "bg-gray-500";
     setEventColor: Dispatch<SetStateAction<"bg-red-500" | "bg-orange-500" | "bg-yellow-500" | "bg-green-500" | "bg-blue-500" | "bg-purple-500" | "bg-gray-500">>;
 }
 
-export default function EventColorControl({ eventColor, setEventColor }:EventColorControlProps) {
+export default function EventColorControl({ disabled, eventColor, setEventColor }:EventColorControlProps) {
     type ColorsArr = {
         title: string;
         color: "bg-red-500" | "bg-orange-500" | "bg-yellow-500" | "bg-green-500" | "bg-blue-500" | "bg-purple-500" | "bg-gray-500";
@@ -50,6 +51,7 @@ export default function EventColorControl({ eventColor, setEventColor }:EventCol
                 {colors.map((item) => (
                     <label key={item.color} className="relative cursor-pointer">
                         <input
+                            disabled={disabled}
                             type="radio"
                             name="eventColor"
                             value={item.color}

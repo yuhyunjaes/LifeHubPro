@@ -4,16 +4,20 @@ import {Head, Link, router} from '@inertiajs/react';
 import {useState} from "react";
 import FormInput from "../../Components/Elements/FormInput";
 
-export default function Login() {
-    const [userId, setUserId] = useState<string>("");
+interface LoginProps {
+    sessionEmail: string | null;
+}
+
+export default function Login({ sessionEmail }:LoginProps) {
+    const [login, setLogin] = useState<string>(sessionEmail ?? "");
     const [password, setPassword] = useState<string>("");
     const  handleSubmit = (e :any) => {
         e.preventDefault();
-        if(!userId) return alert("아이디를 작성해주세요.");
+        if(!login) return alert("아이디를 작성해주세요.");
         if(!password) return alert("비밀번호를 작성해주세요.");
 
         router.post("/login", {
-            user_id : userId,
+            login : login,
             password : password
         }, {
             onError: (err) => {
@@ -45,17 +49,21 @@ export default function Login() {
                     </div>
                     <FormInput
                         autoFocus={true}
-                        label="아이디"
-                        name="user_id"
-                        id="user_id"
-                        value={userId}
-                        onChange={(e) => setUserId(e.target.value)}
+                        label="아이디 또는 이메일"
+                        name="login"
+                        id="login"
+                        autoComplete="username"
+                        readOnly={!!sessionEmail}
+                        value={login}
+                        onChange={(e) => setLogin(e.target.value)}
                     />
                     <FormInput
+                        autoFocus={!!sessionEmail}
                         label="비밀번호"
                         type="password"
                         name="password"
                         id="password"
+                        autoComplete="current-password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />

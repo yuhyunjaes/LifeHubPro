@@ -17,6 +17,6 @@ class ChatCategory extends Model
     ];
 
     public function chatroom() {
-        return $this->belongsTo(ChatRoom::class, 'room_id', 'uuid');
+        return $this->belongsTo(ChatRoom::class, 'room_id', 'id');
     }
 }

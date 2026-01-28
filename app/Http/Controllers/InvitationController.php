@@ -1,0 +1,156 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use App\Models\Event;
+use App\Models\EventInvitation;
+use App\Models\EventUser;
+use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
+use Inertia\Inertia;
+use Carbon\Carbon;
+
+class InvitationController extends Controller
+{
+    public function show($token) {
+        try {
+            $invitation = EventInvitation::where('token', $token)
+                ->where('status', 'pending')
+                ->firstOrFail();
+
+            if ($invitation->expires_at && Carbon::parse($invitation->expires_at)->isPast()) {
+                $invitation->status = 'expired';
+                $invitation->save();
+
+                return Inertia::render('Status/Status', ['status' => 410, 'message' => '초대가 만료되었습니다.']);
+            }
+
+            $event = Event::with('user')->findOrFail($invitation->event_id);
+
+            if(Auth::check()) {
+                if (Auth::user()->email !== $invitation->email) {
+                    return Inertia::render('Status/Status', ['status' => 403, 'message' => '이 초대는 해당 이메일 계정만 수락할 수 있습니다.']);
+                }
+
+            }
+
+            return Inertia::render('Invitation/Accept', [
+                'mode' => Auth::check() ? 'auth' : 'guest',
+
+                'invitation' => [
+                    'token' => $invitation->token,
+                    'email' => $invitation->email,
+                ],
+
+                'event' => [
+                    'id' => $event->id,
+                    'uuid' => $event->uuid,
+                    'title' => $event->title,
+                ],
+
+                'inviter' => [
+                    'name' => $event->user->name,
+                    'email' => $event->user->email,
+                ],
+            ]);
+
+        } catch (\Throwable $e) {
+            return Inertia::render('Status/Status', ['status' => 404]);
+        }
+    }
+
+    public function Accept($token) {
+        try {
+            $invitation = EventInvitation::where('token', $token)
+                ->where('status', 'pending')
+                ->firstOrFail();
+
+            if ($invitation->expires_at && Carbon::parse($invitation->expires_at)->isPast()) {
+                $invitation->status = 'expired';
+                $invitation->save();
+
+                return Inertia::render('Status/Status', ['status' => 410, 'message' => '초대가 만료되었습니다.']);
+            }
+
+            if(!Auth::check()) {
+                return Inertia::render('Status/Status', ['status' => 403]);
+            }
+
+            DB::transaction(function () use ($invitation) {
+                $invitation->status = 'accepted';
+                $invitation->save();
+
+                EventUser::create([
+                    'event_id' => $invitation->event_id,
+                    'user_id'  => Auth::id(),
+                    'role'     => $invitation->role,
+                ]);
+            });
+
+            return response()->json(['success' => true, 'uuid' =>$invitation->event->uuid]);
+
+        } catch (\Throwable $e) {
+            return Inertia::render('Status/Status', ['status' => 404]);
+        }
+    }
+
+    public function AcceptSession($token) {
+        try {
+            $invitation = EventInvitation::where('token', $token)
+                ->where('status', 'pending')
+                ->firstOrFail();
+
+            if ($invitation->expires_at && Carbon::parse($invitation->expires_at)->isPast()) {
+                $invitation->status = 'expired';
+                $invitation->save();
+
+                return Inertia::render('Status/Status', ['status' => 410, 'message' => '초대가 만료되었습니다.']);
+            }
+
+            Session::put([
+                'invitation_token' => $token,
+                'invitation_email' => $invitation->email,
+                'invitation_active' => true,
+            ]);
+
+            $existsUser = User::where('email', $invitation->email)->exists();
+
+            return response()->json(['redirect' => $existsUser ? 'login' : 'register']);
+
+        } catch (\Throwable $e) {
+            return Inertia::render('Status/Status', ['status' => 404]);
+        }
+    }
+
+
+    public function Decline($token) {
+        try {
+            $invitation = EventInvitation::where('token', $token)
+                ->where('status', 'pending')
+                ->firstOrFail();
+
+            if ($invitation->expires_at && Carbon::parse($invitation->expires_at)->isPast()) {
+                $invitation->status = 'expired';
+                $invitation->save();
+
+                return Inertia::render('Status/Status', ['status' => 410, 'message' => '초대가 만료되었습니다.']);
+            }
+
+            $invitation->status = 'declined';
+            $invitation->save();
+
+            return Inertia::render('Status/Status', [
+                'status' => 200,
+                'message' => '초대를 거절했습니다.',
+            ]);
+
+        } catch (\Throwable $e) {
+            return Inertia::render('Status/Status', ['status' => 404]);
+        }
+    }
+}

@@ -7,14 +7,18 @@ import Loading from "../../Components/Elements/Loading";
 import FormInput from "../../Components/Elements/FormInput";
 import FormInputWithButton from "../../Components/Elements/FormInputWithButton";
 
-export default function Register() {
+interface RegisterProps {
+    sessionEmail: string | null;
+}
+
+export default function Register({ sessionEmail }:RegisterProps) {
     const [userId, setUserId] = useState<string>("");
     const [idMessage, setIdMessage] = useState<string>("");
     const [idConfirm, setIdConfirm] = useState<boolean>(false);
     const [password, setPassword] = useState<string>("");
     const [confirmPassword, setConfirmPassword] = useState<string>("");
     const [passwordMatch, setPasswordMatch] = useState<boolean>(true);
-    const [email, setEmail] = useState<string>("");
+    const [email, setEmail] = useState<string>(sessionEmail ?? "");
     const [name, setName] = useState<string>("");
     const [emailAuthCode, setEmailAuthCode] = useState<string>("");
     const [emailCode, setEmailCode] = useState<boolean>(false);
@@ -167,6 +171,7 @@ export default function Register() {
                         buttonText="중복확인"
                         onButtonClick={checkId}
                         message={idMessage}
+                        autoComplete="username"
                     />
                     <FormInput
                         label="비밀번호"
@@ -175,6 +180,7 @@ export default function Register() {
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        autoComplete="new-password"
                     />
                     <FormInput
                         label="비밀번호 확인"
@@ -185,6 +191,7 @@ export default function Register() {
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         message={(!passwordMatch && (password || confirmPassword)) ? "비밀번호가 일치하지 않습니다." : undefined}
                         messageType="error"
+                        autoComplete="new-password"
                     />
                     <FormInputWithButton
                         label="이메일"
@@ -196,6 +203,7 @@ export default function Register() {
                         message={emailMessage && (emailMessage)}
                         onButtonClick={sendEmailCode}
                         disabled={(emailCode || isEmailVerified)}
+                        readOnly={!!sessionEmail}
                         buttonText={isEmailVerified
                             ? "인증완료"
                             : emailTimer > 0

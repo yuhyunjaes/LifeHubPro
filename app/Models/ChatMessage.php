@@ -13,7 +13,7 @@ class ChatMessage extends Model
     use HasFactory;
 
     public function chatroom() {
-        return $this->belongsTo(ChatRoom::class, 'room_id', 'uuid');
+        return $this->belongsTo(ChatRoom::class, 'room_id', 'id');
     }
 
     public function notepads() {

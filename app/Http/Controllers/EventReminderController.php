@@ -4,26 +4,33 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\EventReminder;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class EventReminderController extends Controller
 {
-    public function StoreEventReminder($uuid, Request $request) {
-        $event = Event::where('uuid', $uuid)
-            ->where('user_id', Auth::id())
+    private function canViewEvent(string $uuid)
+    {
+        return Event::where('uuid', $uuid)
+            ->whereHas('users', fn ($q) =>
+            $q->where('users.id', Auth::id())
+            )
             ->first();
+    }
+
+    public function StoreEventReminder($uuid, Request $request)
+    {
+        $event = $this->canViewEvent($uuid);
 
         if (!$event) {
             return response()->json([
                 'success' => false,
-                'message' => '이벤트가 존재하지 않습니다.',
+                'message' => '이벤트 접근 권한이 없습니다.',
                 'type' => 'danger'
             ]);
         }
 
-        $newSeconds = $request->seconds;
+        $newSeconds = $request->seconds ?? [];
 
         $existingReminders = $event->reminders()
             ->where('user_id', Auth::id())
@@ -32,55 +39,102 @@ class EventReminderController extends Controller
         $existingSeconds = $existingReminders->pluck('seconds')->toArray();
 
         $toDelete = array_diff($existingSeconds, $newSeconds);
-        if (!empty($toDelete)) {
+        if ($toDelete) {
             $event->reminders()
-                ->whereIn('seconds', $toDelete)
                 ->where('user_id', Auth::id())
+                ->whereIn('seconds', $toDelete)
                 ->delete();
         }
 
         $toAdd = array_diff($newSeconds, $existingSeconds);
-        if (!empty($toAdd)) {
-            $reminderData = collect($toAdd)->map(fn($sec) => [
-                'seconds' => $sec,
-                'user_id' => Auth::id(),
-            ])->toArray();
-
-            $event->reminders()->createMany($reminderData);
+        if ($toAdd) {
+            $event->reminders()->createMany(
+                collect($toAdd)->map(fn ($sec) => [
+                    'seconds' => $sec,
+                    'user_id' => Auth::id(),
+                ])->toArray()
+            );
         }
 
         return response()->json([
             'success' => true,
-            'reminders' => $event->reminders
+            'reminders' => $event->reminders()
+                ->where('user_id', Auth::id())
+                ->get()
+                ->map(fn ($r) => [
+                    ...$r->toArray(),
+                    'event_uuid' => $event->uuid
+                ])
         ]);
     }
 
-    public function getActiveEventReminder($uuid) {
-        $event = Event::where('uuid', $uuid)->where('user_id', Auth::id())->first();
-        if (!$event) return response()->json(['success' => false, 'message' => '이벤트가 존재하지 않습니다.', 'type' => 'danger']);
-        $reminders = $event->reminders()->pluck('seconds');
-        return response()->json(['success' => true, 'reminders' => $reminders]);
+    public function getActiveEventReminder($uuid)
+    {
+        $event = $this->canViewEvent($uuid);
+
+        if (!$event) {
+            return response()->json([
+                'success' => false,
+                'message' => '이벤트 접근 권한이 없습니다.',
+                'type' => 'danger'
+            ]);
+        }
+
+        $reminders = $event->reminders()
+            ->where('user_id', Auth::id())
+            ->pluck('seconds');
+
+        return response()->json([
+            'success' => true,
+            'reminders' => $reminders
+        ]);
     }
 
-    public function getEventReminders() {
-        $reminders = EventReminder::where('user_id', Auth::id())->get();
+    public function getEventReminders()
+    {
+        $reminders = EventReminder::where('user_id', Auth::id())
+            ->with('event:id,uuid')
+            ->get();
 
-        return response()->json(['success' => true, 'reminders' => $reminders]);
+        return response()->json([
+            'success' => true,
+            'reminders' => $reminders->map(fn ($r) => [
+                ...$r->toArray(),
+                'event_uuid' => $r->event?->uuid
+            ])
+        ]);
     }
 
-    public function updateEventReminderRead($uuid, $id) {
-        $reminder = EventReminder::where('event_id', $uuid)->where('id', $id)->where('user_id', Auth::id())->first();
-        if(!$reminder) return response()->json(['success' => false]);
-        $reminder->read = true;
-        $reminder->save();
+    public function updateEventReminderRead($id)
+    {
+        $reminder = EventReminder::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$reminder) {
+            return response()->json(['success' => false]);
+        }
+
+        $reminder->update(['read' => true]);
+
         return response()->json(['success' => true]);
     }
 
-    public function updateEventRemindersRead($uuid) {
-        $event = Event::where('uuid', $uuid)->where('user_id', Auth::id())->first();
-        if (!$event) return response()->json(['success' => false, 'message' => '이벤트가 존재하지 않습니다.', 'type' => 'danger']);
+    public function updateEventRemindersRead($uuid)
+    {
+        $event = $this->canViewEvent($uuid);
 
-        $event->reminders()->update(['read' => false]);
+        if (!$event) {
+            return response()->json([
+                'success' => false,
+                'message' => '이벤트 접근 권한이 없습니다.',
+                'type' => 'danger'
+            ]);
+        }
+
+        $event->reminders()
+            ->where('user_id', Auth::id())
+            ->update(['read' => false]);
 
         return response()->json(['success' => true]);
     }

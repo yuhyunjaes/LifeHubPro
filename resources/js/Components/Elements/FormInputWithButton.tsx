@@ -14,6 +14,8 @@ interface FormInputWithButtonProps {
     message?: string;
     messageType?: "error" | "default";
     disabled?: boolean;
+    autoComplete?: string;
+    readOnly?: boolean;
 }
 
 export default function FormInputWithButton({
@@ -29,6 +31,8 @@ export default function FormInputWithButton({
     message = "",
     messageType = "default",
     disabled = false,
+    readOnly = false,
+    autoComplete
 }: FormInputWithButtonProps) {
     return (
         <div className={className}>
@@ -42,6 +46,8 @@ export default function FormInputWithButton({
                     onChange={onChange}
                     className="form-control flex-1"
                     disabled={disabled}
+                    readOnly={readOnly}
+                    autoComplete={autoComplete || undefined}
                 />
                 <button
                     type="button"

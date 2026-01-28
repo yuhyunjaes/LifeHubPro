@@ -108,7 +108,7 @@ export default function Root({ auth, children, ...props }: RootProps) {
     const updateReminder = async (reminder: ReminderData): Promise<void> => {
         if (!reminder) return;
         try {
-            const res = await axios.put(`/api/event/${reminder.event_id}/reminders/${reminder.id}`);
+            const res = await axios.put(`/api/event/reminders/${reminder.id}`);
             if (res.data.success) {
                 setReminders(prev =>
                     prev.map(pre =>
@@ -136,7 +136,7 @@ export default function Root({ auth, children, ...props }: RootProps) {
 
                 const filterReminders = reminders
                     .filter(reminder => {
-                        const event = events.find(event => event.uuid === reminder.event_id);
+                        const event = events.find(event => event.uuid === reminder.event_uuid);
                         if (!event) return false;
                         if (reminder.read) return false;
 
@@ -170,7 +170,7 @@ export default function Root({ auth, children, ...props }: RootProps) {
                 return (
                     <div className="fixed pointer-events-none right-5 top-[calc(70px+1.25rem)] z-[1] w-[200px] sm:w-[250px] md:w-[300px] space-y-2">
                         {filterReminders.map((reminder) => {
-                            const event = events.find(event => event.uuid === reminder.event_id);
+                            const event = events.find(event => event.uuid === reminder.event_uuid);
                             if (!event) return null;
 
                             const title = `${event.title ? (event.title.length > 3 ? event.title.substring(0, 12)+"..." : event.title) : ""}${event.title ? "<br>" : ""}이벤트 시작 ${reminderChangeKorean(reminder.seconds)}`;

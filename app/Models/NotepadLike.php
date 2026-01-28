@@ -14,7 +14,7 @@ class NotepadLike extends Model
     }
 
     public function notepad() {
-        return $this->belongsTo(Notepad::class, 'notepad_id', 'uuid');
+        return $this->belongsTo(Notepad::class, 'notepad_id', 'id');
     }
 
 

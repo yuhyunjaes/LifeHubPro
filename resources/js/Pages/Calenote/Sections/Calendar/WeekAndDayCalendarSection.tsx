@@ -1,9 +1,10 @@
 import {Dispatch, RefObject, SetStateAction, useCallback, useEffect, useRef, useState} from "react";
-import {CalendarAtData, EventsData} from "../CalenoteSectionsData";
+import {CalendarAtData, EventsData, ParticipantsData} from "../CalenoteSectionsData";
 
 interface WeekCalendarSectionProps {
     handleEventClick: (Event:EventsData) => Promise<void>;
     events: EventsData[];
+    setEventParticipants: Dispatch<SetStateAction<ParticipantsData[]>>;
     setEventReminder: Dispatch<SetStateAction<number[]>>;
     eventId: string | null;
     setEventDescription: Dispatch<SetStateAction<string>>;
@@ -32,6 +33,7 @@ interface EventWithLayout extends EventsData {
 export default function WeekAndDayCalendarSection({
     handleEventClick,
     events,
+    setEventParticipants,
     setEventReminder,
     eventId,
     setEventDescription,
@@ -213,6 +215,7 @@ export default function WeekAndDayCalendarSection({
             setEndAt(null);
             setEventTitle("");
             setEventReminder([]);
+            setEventParticipants([]);
             setEventDescription("");
             setEventColor("bg-blue-500");
             return;
@@ -272,6 +275,7 @@ export default function WeekAndDayCalendarSection({
             setEndAt(null);
             setEventTitle("");
             setEventReminder([]);
+            setEventParticipants([]);
             setEventDescription("");
             setEventColor("bg-blue-500");
         }

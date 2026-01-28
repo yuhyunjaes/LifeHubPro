@@ -165,7 +165,7 @@ export default function ReminderControl({ eventReminder, setEventReminder }:Remi
                         })()}
                     </div> : ""}
             </div>
-            <div className="mt-2 max-h-[150px] overflow-x-hidden overflow-y-auto space-y-2 bg-transparent rounded outline-none border-gray-300 w-full dark:border-gray-800 font-semibold text-xs">
+            <div className="mt-2 overflow-x-hidden overflow-y-auto space-y-2 bg-transparent rounded outline-none border-gray-300 w-full dark:border-gray-800 font-semibold text-xs">
                 {eventReminder.map((reminder, index) => (
                     <div className="border border-gray-200 dark:border-gray-800 group p-2 w-full rounded hover:bg-gray-950/10 dark:hover:bg-gray-600 flex items-center justify-between" key={index}>
                         {reminderChangeKorean(reminder)}

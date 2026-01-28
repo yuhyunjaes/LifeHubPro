@@ -4,11 +4,17 @@ import EventTitleControl from "./SideBarSection/EventTitleControl";
 import EventDescriptionControl from "./SideBarSection/EventDescriptionControl";
 import EventColorControl from "./SideBarSection/EventColorControl";
 import ReminderControl from "./SideBarSection/ReminderControl";
-import {router} from "@inertiajs/react";
-import {EventsData, ReminderData, ReminderEventsData} from "../CalenoteSectionsData";
+import {EventsData, ParticipantsData, ReminderData, ReminderEventsData} from "../CalenoteSectionsData";
 import ReminderView from "./SideBarSection/ReminderView";
+import ParticipantControl from "./SideBarSection/ParticipantControl";
+import {AuthUser} from "../../../../Types/CalenoteTypes";
 
 interface SideBarSectionProps {
+    eventParticipants: ParticipantsData[];
+    setEventParticipants: Dispatch<SetStateAction<ParticipantsData[]>>;
+    auth: {
+        user: AuthUser | null;
+    };
     sideBarToggle: boolean;
     setSideBarToggle: Dispatch<SetStateAction<boolean>>;
     handleEventClick: (Event:EventsData) => Promise<void>;
@@ -21,7 +27,7 @@ interface SideBarSectionProps {
     updateEvent: () => Promise<void>;
     eventId: string | null;
     setEventId: Dispatch<SetStateAction<string | null>>;
-    saveEvent: ()=> Promise<void>;
+    saveEvent: ()=> Promise<string | undefined>;
     eventDescription: string;
     setEventDescription: Dispatch<SetStateAction<string>>;
     eventColor: "bg-red-500" | "bg-orange-500" | "bg-yellow-500" | "bg-green-500" | "bg-blue-500" | "bg-purple-500" | "bg-gray-500";
@@ -36,7 +42,7 @@ interface SideBarSectionProps {
     setEndAt: Dispatch<SetStateAction<Date | null>>;
 }
 
-export default function SideBarSection({ sideBarToggle, setSideBarToggle, handleEventClick, reminders, now, events, eventReminder, setEventReminder, deleteEvent, updateEvent, eventId, setEventId, saveEvent, eventDescription, setEventDescription, eventColor, setEventColor, eventTitle, setEventTitle, viewMode, sideBar, startAt, setStartAt, endAt, setEndAt }:SideBarSectionProps) {
+export default function SideBarSection({ eventParticipants, setEventParticipants, auth, sideBarToggle, setSideBarToggle, handleEventClick, reminders, now, events, eventReminder, setEventReminder, deleteEvent, updateEvent, eventId, setEventId, saveEvent, eventDescription, setEventDescription, eventColor, setEventColor, eventTitle, setEventTitle, viewMode, sideBar, startAt, setStartAt, endAt, setEndAt }:SideBarSectionProps) {
     const [onlyOneClick, setOnlyOneClick] = useState(false);
     useEffect(() => {
         if(eventId && onlyOneClick) {
@@ -46,37 +52,47 @@ export default function SideBarSection({ sideBarToggle, setSideBarToggle, handle
 
     return (
         <div
-            className={`w-[250px] ${sideBar <= 0 ? (sideBarToggle ? "fixed overflow-x-hidden overflow-y-auto right-5 pointer-events-auto opacity-100 duration-300 transition-all" : "duration-300 transition-all opacity-0 -right-[100%] fixed pointer-events-none") : "sticky top-[1.25rem]"} border max-h-[calc(100vh-(70px+2.5rem))] bg-white dark:bg-[#0d1117] border-gray-300 dark:border-gray-800 rounded-xl normal-text user-select-none space-y-5`}
+            className={`w-[250px] ${sideBar <= 0 ? (sideBarToggle ? "absolute h-full overflow-x-hidden overflow-y-auto right-5 pointer-events-auto opacity-100 duration-300 transition-all" : "duration-300 transition-all opacity-0 -right-[100%] fixed pointer-events-none") : "sticky top-[1.25rem]"} border max-h-[calc(100vh-(70px+2.5rem))] bg-white dark:bg-[#0d1117] border-gray-300 dark:border-gray-800 rounded-xl normal-text user-select-none space-y-5`}
         >
-            {(eventId || (startAt && endAt)) ? (
-                    <>
-                        <EventTitleControl updateEvent={updateEvent} eventTitle={eventTitle} setEventTitle={setEventTitle} />
-                        <EventDateViewAndControl startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} />
-                        <EventDescriptionControl updateEvent={updateEvent} eventDescription={eventDescription} setEventDescription={setEventDescription} />
-                        <EventColorControl eventColor={eventColor} setEventColor={setEventColor} />
-                        <ReminderControl eventReminder={eventReminder} setEventReminder={setEventReminder} />
-                        <div className="px-5 pb-5">
-                        {
-                            (!eventId && !onlyOneClick) ? (
-                                <button onClick={() => {
-                                    saveEvent();
-                                    setOnlyOneClick(true);
-                                }} className="btn text-xs bg-blue-500 text-white w-full">
-                                    생성
-                                </button>
-                            ) : <button onClick={() => {
-                                deleteEvent();
-                            }} className="btn text-xs bg-red-500 text-white w-full">
-                                삭제
-                            </button>
-                        }
-                        </div>
-                    </>
-                ) : (
-                    <div className="p-5 space-y-5 h-full overflow-y-auto overflow-x-hidden relative flex flex-col">
-                        <ReminderView handleEventClick={handleEventClick} events={events} now={now} reminders={reminders} />
-                    </div>
-            )}
+            {
+                (() => {
+                    const IsEditAuthority: "owner" | "editor" | "viewer" | null | undefined = eventParticipants.find(eventParticipant => eventParticipant.user_id === auth.user!.id)?.role;
+                    // 사이드 바 참가자에 owner가 삭제및 수정 기능 만들어야 됨
+                    return (
+                        (eventId || (startAt && endAt)) ? (
+                            <>
+                                <EventTitleControl disabled={(!!eventId &&!(IsEditAuthority === "owner" || IsEditAuthority === "editor"))} updateEvent={updateEvent} eventTitle={eventTitle} setEventTitle={setEventTitle} />
+                                <EventDateViewAndControl disabled={(!!eventId &&!(IsEditAuthority === "owner" || IsEditAuthority === "editor"))} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} />
+                                <ParticipantControl disabled={(!!eventId && !(IsEditAuthority === "owner"))} saveEvent={saveEvent} eventId={eventId} eventParticipants={eventParticipants} setEventParticipants={setEventParticipants} auth={auth} />
+                                <EventDescriptionControl disabled={(!!eventId &&!(IsEditAuthority === "owner" || IsEditAuthority === "editor"))} updateEvent={updateEvent} eventDescription={eventDescription} setEventDescription={setEventDescription} />
+                                <EventColorControl disabled={(!!eventId &&!(IsEditAuthority === "owner" || IsEditAuthority === "editor"))} eventColor={eventColor} setEventColor={setEventColor} />
+                                <ReminderControl eventReminder={eventReminder} setEventReminder={setEventReminder} />
+                                <div className="px-5 pb-5">
+                                    {
+                                        ((!eventId && !onlyOneClick)) ? (
+                                            <button onClick={() => {
+                                                saveEvent();
+                                                setOnlyOneClick(true);
+                                            }} className="btn text-xs bg-blue-500 text-white w-full">
+                                                생성
+                                            </button>
+                                        ) : (IsEditAuthority === "owner" ? (<button onClick={() => {
+                                            deleteEvent();
+                                        }} className="btn text-xs bg-red-500 text-white w-full">
+                                            삭제
+                                        </button>) : ""
+                                        )
+                                    }
+                                </div>
+                            </>
+                        ) : (
+                            <div className="p-5 space-y-5 h-full overflow-y-auto overflow-x-hidden relative flex flex-col">
+                                <ReminderView handleEventClick={handleEventClick} events={events} now={now} reminders={reminders} />
+                            </div>
+                        )
+                    );
+                })()
+            }
 
 
         </div>

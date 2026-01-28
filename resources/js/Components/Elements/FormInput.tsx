@@ -12,6 +12,7 @@ interface FormInputProps {
     messageType?: "error" | "default";
     readOnly?: boolean;
     autoFocus?: boolean;
+    autoComplete?: string;
 }
 
 export default function FormInput({
@@ -24,7 +25,8 @@ onChange,
 message = "",
 messageType = "default",
 readOnly = false,
-autoFocus = false
+autoFocus = false,
+autoComplete
 }: FormInputProps) {
     return (
         <div>
@@ -38,6 +40,7 @@ autoFocus = false
                 readOnly={readOnly}
                 className="form-control"
                 autoFocus={autoFocus}
+                autoComplete={autoComplete || undefined}
             />
             {message && (
                 <p
