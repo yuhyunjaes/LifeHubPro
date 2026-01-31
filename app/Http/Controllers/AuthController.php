@@ -98,7 +98,7 @@ class AuthController extends Controller
                     ->firstOrFail();
 
                 if ($invitation->email !== $user->email) {
-                    abort(403);
+                    return Inertia::location('/');
                 }
 
                 DB::transaction(function () use ($invitation, $user) {
@@ -115,7 +115,7 @@ class AuthController extends Controller
 
                 return Inertia::location("/calenote/calendar/{$invitation->event->uuid}");
             } catch (\Throwable $e) {
-                abort(404);
+                return Inertia::location('/');
             }
         }
 
@@ -153,7 +153,7 @@ class AuthController extends Controller
                         ->firstOrFail();
 
                     if (Auth::user()->email !== $invitation->email) {
-                        abort(403);
+                        return Inertia::location('/');
                     }
 
                     DB::transaction(function () use ($invitation) {

@@ -120,10 +120,10 @@ class InvitationController extends Controller
 
             $existsUser = User::where('email', $invitation->email)->exists();
 
-            return response()->json(['redirect' => $existsUser ? 'login' : 'register']);
+            return response()->json(['success' => true, 'redirect' => $existsUser ? 'login' : 'register']);
 
         } catch (\Throwable $e) {
-            return Inertia::render('Status/Status', ['status' => 404]);
+            return response()->json(['success' => false]);
         }
     }
 

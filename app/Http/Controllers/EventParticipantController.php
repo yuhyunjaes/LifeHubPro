@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventInvitation;
+use App\Models\EventReminder;
 use App\Models\EventUser;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -51,26 +52,40 @@ class EventParticipantController extends Controller
             return response()->json([
                 'success' => true,
                 'participants' => $participants
-            ], 200);
+            ]);
 
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => '참가자를 불러오는 중 오류가 발생했습니다.',
                 'type' => 'danger'
-            ], 500);
+            ]);
         }
     }
 
     public function DeleteParticipants(Request $request)
     {
         try {
-            $event = Event::where('user_id', Auth::id())->where('uuid', $request->event_id)->firstOrFail();
+            $query = Event::where('uuid', $request->event_id);
+
+            if (!$request->self) {
+                $query->where('user_id', Auth::id());
+            }
+
+            $event = $query->firstOrFail();
 
             $data = $request->validate([
                 'status' => 'required|in:EventUser,EventInvitation',
                 'id' => 'required|integer',
             ]);
+
+            if($data['status'] === "EventUser" && $data['id'] === $event->user_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '소유자를 제거할 수 없습니다.',
+                    'type' => 'danger',
+                ]);
+            }
 
             DB::transaction(function () use ($event, $data) {
 
@@ -85,6 +100,8 @@ class EventParticipantController extends Controller
                         ->firstOrFail()
                         ->delete();
 
+                    EventReminder::where('user_id', $data['id'])->where('event_id', $event->id)->delete();
+
                     $eventUser->delete();
                 }
 
@@ -93,14 +110,14 @@ class EventParticipantController extends Controller
                 }
             });
 
-            return response()->json(['success' => true], 200);
+            return response()->json(['success' => true]);
 
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => '참가자를 제거하는 중 오류가 발생했습니다.',
                 'type' => 'danger',
-            ], 500);
+            ]);
         }
     }
 }

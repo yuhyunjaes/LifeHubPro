@@ -12,6 +12,8 @@ interface HomeProps {
     auth: {
         user: AuthUser | null;
     };
+    laravelVersion: any,
+    phpVersion: any
 }
 
 export default function Home({ auth } : HomeProps) {

@@ -8,6 +8,7 @@ import {EventsData, ParticipantsData, ReminderData, ReminderEventsData} from "..
 import ReminderView from "./SideBarSection/ReminderView";
 import ParticipantControl from "./SideBarSection/ParticipantControl";
 import {AuthUser} from "../../../../Types/CalenoteTypes";
+import {router} from "@inertiajs/react";
 
 interface SideBarSectionProps {
     eventParticipants: ParticipantsData[];
@@ -50,9 +51,25 @@ export default function SideBarSection({ eventParticipants, setEventParticipants
         }
     }, [eventId]);
 
+    const resetEvent = () => {
+        router.visit(`/calenote/calendar`, {
+            method: "get",
+            preserveState: true,
+            preserveScroll: true,
+        });
+        setEventId(null);
+        setEventTitle("");
+        setEventReminder([]);
+        setEventParticipants([]);
+        setEventDescription("");
+        setEventColor("bg-blue-500");
+        setStartAt(null);
+        setEndAt(null);
+    }
+
     return (
         <div
-            className={`w-[250px] ${sideBar <= 0 ? (sideBarToggle ? "absolute h-full overflow-x-hidden overflow-y-auto right-5 pointer-events-auto opacity-100 duration-300 transition-all" : "duration-300 transition-all opacity-0 -right-[100%] fixed pointer-events-none") : "sticky top-[1.25rem]"} border max-h-[calc(100vh-(70px+2.5rem))] bg-white dark:bg-[#0d1117] border-gray-300 dark:border-gray-800 rounded-xl normal-text user-select-none space-y-5`}
+            className={`w-[250px] overflow-x-hidden overflow-y-auto ${sideBar <= 0 ? (sideBarToggle ? "absolute h-full right-5 pointer-events-auto opacity-100 duration-300 transition-all" : "duration-300 transition-all opacity-0 -right-[100%] fixed pointer-events-none") : "sticky top-[1.25rem]"} border max-h-[calc(100vh-(70px+2.5rem))] bg-white dark:bg-[#0d1117] border-gray-300 dark:border-gray-800 rounded-xl normal-text user-select-none space-y-5`}
         >
             {
                 (() => {
@@ -63,7 +80,7 @@ export default function SideBarSection({ eventParticipants, setEventParticipants
                             <>
                                 <EventTitleControl disabled={(!!eventId &&!(IsEditAuthority === "owner" || IsEditAuthority === "editor"))} updateEvent={updateEvent} eventTitle={eventTitle} setEventTitle={setEventTitle} />
                                 <EventDateViewAndControl disabled={(!!eventId &&!(IsEditAuthority === "owner" || IsEditAuthority === "editor"))} startAt={startAt} setStartAt={setStartAt} endAt={endAt} setEndAt={setEndAt} />
-                                <ParticipantControl IsEditAuthority={IsEditAuthority} disabled={(!!eventId && !(IsEditAuthority === "owner"))} saveEvent={saveEvent} eventId={eventId} eventParticipants={eventParticipants} setEventParticipants={setEventParticipants} auth={auth} />
+                                <ParticipantControl resetEvent={resetEvent} IsEditAuthority={IsEditAuthority} disabled={(!!eventId && !(IsEditAuthority === "owner"))} saveEvent={saveEvent} eventId={eventId} eventParticipants={eventParticipants} setEventParticipants={setEventParticipants} auth={auth} />
                                 <EventDescriptionControl disabled={(!!eventId &&!(IsEditAuthority === "owner" || IsEditAuthority === "editor"))} updateEvent={updateEvent} eventDescription={eventDescription} setEventDescription={setEventDescription} />
                                 <EventColorControl disabled={(!!eventId &&!(IsEditAuthority === "owner" || IsEditAuthority === "editor"))} eventColor={eventColor} setEventColor={setEventColor} />
                                 <ReminderControl eventReminder={eventReminder} setEventReminder={setEventReminder} />

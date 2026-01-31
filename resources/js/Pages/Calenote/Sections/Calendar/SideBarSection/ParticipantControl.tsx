@@ -1,5 +1,5 @@
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faEye, faPen, faEllipsis, faX} from "@fortawesome/free-solid-svg-icons";
+import {faEye, faPen, faEllipsis, faX, faArrowRightFromBracket} from "@fortawesome/free-solid-svg-icons";
 import {Dispatch, SetStateAction, useCallback, useContext, useEffect, useRef, useState} from "react";
 import {AuthUser} from "../../../../../Types/CalenoteTypes";
 import {ParticipantsData} from "../../CalenoteSectionsData";
@@ -7,6 +7,7 @@ import axios from "axios";
 import {GlobalUIContext} from "../../../../../Providers/GlobalUIContext";
 
 interface ParticipantControlProps {
+    resetEvent: () => void;
     IsEditAuthority: "owner" | "editor" | "viewer" | null | undefined;
     disabled: boolean;
     saveEvent: ()=> Promise<string | undefined>;
@@ -18,7 +19,7 @@ interface ParticipantControlProps {
     };
 }
 
-export default function ParticipantControl({ IsEditAuthority, disabled, saveEvent, eventId, eventParticipants, setEventParticipants, auth }:ParticipantControlProps) {
+export default function ParticipantControl({ resetEvent, IsEditAuthority, disabled, saveEvent, eventId, eventParticipants, setEventParticipants, auth }:ParticipantControlProps) {
     const ui = useContext(GlobalUIContext);
 
     if (!ui) {
@@ -126,15 +127,16 @@ export default function ParticipantControl({ IsEditAuthority, disabled, saveEven
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const removeParticipant = useCallback(async () => {
-        if(activeEventParticipant.length <= 0) return;
+    const removeParticipant = useCallback(async (self: boolean = false) => {
+        if(activeEventParticipant.length <= 0 || !eventId) return;
 
         try {
             const res = await axios.delete('/api/event/participants', {
                 data : {
                     id: activeEventParticipant[0]!.id,
                     status: activeEventParticipant[0]!.status,
-                    event_id: eventId
+                    event_id: eventId,
+                    self: self
                 }
             });
 
@@ -156,6 +158,43 @@ export default function ParticipantControl({ IsEditAuthority, disabled, saveEven
         } catch (err) {
             console.error(err);
         }
+    }, [activeEventParticipant, eventId]);
+
+    const changeEventUserRole = useCallback(async (role: "editor" | "viewer") => {
+        if(activeEventParticipant.length <= 0 || !eventId || !role || activeEventParticipant[0]?.status !== "EventUser") return;
+
+        try {
+            const res = await axios.put(`/api/event/event-user/role`, {
+                event_id: eventId,
+                role: role,
+                id: activeEventParticipant[0]?.id
+            });
+
+            if(res.data.success) {
+                setEventParticipants(pre =>
+                    pre.map(eventParticipant => {
+                        if (
+                            eventParticipant.user_id &&
+                            eventParticipant.user_id === activeEventParticipant[0]!.id
+                        ) {
+                            return {
+                                ...eventParticipant,
+                                role: role,
+                            };
+                        }
+
+                        return eventParticipant;
+                    })
+                );
+            } else {
+                setAlertSwitch(true);
+                setAlertType(res.data.type);
+                setAlertMessage(res.data.message);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+
     }, [activeEventParticipant, eventId]);
 
     return (
@@ -193,30 +232,67 @@ export default function ParticipantControl({ IsEditAuthority, disabled, saveEven
                                     </div>
                                 </div>
                                 <div className="flex-1 flex justify-end items-center">
-                                    <button onClick={() => {
-                                        setActiveEventParticipant([
-                                            {
-                                                id: eventParticipant.user_id
-                                                    ? Number(eventParticipant.user_id)
-                                                    : Number(eventParticipant.invitation_id),
-                                                status: eventParticipant.user_id ? "EventUser" : "EventInvitation"
-                                            }
-                                        ]);
-                                    }} className={`${isActive ? "" : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto cursor-pointer"}`}>
-                                        <FontAwesomeIcon icon={faEllipsis} />
-                                    </button>
+                                    {((IsEditAuthority === "owner" && eventParticipant.role !== "owner") ||
+                                        (eventParticipant.user_id === auth.user?.id && eventParticipant.role !== "owner")) ? (
+                                        <button onClick={() => {
+                                            setActiveEventParticipant([
+                                                {
+                                                    id: eventParticipant.user_id
+                                                        ? Number(eventParticipant.user_id)
+                                                        : Number(eventParticipant.invitation_id),
+                                                    status: eventParticipant.user_id ? "EventUser" : "EventInvitation"
+                                                }
+                                            ]);
+                                        }} className={`${isActive ? "" : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto cursor-pointer"}`}>
+                                            <FontAwesomeIcon icon={faEllipsis} />
+                                        </button>
+                                    ) : ""}
                                 </div>
                                 {isActive ? (
-                                    <div ref={activeEventParticipantAreaRef} className="w-[calc(100%-0.5rem)] absolute z-[1] -left-5 top-0 rounded bg-white dark:bg-gray-950 border-[0.5px] border-gray-200 dark:border-gray-800 p-2 space-x-2">
+                                    <div ref={activeEventParticipantAreaRef} className="w-[calc(100%-0.5rem)] absolute z-[1] -left-5 top-5 rounded bg-white dark:bg-gray-950 border-[0.5px] border-gray-200 dark:border-gray-800 p-2 space-x-2">
                                         {
-                                            (IsEditAuthority === "owner") ? (
+                                            IsEditAuthority === "owner" ? (
+                                                <>
+                                                    {
+                                                        (eventParticipant.role !== "owner" && eventParticipant.role === "editor") ? (
+                                                            <button onClick={async () => {
+                                                                await changeEventUserRole("viewer");
+                                                            }} className="btn transition-colors duration-300 w-full flex justify-start items-center px-0 py-2 text-gray-950 dark:text-white hover:bg-gray-950/10 dark:hover:bg-gray-600 space-x-1">
+                                                                <FontAwesomeIcon icon={faEye}/>
+                                                                <span>열람 권한으로 변경</span>
+                                                            </button>
+                                                        ) : ""
+                                                    }
+                                                    {
+                                                        (eventParticipant.role !== "owner" && eventParticipant.role === "viewer") ? (
+                                                            <button onClick={async () => {
+                                                                await changeEventUserRole("editor");
+                                                            }} className="btn transition-colors duration-300 w-full flex justify-start items-center px-0 py-2 text-gray-950 dark:text-white hover:bg-gray-950/10 dark:hover:bg-gray-600 space-x-1">
+                                                                <FontAwesomeIcon icon={faPen}/>
+                                                                <span>편집 권한으로 변경</span>
+                                                            </button>
+                                                        ) : ""
+                                                    }
+                                                    {
+                                                        (eventParticipant.role !== "owner") ? (
+                                                            <button onClick={async () => {
+                                                                await removeParticipant(false);
+                                                            }} className="btn transition-colors duration-300 w-full flex justify-start items-center py-2 text-red-500 hover:text-red-50 hover:bg-red-500/80 space-x-1">
+                                                                <FontAwesomeIcon icon={faX}/>
+                                                                <span>제거</span>
+                                                            </button>
+                                                        ) : ""
+                                                    }
+                                                </>
+                                            ) : ((eventParticipant.user_id === auth.user?.id && eventParticipant.role !== "owner") ? (
                                                 <button onClick={async () => {
-                                                    await removeParticipant();
+                                                    await removeParticipant(true);
+                                                    resetEvent();
                                                 }} className="btn transition-colors duration-300 w-full flex justify-start items-center py-2 text-red-500 hover:text-red-50 hover:bg-red-500/80 space-x-1">
-                                                    <FontAwesomeIcon icon={faX}/>
-                                                    <span>제거</span>
+                                                    <FontAwesomeIcon icon={faArrowRightFromBracket}/>
+                                                    <span>나가기</span>
                                                 </button>
-                                            ) : ""
+                                            ) : "")
                                         }
                                     </div>
                                 ) : ""}
@@ -240,7 +316,7 @@ export default function ParticipantControl({ IsEditAuthority, disabled, saveEven
                 />
 
                 {(IsParticipantFocus && IsParticipantEmail) ?
-                    <div className="absolute w-[200px] top-[34px] sm:top-0 sm:right-[calc(100%+0.5rem)] rounded bg-white dark:bg-[#0d1117] border border-gray-200 dark:border-gray-800">
+                    <div className="absolute w-full top-[34px] rounded bg-white dark:bg-[#0d1117] border border-gray-200 dark:border-gray-800">
 
 
                         {(() => {

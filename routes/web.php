@@ -16,6 +16,7 @@ use App\Http\Controllers\EventReminderController;
 use App\Http\Controllers\EventParticipantController;
 use App\Http\Controllers\EventInvitationController;
 use App\Http\Controllers\InvitationController;
+use App\Http\Controllers\EventUserController;
 use App\Models\Notepad;
 use Illuminate\Support\Facades\Session;
 
@@ -205,6 +206,7 @@ Route::middleware('web')->group(function () {
         Route::get('/api/event/{uuid}/participants', [EventParticipantController::class, 'GetActiveParticipants'])->name('event.active.participant.get');
         Route::delete('/api/event/participants', [EventParticipantController::class, 'DeleteParticipants'])->name('event.participant.delete');
         Route::post('/api/event/{uuid}/invitations', [EventInvitationController::class, 'StoreInvitation'])->name('event.invitation.store');
+        Route::put('/api/event/event-user/role', [EventUserController::class, 'UpdateEventUserRole'])->name('event.event-user.role.update');
 
         // --------------------
         // Gemini API
