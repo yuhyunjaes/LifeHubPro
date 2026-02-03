@@ -7,8 +7,32 @@ import { createRoot } from 'react-dom/client';
 import {ComponentType, ReactElement, useState} from 'react';
 import GlobalProvider from "./Providers/GlobalProvider";
 import Root from "./Root";
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+
+// ============ Reverb 설정 ============
+window.Pusher = Pusher;
+
+// app.tsx
+window.Echo = new Echo({
+    broadcaster: 'reverb',
+    key: import.meta.env.VITE_REVERB_APP_KEY,
+    wsHost: import.meta.env.VITE_REVERB_HOST,
+    wsPort: import.meta.env.VITE_REVERB_PORT ?? 80,
+    wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
+    forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
+    enabledTransports: ['ws', 'wss'],
+    // 👇 인증 설정 추가
+    authEndpoint: '/broadcasting/auth',
+    auth: {
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+            'Accept': 'application/json',
+        },
+    },
+});
 
 // 다크모드
 function initializeDarkMode(): void {
@@ -39,33 +63,34 @@ interface PageProps {
 }
 
 interface PageModule {
-default: ComponentType<any> & {
+    default: ComponentType<any> & {
         layout?: (page: ReactElement) => ReactElement;
     };
 }
 
 createInertiaApp({
     title: (title: string) => `${title} - ${appName}`,
-        resolve: async (name: string) => {
-            const pages = import.meta.glob<PageModule>('./Pages/**/*.tsx');
-            const page = await resolvePageComponent<PageModule>(`./Pages/${name}.tsx`, pages);
+    resolve: async (name: string) => {
+        const pages = import.meta.glob<PageModule>('./Pages/**/*.tsx');
+        const page = await resolvePageComponent<PageModule>(`./Pages/${name}.tsx`, pages);
 
-            page.default.layout = (pageElement: ReactElement) => {
-                const pProps = pageElement.props as PageProps;
+        page.default.layout = (pageElement: ReactElement) => {
+            const pProps = pageElement.props as PageProps;
 
-                const content = name.startsWith('Calenote/') ? (
-                    <CalenoteLayout {...pProps}>
-                        {pageElement}
-                    </CalenoteLayout>
-                ) : (
-                    pageElement
-                );
+            const content = name.startsWith('Calenote/') ? (
+                <CalenoteLayout {...pProps}>
+                    {pageElement}
+                </CalenoteLayout>
+            ) : (
+                pageElement
+            );
 
-                return <Root {...pProps}>{content}</Root>;
-            };
+            return <Root {...pProps}>{content}</Root>;
+        };
 
-            return page;
-        },setup({ el, App, props }) {
+        return page;
+    },
+    setup({ el, App, props }) {
         initializeDarkMode();
 
         const root = createRoot(el);
@@ -74,7 +99,8 @@ createInertiaApp({
                 <App {...props} />
             </GlobalProvider>
         );
-    }, progress: {
+    },
+    progress: {
         color: '#ffffff',
     },
 });

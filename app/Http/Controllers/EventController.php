@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\EventUpdated;
 use App\Traits\EventPermission;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -64,8 +65,7 @@ class EventController extends Controller
         }
     }
 
-    public function UpdateEvents(Request $request, $uuid)
-    {
+    public function UpdateEvents(Request $request, $uuid) {
         $event = Event::where('uuid', $uuid)->first();
 
         if (!$event) {
@@ -92,13 +92,31 @@ class EventController extends Controller
             ->setTimezone('Asia/Seoul')
             ->format('Y-m-d H:i:s');
 
-        $event->update([
+        $event->fill([
             'title' => $request->title,
             'start_at' => $startAt,
             'end_at' => $endAt,
             'description' => $request->description,
             'color' => $request->color,
         ]);
+
+        if (!$event->isDirty()) {
+            return response()->json([
+                'success' => true,
+                'message' => '변경된 내용이 없습니다.',
+                'event' => $event,
+            ]);
+        }
+
+        $event->save();
+
+        broadcast(new EventUpdated(
+            $event->uuid,
+            [
+                'event' => $event->toArray(),
+                'user_id' => auth()->id(),
+            ]
+        ))->toOthers();
 
         return response()->json([
             'success' => true,

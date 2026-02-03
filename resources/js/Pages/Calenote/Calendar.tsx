@@ -13,6 +13,7 @@ import { useContext } from "react";
 import {GlobalUIContext} from "../../Providers/GlobalUIContext";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faAngleLeft, faAngleRight, faPlus} from "@fortawesome/free-solid-svg-icons";
+import Echo from 'laravel-echo';
 
 
 interface CalendarProps {
@@ -46,6 +47,7 @@ export default function Calendar({ event, auth, mode, year, month, day, events, 
         setAlertMessage,
         setAlertType,
         setLoading,
+        loading
     } = ui;
 
     const [sideBar, setSideBar] = useState<number>((): 0 | 250 => (window.innerWidth <= 640 ? 0 : 250));
@@ -169,11 +171,19 @@ export default function Calendar({ event, auth, mode, year, month, day, events, 
         }
     }, [eventReminder]);
 
+    const [isRemoteUpdate, setIsRemoteUpdate] = useState<boolean>(false);
+
     const updateEvent:()=>Promise<void> = useCallback(async ():Promise<void> => {
-        if(!startAt || !endAt || !eventColor || !eventId ) return;
+        if(!startAt || !endAt || !eventColor || !eventId) return;
 
         if(!eventIdChangeDone) {
             setEventIdChangeDone(true);
+            return;
+        }
+
+        // 🔴 원격 업데이트인 경우 서버로 전송하지 않음
+        if(isRemoteUpdate) {
+            setIsRemoteUpdate(false);
             return;
         }
 
@@ -205,7 +215,7 @@ export default function Calendar({ event, auth, mode, year, month, day, events, 
         } catch (err) {
             console.error(err);
         }
-    }, [eventTitle, eventDescription, eventColor, startAt, endAt, eventId, eventIdChangeDone]);
+    }, [eventTitle, eventDescription, eventColor, startAt, endAt, eventId, eventIdChangeDone, isRemoteUpdate]);
 
     useEffect(() => {
         if (!isDragging) {
@@ -532,6 +542,48 @@ export default function Calendar({ event, auth, mode, year, month, day, events, 
             setLoading(false);
         }
     }, [viewMode, activeAt, eventId]);
+
+    useEffect(() => {
+        // Echo와 eventId가 모두 준비될 때까지 대기
+        if (!window.Echo || !eventId || !getDone) return;
+
+        const channel = window.Echo.private(`event.${eventId}`);
+
+        const handleEventUpdated = (data: any) => {
+            const { event, user_id } = data.payload;
+
+            if (user_id === auth.user?.id) return;
+
+            setIsRemoteUpdate(true);
+
+            if (event.uuid === eventId) {
+                setEventTitle(event.title);
+                setEventDescription(event.description);
+                setEventColor(event.color);
+                setStartAt(new Date(event.start_at));
+                setEndAt(new Date(event.end_at));
+            }
+
+            setEvents(prev =>
+                prev.map(e =>
+                    e.uuid === event.uuid ? {
+                        ...e,
+                        title: event.title,
+                        start_at: event.start_at,
+                        end_at: event.end_at,
+                        description: event.description,
+                        color: event.color,
+                    } : e
+                )
+            );
+        };
+
+        channel.listen('.event.updated', handleEventUpdated);
+
+        return () => {
+            window.Echo.leave(`event.${eventId}`);
+        };
+    }, [eventId, getDone, auth.user?.id]);
 
     return (
         <>
