@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ParticipantUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventInvitation;
@@ -81,6 +82,23 @@ class EventInvitationController extends Controller
                 }
             );
 
+            // 참가자 추가 - 해당 이벤트 참가자들에게만 브로드캐스트
+            broadcast(new ParticipantUpdated(
+                $event->uuid,
+                [
+                    'type' => 'invitation_added',
+                    'participant' => [
+                        'user_name' => null,
+                        'user_id' => null,
+                        'invitation_id' => $invitation->id,
+                        'event_id' => $event->uuid,
+                        'email' => $invitation->email,
+                        'role' => null,
+                        'status' => 'pending',
+                    ],
+                    'user_id' => auth()->id(),
+                ]
+            ))->toOthers();
 
             return response()->json([
                 'success' => true,

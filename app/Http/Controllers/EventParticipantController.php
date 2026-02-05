@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\EventDeleted;
+use App\Events\ParticipantDelete;
+use App\Events\ParticipantUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventInvitation;
@@ -17,10 +20,15 @@ class EventParticipantController extends Controller
     public function GetActiveParticipants($uuid)
     {
         try {
-            $event = Event::with([
-                'eventUsers.user:id,name,email',
-                'invitations'
-            ])->where('uuid', $uuid)->firstOrFail();
+            $event = Event::where('uuid', $uuid)
+                ->whereHas('eventUsers', fn ($q) =>
+                $q->where('user_id', auth()->id())
+                )
+                ->with([
+                    'eventUsers.user:id,name,email',
+                    'invitations'
+                ])
+                ->firstOrFail();
 
             $users = $event->eventUsers->map(function ($eu) use ($uuid) {
                 return [
@@ -87,13 +95,22 @@ class EventParticipantController extends Controller
                 ]);
             }
 
-            DB::transaction(function () use ($event, $data) {
+            $deletedParticipant = null;
+
+            DB::transaction(function () use ($event, $data, &$deletedParticipant) {
 
                 if ($data['status'] === 'EventUser') {
                     $eventUser = EventUser::with('user', 'event')
                         ->where('user_id', $data['id'])
                         ->where('event_id', $event->id)
                         ->firstOrFail();
+
+                    // 삭제 전 정보 저장
+                    $deletedParticipant = [
+                        'type' => 'user_removed',
+                        'user_id' => $eventUser->user->id,
+                        'email' => $eventUser->user->email,
+                    ];
 
                     EventInvitation::where('event_id', $eventUser->event_id)
                         ->where('email', $eventUser->user->email)
@@ -106,9 +123,37 @@ class EventParticipantController extends Controller
                 }
 
                 if ($data['status'] === 'EventInvitation') {
-                    EventInvitation::where('id',$data['id'])->where('event_id', $event->id)->firstOrFail()->delete();
+                    $invitation = EventInvitation::where('id',$data['id'])->where('event_id', $event->id)->firstOrFail();
+
+                    // 삭제 전 정보 저장
+                    $deletedParticipant = [
+                        'type' => 'invitation_removed',
+                        'invitation_id' => $invitation->id,
+                        'email' => $invitation->email,
+                    ];
+
+                    $invitation->delete();
                 }
             });
+
+            // 참가자 제거 - 해당 이벤트 참가자들에게만 브로드캐스트
+            if ($deletedParticipant) {
+                broadcast(new ParticipantUpdated(
+                    $event->uuid,
+                    [
+                        'type' => $deletedParticipant['type'],
+                        'participant' => $deletedParticipant,
+                        'user_id' => auth()->id(),
+                    ]
+                ))->toOthers();
+            }
+
+            if(isset($deletedParticipant['user_id'])) {
+                broadcast(new ParticipantDelete(
+                    userId: $deletedParticipant['user_id'],
+                    eventUuid: $event->uuid,
+                ))->toOthers();
+            }
 
             return response()->json(['success' => true]);
 

@@ -181,7 +181,7 @@ export default function Calendar({ event, auth, mode, year, month, day, events, 
             return;
         }
 
-        // 🔴 원격 업데이트인 경우 서버로 전송하지 않음
+        // 원격 업데이트인 경우 서버로 전송하지 않음
         if(isRemoteUpdate) {
             setIsRemoteUpdate(false);
             return;
@@ -544,18 +544,19 @@ export default function Calendar({ event, auth, mode, year, month, day, events, 
     }, [viewMode, activeAt, eventId]);
 
     useEffect(() => {
-        // Echo와 eventId가 모두 준비될 때까지 대기
-        if (!window.Echo || !eventId || !getDone) return;
+        if (!window.Echo || !getDone) return;
 
-        const channel = window.Echo.private(`event.${eventId}`);
+        const channel = window.Echo.private('events.all');
 
         const handleEventUpdated = (data: any) => {
             const { event, user_id } = data.payload;
 
             if (user_id === auth.user?.id) return;
 
+            // 원격 업데이트 플래그
             setIsRemoteUpdate(true);
 
+            // 현재 보고 있는 이벤트라면 상세 동기화
             if (event.uuid === eventId) {
                 setEventTitle(event.title);
                 setEventDescription(event.description);
@@ -564,26 +565,185 @@ export default function Calendar({ event, auth, mode, year, month, day, events, 
                 setEndAt(new Date(event.end_at));
             }
 
+            // 전체 이벤트 목록 동기화
             setEvents(prev =>
                 prev.map(e =>
-                    e.uuid === event.uuid ? {
-                        ...e,
-                        title: event.title,
-                        start_at: event.start_at,
-                        end_at: event.end_at,
-                        description: event.description,
-                        color: event.color,
-                    } : e
+                    e.uuid === event.uuid
+                        ? {
+                            ...e,
+                            title: event.title,
+                            description: event.description,
+                            start_at: new Date(event.start_at),
+                            end_at: new Date(event.end_at),
+                            color: event.color,
+                            start_area: e.start_area,
+                            end_area: e.end_area,
+                        }
+                        : e
                 )
             );
         };
 
+        const handleEventDeleted = (data: any) => {
+            const { event_uuid, user_id } = data;
+
+            if (user_id === auth.user?.id) return;
+
+            setEvents(prev =>
+                prev.filter(e => e.uuid !== event_uuid)
+            );
+
+            // 현재 보고 있는 이벤트가 삭제된 경우
+            if (eventId === event_uuid) {
+                setEventId(null);
+                setEventTitle("");
+                setEventReminder([]);
+                setEventParticipants([]);
+                setEventDescription("");
+                setEventColor("bg-blue-500");
+                setStartAt(null);
+                setEndAt(null);
+
+                router.visit(`/calenote/calendar`, {
+                    method: "get",
+                    preserveState: true,
+                    preserveScroll: true,
+                });
+
+                setAlertSwitch(true);
+                setAlertType("warning");
+                setAlertMessage("해당 이벤트가 삭제되었습니다.");
+            }
+        };
+
         channel.listen('.event.updated', handleEventUpdated);
+        channel.listen('.event.deleted', handleEventDeleted);
 
         return () => {
-            window.Echo.leave(`event.${eventId}`);
+            channel.stopListening('.event.updated');
+            channel.stopListening('.event.deleted');
         };
-    }, [eventId, getDone, auth.user?.id]);
+    }, [getDone, eventId, auth.user?.id]);
+
+    useEffect(() => {
+        if (!window.Echo || !getDone || !eventId) return;
+
+        const channel = window.Echo.private(`event.${eventId}.participants`);
+
+        const handleParticipantUpdated = (data: any) => {
+            const { payload } = data;
+            const { type, participant, user_id } = payload;
+
+            if (user_id === auth.user?.id && user_id !== 0) return;
+
+            if (type === 'invitation_added') {
+                setEventParticipants(prev => [...prev, participant]);
+            }
+            else if (type === 'role_updated') {
+                setEventParticipants(prev =>
+                    prev.map(p =>
+                        p.user_id === participant.user_id
+                            ? { ...p, role: participant.role }
+                            : p
+                    )
+                );
+            }
+            else if (type === 'user_removed') {
+                setEventParticipants(prev =>
+                    prev.filter(p => p.user_id !== participant.user_id)
+                );
+            }
+            else if (type === 'invitation_removed') {
+                setEventParticipants(prev =>
+                    prev.filter(p => p.invitation_id !== participant.invitation_id)
+                );
+            }
+            else if (type === 'invitation_accepted') {
+                setEventParticipants(prev =>
+                    prev.map(p =>
+                        p.email === participant.email
+                            ? {
+                                user_name: participant.user_name,
+                                user_id: participant.user_id,
+                                event_id: participant.event_id,
+                                email: participant.email,
+                                role: participant.role,
+                                status: null,
+                            }
+                            : p
+                    )
+                );
+            }
+            else if (type === 'invitation_declined') {
+                setEventParticipants(prev =>
+                    prev.map(p =>
+                        p.invitation_id === participant.invitation_id
+                            ? { ...p, status: 'declined' }
+                            : p
+                    )
+                );
+            }
+            else if (type === 'invitation_expired') {
+                setEventParticipants(prev =>
+                    prev.map(p =>
+                        p.invitation_id === participant.invitation_id
+                            ? { ...p, status: 'expired' }
+                            : p
+                    )
+                );
+            }
+        };
+
+        channel.listen('.participant.updated', handleParticipantUpdated);
+
+        return () => {
+            channel.stopListening('.participant.updated');
+        };
+    }, [getDone, eventId, auth.user?.id]);
+
+    useEffect(() => {
+        if (!window.Echo || !getDone || !auth.user?.id) return;
+
+        const channel = window.Echo.private(`user.${auth.user?.id}.events.participants`);
+
+        const handleParticipantDelete = (data: any) => {
+            const { event_uuid, user_id } = data;
+
+            if(user_id !== auth.user?.id) return;
+
+            setEvents(prev =>
+                prev.filter(e => e.uuid !== event_uuid)
+            );
+
+            if (eventId === event_uuid) {
+                setEventId(null);
+                setEventTitle("");
+                setEventReminder([]);
+                setEventParticipants([]);
+                setEventDescription("");
+                setEventColor("bg-blue-500");
+                setStartAt(null);
+                setEndAt(null);
+
+                router.visit(`/calenote/calendar`, {
+                    method: "get",
+                    preserveState: true,
+                    preserveScroll: true,
+                });
+
+                setAlertSwitch(true);
+                setAlertType("warning");
+                setAlertMessage("해당 이벤트가 삭제되었습니다.");
+            }
+        };
+
+        channel.listen('.participant.deleted', handleParticipantDelete);
+
+        return () => {
+            channel.stopListening('.participant.deleted');
+        };
+
+    }, [getDone, auth.user?.id, eventId]);
 
     return (
         <>

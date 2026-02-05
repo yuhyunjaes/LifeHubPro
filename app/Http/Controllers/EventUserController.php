@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ParticipantUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventUser;
@@ -19,12 +20,39 @@ class EventUserController extends Controller
                 'id' => ['required', 'integer'],
             ]);
 
-            DB::transaction(function () use ($data) {
-                $event = Event::where('uuid', $data['event_id'])->where('user_id', Auth::id())->firstOrFail();
-                $eventUser = EventUser::where('user_id', $data['id'])->where('event_id', $event->id)->firstOrFail();
+            $event = null;
+            $eventUser = null;
+
+            DB::transaction(function () use ($data, &$event, &$eventUser) {
+                $event = Event::where('uuid', $data['event_id'])
+                    ->where('user_id', Auth::id())
+                    ->firstOrFail();
+
+                $eventUser = EventUser::with('user')
+                    ->where('user_id', $data['id'])
+                    ->where('event_id', $event->id)
+                    ->firstOrFail();
+
                 $eventUser->role = $data['role'];
                 $eventUser->saveOrFail();
             });
+
+            // 권한 변경 - 해당 이벤트 참가자들에게만 브로드캐스트
+            broadcast(new ParticipantUpdated(
+                $event->uuid,
+                [
+                    'type' => 'role_updated',
+                    'participant' => [
+                        'user_name' => $eventUser->user->name,
+                        'user_id' => $eventUser->user->id,
+                        'event_id' => $event->uuid,
+                        'email' => $eventUser->user->email,
+                        'role' => $eventUser->role,
+                        'status' => null,
+                    ],
+                    'user_id' => auth()->id(),
+                ]
+            ))->toOthers();
 
             return response()->json([
                 'success' => true,

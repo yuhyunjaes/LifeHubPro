@@ -6,6 +6,7 @@ use App\Events\EventUpdated;
 use App\Traits\EventPermission;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Events\EventDeleted;
 use App\Models\EventUser;
 use Illuminate\Http\Request;
 use App\Models\Event;
@@ -166,29 +167,37 @@ class EventController extends Controller
 
     public function DeleteEvents($uuid)
     {
-        $event = Event::where('uuid', $uuid)->first();
+        try {
+            $event = Event::where('uuid', $uuid)->firstOrFail();
 
-        if (!$event) {
+            if (!$this->isOwner($event->id)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '이벤트를 삭제할 권한이 없습니다.',
+                    'type' => 'danger'
+                ]);
+            }
+
+            $eventUuid = $event->uuid;
+            $deletedBy = Auth::id();
+
+            $event->delete();
+
+            broadcast(new EventDeleted(
+                eventUuid: $eventUuid,
+                deletedBy: $deletedBy,
+            ))->toOthers();
+
+            return response()->json([
+                'success' => true
+            ]);
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => '이벤트가 존재하지 않습니다.',
                 'type' => 'danger'
             ]);
         }
-
-        if (!$this->isOwner($event->id)) {
-            return response()->json([
-                'success' => false,
-                'message' => '이벤트를 삭제할 권한이 없습니다.',
-                'type' => 'danger'
-            ]);
-        }
-
-        $event->delete();
-
-        return response()->json([
-            'success' => true
-        ]);
     }
 
 }

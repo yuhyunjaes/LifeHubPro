@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ParticipantUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\EventInvitation;
 use App\Models\EventUser;
@@ -17,20 +18,17 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-//    아이디 중복체크
+    // 아이디 중복체크
     public function checkId(Request $request) {
         $id = $request->id;
-
         $exists = User::where('user_id', $id)->exists();
-
         if($exists) {
             return response()->json(['success' => false]);
         }
-
         return response()->json(['success' => true]);
     }
 
-//    이메일 확인 코드 전송
+    // 이메일 확인 코드 전송
     public function sendEmail(Request $request) {
         try {
             $email = $request->email;
@@ -53,7 +51,7 @@ class AuthController extends Controller
         }
     }
 
-//    이메일 코드 확인(세션기반)
+    // 이메일 코드 확인(세션기반)
     public function checkEmail(Request $request) {
         $code = $request->code;
 
@@ -69,7 +67,7 @@ class AuthController extends Controller
         return response()->json(['success' => false, 'message' => '인증번호가 일치하지 않습니다.', 'type' => 'danger']);
     }
 
-//    회원가입
+    // 회원가입
     public function register(Request $request)
     {
         $data = $request->validate([
@@ -111,6 +109,23 @@ class AuthController extends Controller
                     ]);
                 });
 
+                // 초대 수락 - 해당 이벤트 참가자들에게만 브로드캐스트
+                broadcast(new ParticipantUpdated(
+                    $invitation->event->uuid,
+                    [
+                        'type' => 'invitation_accepted',
+                        'participant' => [
+                            'user_name' => $user->name,
+                            'user_id' => $user->id,
+                            'event_id' => $invitation->event->uuid,
+                            'email' => $user->email,
+                            'role' => $invitation->role,
+                            'status' => null,
+                        ],
+                        'user_id' => $user->id,
+                    ]
+                ))->toOthers();
+
                 Session::forget(['invitation_token', 'invitation_email']);
 
                 return Inertia::location("/calenote/calendar/{$invitation->event->uuid}");
@@ -122,7 +137,7 @@ class AuthController extends Controller
         return Inertia::location('/');
     }
 
-//    로그인
+    // 로그인
     public function login(Request $request)
     {
         try {
@@ -156,6 +171,8 @@ class AuthController extends Controller
                         return Inertia::location('/');
                     }
 
+                    $user = Auth::user();
+
                     DB::transaction(function () use ($invitation) {
                         $invitation->update(['status' => 'accepted']);
 
@@ -165,6 +182,23 @@ class AuthController extends Controller
                             'role' => $invitation->role,
                         ]);
                     });
+
+                    // 초대 수락 - 해당 이벤트 참가자들에게만 브로드캐스트
+                    broadcast(new ParticipantUpdated(
+                        $invitation->event->uuid,
+                        [
+                            'type' => 'invitation_accepted',
+                            'participant' => [
+                                'user_name' => $user->name,
+                                'user_id' => $user->id,
+                                'event_id' => $invitation->event->uuid,
+                                'email' => $user->email,
+                                'role' => $invitation->role,
+                                'status' => null,
+                            ],
+                            'user_id' => $user->id,
+                        ]
+                    ))->toOthers();
 
                     Session::forget(['invitation_token', 'invitation_email']);
 
@@ -184,7 +218,7 @@ class AuthController extends Controller
         }
     }
 
-//    로그아웃
+    // 로그아웃
     public function logout(Request $request)
     {
         Auth::logout();
@@ -193,5 +227,4 @@ class AuthController extends Controller
 
         return inertia::location('/login');
     }
-
 }

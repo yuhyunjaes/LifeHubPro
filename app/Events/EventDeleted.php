@@ -2,21 +2,22 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PresenceChannel;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
 
-class EventUpdated implements ShouldBroadcastNow
-{
+class EventDeleted implements ShouldBroadcastNow {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public function __construct(
         public string $eventUuid,
-        public array $payload
+        public int $deletedBy,
     ) {}
-
     public function broadcastOn()
     {
         return new PrivateChannel('events.all');
@@ -24,14 +25,13 @@ class EventUpdated implements ShouldBroadcastNow
 
     public function broadcastAs(): string
     {
-        return 'event.updated';
+        return 'event.deleted';
     }
 
-    // 👇 브로드캐스트 데이터 명시적으로 정의
-    public function broadcastWith(): array
-    {
+    public function broadcastWith(): array {
         return [
-            'payload' => $this->payload
+            'event_uuid' => $this->eventUuid,
+            'user_id' => $this->deletedBy,
         ];
     }
 }

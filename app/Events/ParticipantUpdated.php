@@ -8,8 +8,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 
-class EventUpdated implements ShouldBroadcastNow
-{
+class ParticipantUpdated implements ShouldBroadcastNow {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public function __construct(
@@ -17,17 +16,17 @@ class EventUpdated implements ShouldBroadcastNow
         public array $payload
     ) {}
 
+    // 특정 이벤트의 참가자 채널로 브로드캐스트
     public function broadcastOn()
     {
-        return new PrivateChannel('events.all');
+        return new PrivateChannel('event.' . $this->eventUuid . '.participants');
     }
 
     public function broadcastAs(): string
     {
-        return 'event.updated';
+        return 'participant.updated';
     }
 
-    // 👇 브로드캐스트 데이터 명시적으로 정의
     public function broadcastWith(): array
     {
         return [

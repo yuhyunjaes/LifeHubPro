@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ParticipantUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventInvitation;
@@ -24,8 +25,26 @@ class InvitationController extends Controller
                 ->firstOrFail();
 
             if ($invitation->expires_at && Carbon::parse($invitation->expires_at)->isPast()) {
-                $invitation->status = 'expired';
-                $invitation->save();
+                $event = Event::findOrFail($invitation->event_id);
+
+                DB::transaction(function () use ($invitation) {
+                    $invitation->status = 'expired';
+                    $invitation->save();
+                });
+
+                // 초대 만료 - 해당 이벤트 참가자들에게 브로드캐스트
+                broadcast(new ParticipantUpdated(
+                    $event->uuid,
+                    [
+                        'type' => 'invitation_expired',
+                        'participant' => [
+                            'invitation_id' => $invitation->id,
+                            'email' => $invitation->email,
+                            'status' => 'expired',
+                        ],
+                        'user_id' => 0,  // 시스템 이벤트
+                    ]
+                ))->toOthers();
 
                 return Inertia::render('Status/Status', ['status' => 410, 'message' => '초대가 만료되었습니다.']);
             }
@@ -71,8 +90,26 @@ class InvitationController extends Controller
                 ->firstOrFail();
 
             if ($invitation->expires_at && Carbon::parse($invitation->expires_at)->isPast()) {
-                $invitation->status = 'expired';
-                $invitation->save();
+                $event = Event::findOrFail($invitation->event_id);
+
+                DB::transaction(function () use ($invitation) {
+                    $invitation->status = 'expired';
+                    $invitation->save();
+                });
+
+                // 초대 만료 - 해당 이벤트 참가자들에게 브로드캐스트
+                broadcast(new ParticipantUpdated(
+                    $event->uuid,
+                    [
+                        'type' => 'invitation_expired',
+                        'participant' => [
+                            'invitation_id' => $invitation->id,
+                            'email' => $invitation->email,
+                            'status' => 'expired',
+                        ],
+                        'user_id' => 0,  // 시스템 이벤트
+                    ]
+                ))->toOthers();
 
                 return Inertia::render('Status/Status', ['status' => 410, 'message' => '초대가 만료되었습니다.']);
             }
@@ -81,7 +118,12 @@ class InvitationController extends Controller
                 return Inertia::render('Status/Status', ['status' => 403]);
             }
 
-            DB::transaction(function () use ($invitation) {
+            $event = null;
+            $user = Auth::user();
+
+            DB::transaction(function () use ($invitation, &$event) {
+                $event = Event::findOrFail($invitation->event_id);
+
                 $invitation->status = 'accepted';
                 $invitation->save();
 
@@ -92,7 +134,26 @@ class InvitationController extends Controller
                 ]);
             });
 
-            return response()->json(['success' => true, 'uuid' =>$invitation->event->uuid]);
+            // 초대 수락 - 해당 이벤트 참가자들에게만 브로드캐스트
+            if ($event) {
+                broadcast(new ParticipantUpdated(
+                    $event->uuid,
+                    [
+                        'type' => 'invitation_accepted',
+                        'participant' => [
+                            'user_name' => $user->name,
+                            'user_id' => $user->id,
+                            'event_id' => $event->uuid,
+                            'email' => $user->email,
+                            'role' => $invitation->role,
+                            'status' => null,
+                        ],
+                        'user_id' => Auth::id(),
+                    ]
+                ))->toOthers();
+            }
+
+            return response()->json(['success' => true, 'uuid' => $event->uuid]);
 
         } catch (\Throwable $e) {
             return Inertia::render('Status/Status', ['status' => 404]);
@@ -106,8 +167,26 @@ class InvitationController extends Controller
                 ->firstOrFail();
 
             if ($invitation->expires_at && Carbon::parse($invitation->expires_at)->isPast()) {
-                $invitation->status = 'expired';
-                $invitation->save();
+                $event = Event::findOrFail($invitation->event_id);
+
+                DB::transaction(function () use ($invitation) {
+                    $invitation->status = 'expired';
+                    $invitation->save();
+                });
+
+                // 초대 만료 - 해당 이벤트 참가자들에게 브로드캐스트
+                broadcast(new ParticipantUpdated(
+                    $event->uuid,
+                    [
+                        'type' => 'invitation_expired',
+                        'participant' => [
+                            'invitation_id' => $invitation->id,
+                            'email' => $invitation->email,
+                            'status' => 'expired',
+                        ],
+                        'user_id' => 0,  // 시스템 이벤트
+                    ]
+                ))->toOthers();
 
                 return Inertia::render('Status/Status', ['status' => 410, 'message' => '초대가 만료되었습니다.']);
             }
@@ -135,14 +214,54 @@ class InvitationController extends Controller
                 ->firstOrFail();
 
             if ($invitation->expires_at && Carbon::parse($invitation->expires_at)->isPast()) {
-                $invitation->status = 'expired';
-                $invitation->save();
+                $event = Event::findOrFail($invitation->event_id);
+
+                DB::transaction(function () use ($invitation) {
+                    $invitation->status = 'expired';
+                    $invitation->save();
+                });
+
+                // 초대 만료 - 해당 이벤트 참가자들에게 브로드캐스트
+                broadcast(new ParticipantUpdated(
+                    $event->uuid,
+                    [
+                        'type' => 'invitation_expired',
+                        'participant' => [
+                            'invitation_id' => $invitation->id,
+                            'email' => $invitation->email,
+                            'status' => 'expired',
+                        ],
+                        'user_id' => 0,  // 시스템 이벤트
+                    ]
+                ))->toOthers();
 
                 return Inertia::render('Status/Status', ['status' => 410, 'message' => '초대가 만료되었습니다.']);
             }
 
-            $invitation->status = 'declined';
-            $invitation->save();
+            $event = null;
+
+            DB::transaction(function () use ($invitation, &$event) {
+                $event = Event::findOrFail($invitation->event_id);
+
+                $invitation->status = 'declined';
+                $invitation->save();
+            });
+
+            // 초대 거절 - 해당 이벤트 참가자들에게만 브로드캐스트
+            if ($event) {
+                broadcast(new ParticipantUpdated(
+                    $event->uuid,
+                    [
+                        'type' => 'invitation_declined',
+                        'participant' => [
+                            'invitation_id' => $invitation->id,
+                            'email' => $invitation->email,
+                            'status' => 'declined',
+                        ],
+                        'user_id' => Auth::id(),
+                    ]
+                ))->toOthers();
+            }
 
             return Inertia::render('Status/Status', [
                 'status' => 200,
