@@ -84,20 +84,22 @@ export default function Notepad({ auth } : NotepadProps) {
                 note_title: notepadTitle,
                 category: notepadCategory
             });
-            if(res.data.success) {
-                router.visit(`/calenote/notepad/${res.data.id}`, {
-                    method: "get",
-                    preserveState: true,
-                    preserveScroll: true,
-                });
-            } else {
+            if(!res.data.success) {
                 const alertData:AlertsData = {
                     id: new Date(),
                     message: res.data.message,
                     type: res.data.type
                 }
                 setAlerts(pre => [...pre, alertData]);
+
+                return false;
             }
+
+            router.visit(`/calenote/notepad/${res.data.id}`, {
+                method: "get",
+                preserveState: true,
+                preserveScroll: true,
+            });
         } catch (err) {
             console.error(err);
         } finally {

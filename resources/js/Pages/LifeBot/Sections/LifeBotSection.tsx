@@ -76,12 +76,16 @@ export default function LifeBotSection({ alerts, setAlerts, now, getMessages, ha
         }
     }, [category]);
 
-    const categorySubmit = useCallback(() => {
-        if(!category) return;
-        const msg = {...saveMsg, category};
-        handleNotepad(msg);
+    const categorySubmit = useCallback(async (): Promise<false | undefined> => {
+        if (!category) return false;
+
+        const msg = { ...saveMsg, category };
+        await handleNotepad(msg);
+
         setSaveMsg([]);
         setCategory("");
+
+        return undefined;
     }, [category, saveMsg]);
 
     function formatDateKey(date: Date) {

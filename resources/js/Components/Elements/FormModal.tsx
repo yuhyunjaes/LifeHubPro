@@ -17,8 +17,7 @@ interface FormModalProps {
     SubmitText: string;
     toggle: boolean;
     setToggle: Dispatch<SetStateAction<boolean>>;
-    Submit: () => void;
-
+    Submit: () => Promise<false | undefined>;
     // 다중 Input 방식
     Inputs?: FormInputData[];
     onChangeArray?: (index: number, value: string) => void;
@@ -116,15 +115,17 @@ export default function FormModal({
                     </button>
                     {SubmitText && (
                         <button
-                            onClick={() => {
+                            onClick={async () => {
                                 // 단일 Input 검증
                                 if (isSingleInput && (!Value || !Value.trim())) return;
 
                                 // 다중 Input 검증
                                 if (Inputs && Inputs.some((input) => !input.value.trim())) return;
 
-                                Submit();
-                                close();
+                                const data = await Submit();
+                                if(data === undefined) {
+                                    close();
+                                }
                             }}
                             className="btn text-sm text-white bg-blue-500 hover:bg-blue-600 active:bg-blue-700"
                         >

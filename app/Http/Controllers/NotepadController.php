@@ -10,37 +10,76 @@ use App\Models\ChatMessage;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 use TypeError;
 
 class NotepadController extends Controller
 {
-//    새로운 메모장 생성
-    public function StoreNotepads(Request $request) {
+    public function StoreNotepads(Request $request)
+    {
+        $messageToNotepad = $request->only(['content', 'chat_id']);
+
+        $messageToNotepadSwitch =
+            !empty($messageToNotepad['content']) &&
+            !empty($messageToNotepad['chat_id']);
+
+        if (!$messageToNotepadSwitch) {
+            $validator = Validator::make($request->all(), [
+                'note_title' => ['required', 'string', 'max:255'],
+                'category'   => ['required', 'string', 'max:255'],
+            ], [
+                'note_title.required' => '메모장 제목을 입력해주세요.',
+                'note_title.max'      => '메모장 제목은 최대 255자까지 가능합니다.',
+                'category.required' => '메모장 카테고리를 입력해주세요.',
+                'category.max'      => '메모장 카테고리는 최대 255자까지 가능합니다.',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $validator->errors()->first(),
+                    'type'    => 'danger',
+                    'errors'  => $validator->errors(),
+                ]);
+            }
+        }
+
         $title = null;
 
-        $messageToNotepad = $request->only(['content', 'chat_id']);
-        if(!empty($messageToNotepad['content']) && !empty($messageToNotepad['chat_id'])) {
-            $messageToNotepadSwitch = true;
+        if ($messageToNotepadSwitch) {
+            $chatMessage = ChatMessage::findOrFail($messageToNotepad['chat_id']);
 
-            $title = ChatMessage::findOrFail($messageToNotepad['chat_id'])
-                ->chatroom
-                ->title;
-        } else {
-            $messageToNotepadSwitch = false;
+            $title = $chatMessage->chatroom->title;
+
+            if (mb_strlen($title) > 255) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '채팅방 제목이 너무 길어 메모장을 생성할 수 없습니다.',
+                    'type'    => 'danger',
+                ]);
+            }
         }
 
         $notepad = Notepad::create([
-            'uuid' => Str::uuid()->toString(),
-            'chat_id' => $messageToNotepadSwitch ? $messageToNotepad['chat_id'] : null,
-            'user_id'=>Auth::id(),
-            'title'=>$messageToNotepadSwitch ? $title : $request->note_title,
-            'content'=>$messageToNotepadSwitch ? $messageToNotepad['content'] : null,
-            'category'=>$request->category,
+            'uuid'     => Str::uuid()->toString(),
+            'chat_id'  => $messageToNotepadSwitch ? $messageToNotepad['chat_id'] : null,
+            'user_id'  => Auth::id(),
+            'title'    => $messageToNotepadSwitch ? $title : $request->note_title,
+            'content'  => $messageToNotepadSwitch ? $messageToNotepad['content'] : null,
+            'category' => $request->category,
         ]);
 
-        return $messageToNotepadSwitch ?
-            response()->json(['success'=>true, 'id'=>$notepad->uuid])
-            : response()->json(['success'=>true, 'id'=>$notepad->uuid, 'created_at'=>$notepad->created_at->format('Y-m-d H:i:s'), 'message'=>'메모장이 생성되었습니다.']);
+        return $messageToNotepadSwitch
+            ? response()->json([
+                'success' => true,
+                'id'      => $notepad->uuid,
+            ])
+            : response()->json([
+                'success'     => true,
+                'id'          => $notepad->uuid,
+                'created_at' => $notepad->created_at->format('Y-m-d H:i:s'),
+                'message'    => '메모장이 생성되었습니다.',
+            ]);
     }
 
 //    메모장 타이틀 수정

@@ -13,12 +13,32 @@ use App\Models\Event;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 class EventController extends Controller
 {
     use EventPermission;
 
-    public function StoreEvents(Request $request) {
+    public function StoreEvents(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'title' => ['nullable', 'string', 'max:255'],
+            'start_at' => ['required'],
+            'end_at' => ['required'],
+            'color' => ['nullable', 'string', 'max:255'],
+        ], [
+            'title.required' => '이벤트 제목을 입력해주세요.',
+            'title.max' => '이벤트 제목은 최대 255자까지 가능합니다.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first(), // 프론트에서 바로 사용
+                'type' => 'danger',
+            ]);
+        }
+
         try {
             $eventSwitch = $request->eventSwitch === 'chat';
 
@@ -53,15 +73,16 @@ class EventController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "이벤트가 생성되었습니다.",
+                'message' => '이벤트가 생성되었습니다.',
                 'type' => 'success',
                 'event' => $event,
             ]);
+
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => '이벤트 생성중 문제가 발생하였습니다.',
-                'type' => 'danger'
+                'type' => 'danger',
             ]);
         }
     }

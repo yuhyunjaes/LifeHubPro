@@ -54,6 +54,7 @@ export default function ChatInput({
     auth
 }: ChatInputProps) {
     const [load, setLoad] = useState<boolean>(false);
+    const [categoryFadeAnimation, setCategoryFadeAnimation] = useState<boolean>(false);
 
     const categoryCandidates = async (roomId: string | null, arr: string[]) => {
         if(!roomId || arr.length <= 0) return;
@@ -66,6 +67,7 @@ export default function ChatInput({
             const res = await axios.post(`/api/rooms/${roomId}/categories`, {arr});
             if(res.data.success) {
                 setRoomCategories(res.data.categories);
+                setCategoryFadeAnimation(true);
             } else {
                 setRoomCategories([]);
             }
@@ -80,6 +82,7 @@ export default function ChatInput({
             const res = await axios.get(`/api/rooms/${chatId}/categories`);
             if(res.data.success) {
                 setRoomCategories(res.data.categories);
+                setCategoryFadeAnimation(false);
             } else {
                 setRoomCategories([]);
             }
@@ -510,15 +513,17 @@ export default function ChatInput({
                 <div className="w-full max-w-3xl bg-white dark:bg-[#0d1117] border border-gray-300 dark:border-gray-800 rounded-[2rem] shadow-sm p-2 flex items-end relative">
                     {(roomCategories.length > 0) && (
                         <div className="space-x-2 h-[40px] top-[-40px] left-0 absolute flex justify-start overflow-x-auto scrollbar-thin">
-                            {roomCategories.map((item, index) => (
+                            {roomCategories.map((item, i) => (
                                 <div
+                                    style={{ animationDelay: `${i * 0.1}s` }}
                                     onClick={() => {
                                         if (!load) {
                                             handleSubmit(item.category);
+                                            setCategoryFadeAnimation(false);
                                             setRoomCategories([]);
                                         }
                                     }}
-                                    key={index}
+                                    key={i}
                                     className="flex-shrink-0 px-3 h-[80%] cursor-pointer bg-gray-100 dark:bg-gray-950 border border-gray-300 dark:border-gray-800 normal-text font-semibold flex justify-center items-center rounded-2xl text-sm sm:text-base"
                                 >
                                     {item.category}

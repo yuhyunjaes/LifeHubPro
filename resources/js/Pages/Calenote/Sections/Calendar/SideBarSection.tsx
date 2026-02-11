@@ -88,9 +88,12 @@ export default function SideBarSection({ eventParticipants, setEventParticipants
                                 <div className="px-5 pb-5">
                                     {
                                         ((!eventId && !onlyOneClick)) ? (
-                                            <button onClick={() => {
-                                                saveEvent();
-                                                setOnlyOneClick(true);
+                                            <button onClick={async () => {
+                                                const data = await saveEvent();
+
+                                                if(data !== undefined) {
+                                                    setOnlyOneClick(true);
+                                                }
                                             }} className="btn text-xs bg-blue-500 text-white w-full">
                                                 생성
                                             </button>
