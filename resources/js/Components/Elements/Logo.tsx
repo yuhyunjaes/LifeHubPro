@@ -14,7 +14,7 @@ export default function Logo({ className = "", Change = false } : LogoProps) {
     }, []);
     return (
         <Link
-            href="/" className={`block w-[150px] h-auto cursor-pointer m-0 ${className}`}
+            href="/" className={`block w-[120px] h-auto cursor-pointer m-0 ${className}`}
         >
             {Change ? (
                 <>

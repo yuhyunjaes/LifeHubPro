@@ -7,7 +7,7 @@ import {faBars, faMessage, faUser, faEllipsisH} from "@fortawesome/free-solid-sv
 import DesktopMenu from "./DeskTopMenu";
 import MobileSidebar from "./MobileSidebar";
 import Logo from "../Elements/Logo";
-import {AuthUser} from "../../Types/LifeBotTypes";
+import {AuthUser} from "../../Types/PlaroAiTypes";
 
 interface HeaderProps {
     auth: {

@@ -198,6 +198,21 @@ form > div {
     animation: fadeUp 1.2s ease-in-out infinite;
 }
 
+@utility animate-categoryChipIn {
+    animation: category-chip-in 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes category-chip-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 .profile {
     @apply size-10 cursor-pointer bg-gray-950 hover:bg-gray-800 relative hidden md:block dark:bg-white dark:hover:bg-gray-200 transition-colors duration-150 rounded-full text-center leading-10 text-xl text-white dark:text-gray-950;
 }

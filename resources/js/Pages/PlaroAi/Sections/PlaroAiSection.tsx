@@ -1,16 +1,16 @@
 // 라이프 봇 채팅 영역
 
 import React, {useCallback, useEffect, useRef, useState} from "react";
-import MessageList from "./LifeBotSection/MessageList";
-import ChatInput from "./LifeBotSection/ChatInput";
+import MessageList from "./PlaroAiSection/MessageList";
+import ChatInput from "./PlaroAiSection/ChatInput";
 import FormModal from "../../../Components/Elements/FormModal";
 import axios from "axios";
 import { Dispatch, SetStateAction, RefObject } from 'react';
-import { Categories, AuthUser, Message, Room} from "../../../Types/LifeBotTypes";
+import { Categories, AuthUser, Message, Room} from "../../../Types/PlaroAiTypes";
 import {AlertsData} from "../../../Components/Elements/ElementsData";
 import Alert from "../../../Components/Elements/Alert";
 
-interface LifeBotSectionProps {
+interface PlaroAiSectionProps {
     alerts: AlertsData[];
     setAlerts: Dispatch<SetStateAction<AlertsData[]>>;
     now: Date;
@@ -34,7 +34,7 @@ interface LifeBotSectionProps {
     setRoomCategories: Dispatch<SetStateAction<Categories[]>>;
 }
 
-export default function LifeBotSection({ alerts, setAlerts, now, getMessages, handleDeleteChatCategories, setNewChat, sideBar, setLoading, chatId, setChatId, setRooms, auth, roomId, setMessages, messages, prompt, setPrompt, roomCategories, setRoomCategories } : LifeBotSectionProps) {
+export default function PlaroAiSection({ alerts, setAlerts, now, getMessages, handleDeleteChatCategories, setNewChat, sideBar, setLoading, chatId, setChatId, setRooms, auth, roomId, setMessages, messages, prompt, setPrompt, roomCategories, setRoomCategories } : PlaroAiSectionProps) {
     const [category, setCategory] = useState<string>("");
     const [categoryToggle, setCategoryToggle] = useState<boolean>(false);
     const [saveMsg, setSaveMsg] = useState<[]>([]);

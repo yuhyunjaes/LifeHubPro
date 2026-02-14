@@ -8,9 +8,9 @@ export default function Footer() {
     return (
         <footer className="w-full h-auto py-16 bg-gray-300 dark:bg-black border-t border-gray-200 dark:border-gray-800">
             <div className="px-5 sm:px-12">
-                <div className="h-auto md:h-[70px] flex justify-center md:justify-between items-center flex-wrap">
+                <div className="h-[70px] flex justify-between items-center flex-wrap">
                     <Logo/>
-                    <div className="m-0 w-full md:w-auto justify-center md:justify-normal flex items-center space-x-3">
+                    <div className="m-0 w-auto justify-normal flex items-center space-x-3">
                         {/* GitHub */}
                         <a
                             href="https://github.com/yuhyunjaes"
@@ -34,7 +34,7 @@ export default function Footer() {
 
                 </div>
                 <div className="text-center">
-                    <p className="normal-text">© 2025 LifeHubPro. All rights reserved.</p>
+                    <p className="normal-text text-xs font-semibold">© 2025 LifeHubPro. All rights reserved.</p>
                 </div>
             </div>
         </footer>

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class LifeBotController extends Controller
+class PlaroAiController extends Controller
 {
     private function callGemini(string $model, array $parts, array $generationConfig): \Illuminate\Http\JsonResponse
     {

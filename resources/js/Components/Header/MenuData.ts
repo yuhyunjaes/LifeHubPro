@@ -19,18 +19,11 @@ export const menuData: MenuItem[] =[
         ],
     },
     {
-        title: "LifeBot",
+        title: "PlaroAi",
         links: [
-            { label: "LifeBot Chat", href: "/lifebot" },
+            { label: "PlaroAi", href: "/plaroai" },
             { label: "대화 기록", href: "/sermon" },
             { label: "대화 설정", href: "/sermon" },
-        ],
-    },
-    {
-        title: "IoT",
-        links: [
-            { label: "기기 연결", href: "/cell" },
-            { label: "실시간 제어", href: "/education" },
         ],
     },
     {

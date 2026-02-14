@@ -4,15 +4,15 @@ import { Head, router } from '@inertiajs/react';
 import {useEffect, useState, useCallback, useRef} from "react";
 import EditRoom from "./Sections/SideBarSection/RoomList/EditRoom";
 import axios from 'axios';
-import { Categories, AuthUser, Message, Room } from "../../Types/LifeBotTypes";
+import { Categories, AuthUser, Message, Room } from "../../Types/PlaroAiTypes";
 import SideBarSection from "./Sections/SideBarSection";
-import LifeBotSection from "./Sections/LifeBotSection";
+import PlaroAiSection from "./Sections/PlaroAiSection";
 import Modal from "../../Components/Elements/Modal";
 import Loading from "../../Components/Elements/Loading";
 import Header from "../../Components/Header/Header";
 import {AlertsData} from "../../Components/Elements/ElementsData";
 
-interface LifeBotProps {
+interface PlaroAiProps {
     auth: {
         user: AuthUser | null;
     };
@@ -21,7 +21,7 @@ interface LifeBotProps {
 }
 
 
-export default function LifeBot({ auth, roomId, now }: LifeBotProps) {
+export default function PlaroAi({ auth, roomId, now }: PlaroAiProps) {
     const [sideBar, setSideBar] = useState<number>(() => (window.innerWidth <= 640 ? 0 : 250));
     const [saveWidth, setSaveWidth] = useState<number>(250);
     const [loadingToggle, setLoading] = useState<boolean>(false);
@@ -103,7 +103,7 @@ export default function LifeBot({ auth, roomId, now }: LifeBotProps) {
                 setMessages([]);
                 setMessages(data.messages || []);
             } else {
-                router.visit('/lifebot', {
+                router.visit('/plaroai', {
                     method: "get",
                     preserveState: true,
                     preserveScroll: true,
@@ -227,7 +227,7 @@ export default function LifeBot({ auth, roomId, now }: LifeBotProps) {
             if(res.data.success) {
                 await handleDeleteChatCategories(editId);
                 if(editId === chatId) {
-                    router.visit(`/lifebot`, {
+                    router.visit(`/plaroai`, {
                         method: "get",
                         preserveState: true,
                         preserveScroll: true,
@@ -237,6 +237,7 @@ export default function LifeBot({ auth, roomId, now }: LifeBotProps) {
                 setEditStatus("");
                 setEditId("");
                 setRooms((prevRooms) => prevRooms.filter(room => room.room_id !== editId));
+                setMessages([]);
             }
             const alertData:AlertsData = {
                 id: new Date(),
@@ -253,11 +254,11 @@ export default function LifeBot({ auth, roomId, now }: LifeBotProps) {
 
     return (
         <>
-            <Head title="LifeBot" />
+            <Head title="PlaroAi" />
             <Header auth={auth} setToggle={setSmRoomListToggle} toggle={smRoomListToggle} check={smRoomList} />
             <div className="relative overflow-hidden flex h-[calc(100vh-70px)] transition-[width] duration-300">
                 <SideBarSection setSmRoomListToggle={setSmRoomListToggle} smRoomListToggle={smRoomListToggle} smRoomList={smRoomList} handleEditRoom={handleEditRoom} temporaryEditTitle={temporaryEditTitle} setTemporaryEditTitle={setTemporaryEditTitle} editStatus={editStatus} baseScroll={baseScroll} setBaseScroll={setBaseScroll} baseTop={baseTop} setBaseTop={setBaseTop} editRoomRef={editRoomRef} editId={editId} setEditId={setEditId} setMessages={setMessages} auth={auth} rooms={rooms} setRooms={setRooms} chatId={chatId} setChatId={setChatId} sideBar={sideBar} setSideBar={setSideBar} setLoading={setLoading}/>
-                <LifeBotSection alerts={alerts} setAlerts={setAlerts} now={now} getMessages={getMessages} roomCategories={roomCategories} setRoomCategories={setRoomCategories} handleDeleteChatCategories={handleDeleteChatCategories} setNewChat={setNewChat} prompt={prompt} setPrompt={setPrompt} messages={messages} setMessages={setMessages} auth={auth} roomId={roomId} setRooms={setRooms} chatId={chatId} setChatId={setChatId} sideBar={sideBar} setLoading={setLoading}/>
+                <PlaroAiSection alerts={alerts} setAlerts={setAlerts} now={now} getMessages={getMessages} roomCategories={roomCategories} setRoomCategories={setRoomCategories} handleDeleteChatCategories={handleDeleteChatCategories} setNewChat={setNewChat} prompt={prompt} setPrompt={setPrompt} messages={messages} setMessages={setMessages} auth={auth} roomId={roomId} setRooms={setRooms} chatId={chatId} setChatId={setChatId} sideBar={sideBar} setLoading={setLoading}/>
                 <EditRoom temporaryEditTitle={temporaryEditTitle} handleEditRoom={handleEditRoom} editStatus={editStatus} smRoomList={smRoomList} smRoomListToggle={smRoomListToggle} EditTitle={EditTitle} deleteRoom={deleteRoom} editRoomRef={editRoomRef} sideBar={sideBar} toggle={editId} />
             </div>
             {modal && <Modal Title="채팅방 삭제" onClickEvent={handleDeleteRoom} setModal={setModal} setEditId={setEditId} setEditStatus={setEditStatus} Text={editId ? '"'+rooms.find(item => item.room_id === editId)?.title+'"' + " 채팅방을 정말 삭제 하시겠습니까?" : undefined} Position="top" CloseText="삭제" />}

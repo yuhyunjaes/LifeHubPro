@@ -10,7 +10,7 @@ export default function IntroduceSection() {
                         <p className="normal-text font-semibold">소개</p>
                         <h2 className="normal-text text-2xl md:text-4xl font-semibold">당신의 일상에 디지털을 더하다.</h2>
                         <span className="normal-text">
-                            LifeHubPro는 생각과 기술, 그리고 일상을 하나로.
+                            PLARO는 생각과 기술, 그리고 일상을 하나로.
                         </span>
                     </div>
                 </div>

@@ -685,7 +685,7 @@ export default function WeekAndDayCalendarSection({
                                     >
                                         <div className={`w-[4px] ${includeEvent.color}`}></div>
                                         <div className={`${eventId === includeEvent.uuid ? includeEvent.color : bodyColor} flex-1 flex justify-start items-center`}>
-                                            <p className={`text-xs pl-1 truncate ${eventId === includeEvent.uuid ? "text-white" : "text-gray-950"}`}>{includeEvent.title}</p>
+                                            <p className={`text-xs pl-1 truncate select-none ${eventId === includeEvent.uuid ? "text-white" : "text-gray-950"}`}>{includeEvent.title}</p>
                                         </div>
                                     </div>
                                 </div>

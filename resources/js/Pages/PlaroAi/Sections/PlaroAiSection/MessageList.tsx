@@ -1,7 +1,7 @@
 // 메시지 read 영역
 
 import MessageBubble from "./MessageList/MessageBubble";
-import { Message, Notepad } from "../../../../Types/LifeBotTypes";
+import { Message, Notepad } from "../../../../Types/PlaroAiTypes";
 import {Dispatch, SetStateAction} from "react";
 import {AlertsData} from "../../../../Components/Elements/ElementsData";
 

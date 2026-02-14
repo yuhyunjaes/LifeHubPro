@@ -1,6 +1,7 @@
 /*콘텐츠 소개 영역 ContentsData 배열을 이용하여 정보들을 삽입*/
 
 import { ContentsData } from "./HomeData.js"
+import {Link} from "@inertiajs/react";
 export default function ContentsSection() {
     return (
         <div className="w-full bg-gray-100 dark:bg-gray-950">
@@ -17,9 +18,9 @@ export default function ContentsSection() {
                             <p className="normal-text line-clamp-1">
                                 {educationMinistry.description}
                             </p>
-                            <button className="b-btn main-btn card-btn">
+                            <Link href={educationMinistry.link} className="b-btn main-btn card-btn text-center">
                                 자세히 알아보기
-                            </button>
+                            </Link>
                         </div>
                     </div>
                 ))}

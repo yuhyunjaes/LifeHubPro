@@ -14,7 +14,7 @@ use App\Http\Controllers\EventParticipantController;
 use App\Http\Controllers\EventInvitationController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\EventUserController;
-use App\Http\Controllers\LifeBotController;
+use App\Http\Controllers\PlaroAiController;
 use App\Models\Notepad;
 use Illuminate\Support\Facades\Session;
 
@@ -71,13 +71,13 @@ Route::middleware('web')->group(function () {
     // Authenticated routes
     // --------------------
     Route::middleware('auth')->group(function () {
-        Route::get('/lifebot', function () {
-            return Inertia::render('LifeBot/LifeBot');
-        })->name('lifebot');
+        Route::get('/plaroai', function () {
+            return Inertia::render('PlaroAi/PlaroAi');
+        })->name('plaroai');
 
-        Route::get('/lifebot/{uuid}', function ($uuid) {
-            return Inertia::render('LifeBot/LifeBot', ['roomId' => $uuid]);
-        })->name('lifebot.room');
+        Route::get('/plaroai/{uuid}', function ($uuid) {
+            return Inertia::render('PlaroAi/PlaroAi', ['roomId' => $uuid]);
+        })->name('plaroai.room');
 
         Route::get('/calenote', function () {
             return Inertia::render('Calenote/Dashboard');
@@ -217,8 +217,8 @@ Route::middleware('web')->group(function () {
         // --------------------
         // Gemini API
         // --------------------
-        Route::post('/api/lifebot/title', [LifeBotController::class, 'title'])->name('lifebot.title');
-        Route::post('/api/lifebot/chat', [LifeBotController::class, 'chat'])->name('lifebot.chat');
+        Route::post('/api/plaroai/title', [PlaroAiController::class, 'title'])->name('plaroai.title');
+        Route::post('/api/plaroai/chat', [PlaroAiController::class, 'chat'])->name('plaroai.chat');
 
     });
 });

@@ -7,7 +7,7 @@ import { prompts } from "../../../../../../config/prompt";
 
 
 import { router } from "@inertiajs/react";
-import {Room, Message, AuthUser, Notepad, Categories} from "../../../../Types/LifeBotTypes";
+import {Room, Message, AuthUser, Notepad, Categories} from "../../../../Types/PlaroAiTypes";
 import axios from "axios";
 import {AlertsData} from "../../../../Components/Elements/ElementsData";
 
@@ -127,7 +127,7 @@ export default function ChatInput({
                 setNewChat(true);
 
                 try {
-                    const titleRes = await axios.post("/api/lifebot/title", {
+                    const titleRes = await axios.post("/api/plaroai/title", {
                         model_name: MODEL_NAME,
                         prompt: titlePrompt,
                     });
@@ -143,7 +143,7 @@ export default function ChatInput({
                         const newRoom: Room = { room_id: roomData.room_id, title: roomData.title };
                         setRooms((prev) => [newRoom, ...prev]);
 
-                        router.visit(`/lifebot/${roomData.room_id}`, {
+                        router.visit(`/plaroai/${roomData.room_id}`, {
                             method: "get",
                             preserveState: true,
                             preserveScroll: true,
@@ -173,7 +173,7 @@ export default function ChatInput({
                         .replace(/`/g, "\\`")
                     : "empty-message";
 
-            const response = await axios.post("/api/lifebot/chat", {
+            const response = await axios.post("/api/plaroai/chat", {
                 model_name: MODEL_NAME,
                 parts: [
                     { text: `NOW***${now}***` },
@@ -262,7 +262,7 @@ export default function ChatInput({
                                 await handleDeleteChatCategories(currentRoomId);
                             }
                             setMessages([]);
-                            router.visit(`/lifebot`, {
+                            router.visit(`/plaroai`, {
                                 method: "get",
                                 preserveState: true,
                                 preserveScroll: true,
@@ -284,7 +284,7 @@ export default function ChatInput({
 
                 setMessages([]);
 
-                router.visit(`/lifebot${currentRoomId ? "/" + currentRoomId : ""}`, {
+                router.visit(`/plaroai${currentRoomId ? "/" + currentRoomId : ""}`, {
                     method: "get",
                     preserveState: true,
                     preserveScroll: true,
@@ -469,7 +469,7 @@ export default function ChatInput({
                         <div className="space-x-2 h-[40px] top-[-40px] left-0 absolute flex justify-start overflow-x-auto scrollbar-thin">
                             {roomCategories.map((item, i) => (
                                 <div
-                                    style={{ animationDelay: `${i * 0.1}s` }}
+                                    style={categoryFadeAnimation ? { animationDelay: `${i * 80}ms` } : undefined}
                                     onClick={() => {
                                         if (!load) {
                                             handleSubmit(item.category);
@@ -478,7 +478,7 @@ export default function ChatInput({
                                         }
                                     }}
                                     key={i}
-                                    className="flex-shrink-0 px-3 h-[80%] cursor-pointer bg-gray-100 dark:bg-gray-950 border border-gray-300 dark:border-gray-800 normal-text font-semibold flex justify-center items-center rounded-2xl text-sm sm:text-base"
+                                    className={`flex-shrink-0 px-3 h-[80%] cursor-pointer bg-gray-100 dark:bg-gray-950 border border-gray-300 dark:border-gray-800 normal-text font-semibold flex justify-center items-center rounded-2xl text-sm sm:text-base transition-transform duration-200 hover:border-transparent hover:-translate-y-[0.15rem] ${categoryFadeAnimation ? "animate-categoryChipIn" : ""}`}
                                 >
                                     {item.category}
                                 </div>

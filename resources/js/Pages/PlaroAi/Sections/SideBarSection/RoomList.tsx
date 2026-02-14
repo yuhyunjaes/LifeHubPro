@@ -4,7 +4,7 @@ import {Dispatch, SetStateAction, useCallback, useEffect } from "react";
 import {router} from "@inertiajs/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisH } from "@fortawesome/free-solid-svg-icons";
-import {AuthUser, Room } from "../../../../Types/LifeBotTypes";
+import {AuthUser, Room } from "../../../../Types/PlaroAiTypes";
 import axios from "axios";
 
 interface RoomListProps {
@@ -61,7 +61,7 @@ export default function RoomList({ sideBar, auth, setLoading, setRooms, rooms, s
                             setSmRoomListToggle(false);
                         }
                         setChatId(room.room_id);
-                        router.visit(`/lifebot/${room.room_id}`, {
+                        router.visit(`/plaroai/${room.room_id}`, {
                             method: "get",
                             preserveState: true,
                             preserveScroll: true,

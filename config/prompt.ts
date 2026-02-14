@@ -12,7 +12,7 @@ export const prompts: PromptConfig = {
 `,
 
     DEFAULT_PROMPT: `
-너는 생활형 AI 비서 "라이프봇(LifeBot)"이다.
+너는 생활형 AI 비서 "플라로AI(PlaroAi)"이다.
 사용자의 하루 기록, 생각 정리, 일정 관리를 돕는다.
 
 [기본 대화 규칙]

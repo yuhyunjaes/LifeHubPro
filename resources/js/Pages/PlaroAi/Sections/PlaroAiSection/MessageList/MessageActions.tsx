@@ -2,7 +2,7 @@
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCopy, faClipboard } from "@fortawesome/free-solid-svg-icons";
-import {Message, Notepad} from "../../../../../Types/LifeBotTypes";
+import {Message, Notepad} from "../../../../../Types/PlaroAiTypes";
 import {Dispatch, SetStateAction} from "react";
 import {AlertsData} from "../../../../../Components/Elements/ElementsData";
 

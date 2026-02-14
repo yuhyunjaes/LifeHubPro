@@ -6,7 +6,7 @@ import { faPenSquare, faX } from "@fortawesome/free-solid-svg-icons";
 import { faSquareCaretLeft, faSquareCaretRight } from "@fortawesome/free-regular-svg-icons";
 import { Dispatch, SetStateAction, RefObject } from 'react';
 import RoomList from "./SideBarSection/RoomList";
-import {AuthUser, Room, Message} from "../../../Types/LifeBotTypes";
+import {AuthUser, Room, Message} from "../../../Types/PlaroAiTypes";
 
 interface SideBarSectionProps {
     auth: {
@@ -41,7 +41,7 @@ export default function SideBarSection({ auth, rooms, setRooms, chatId, setChatI
         setChatId(null);
         setMessages([]);
         setRooms([]);
-        router.visit('/lifebot', {
+        router.visit('/plaroai', {
             method: "get",
             preserveState: true,
             preserveScroll: true,

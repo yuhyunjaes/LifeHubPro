@@ -1,7 +1,7 @@
 // 라이프 봇 채팅 위치, 컬러 기능
 
 import MessageActions from "./MessageActions";
-import { Message, Notepad } from "../../../../../Types/LifeBotTypes";
+import { Message, Notepad } from "../../../../../Types/PlaroAiTypes";
 import {Dispatch, SetStateAction} from "react";
 import {AlertsData} from "../../../../../Components/Elements/ElementsData";
 

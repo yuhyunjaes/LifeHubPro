@@ -91,9 +91,9 @@ export default function CalendarControlSection({ setFirstCenter, setIsHaveEvent,
                                 setTemporaryYear(activeAt.getFullYear());
                                 setTemporaryMonth(activeAt.getMonth()+1)
                             } else if (value === "week" || value === "day") {
-                                const year = startAt ? startAt.getFullYear() : activeAt.getFullYear();
-                                const month = startAt ? startAt.getMonth() + 1 : activeAt.getMonth() + 1;
-                                const day = startAt
+                                const baseYear = startAt ? startAt.getFullYear() : activeAt.getFullYear();
+                                const baseMonth = startAt ? startAt.getMonth() + 1 : activeAt.getMonth() + 1;
+                                const baseDay = startAt
                                     ? startAt.getDate()
                                     : activeDay
                                         ? activeDay
@@ -101,10 +101,25 @@ export default function CalendarControlSection({ setFirstCenter, setIsHaveEvent,
                                             ? new Date().getDate()
                                             : 1;
 
+                                const baseDate = new Date(baseYear, baseMonth - 1, baseDay);
+
                                 setViewMode(value);
-                                setTemporaryYear(year);
-                                setTemporaryMonth(month);
-                                setTemporaryDay(day);
+
+                                if (value === "week") {
+                                    const weekStart = new Date(baseDate);
+                                    weekStart.setDate(baseDate.getDate() - baseDate.getDay());
+
+                                    const weekWednesday = new Date(weekStart);
+                                    weekWednesday.setDate(weekStart.getDate() + 3);
+
+                                    setTemporaryYear(weekWednesday.getFullYear());
+                                    setTemporaryMonth(weekWednesday.getMonth() + 1);
+                                    setTemporaryDay(weekWednesday.getDate());
+                                } else {
+                                    setTemporaryYear(baseYear);
+                                    setTemporaryMonth(baseMonth);
+                                    setTemporaryDay(baseDay);
+                                }
                             }
                         }}
                     >
